@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
 
 export interface ApiError {
@@ -86,9 +86,9 @@ export class ApiResponseHelper {
 }
 
 export function withErrorHandling(
-  handler: (request: Request, context: any) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: any) => Promise<NextResponse>
 ) {
-  return async (request: Request, context: any) => {
+  return async (request: NextRequest, context?: any) => {
     try {
       return await handler(request, context);
     } catch (error) {
