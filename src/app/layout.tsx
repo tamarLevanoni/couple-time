@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Heebo, Assistant } from "next/font/google";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body
         className={`${heebo.variable} ${assistant.variable} font-hebrew antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
