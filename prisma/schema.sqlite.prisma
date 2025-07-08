@@ -1,0 +1,146 @@
+// SQLite version for quick development testing
+// To use: copy this content to schema.prisma temporarily
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ===== USERS =====
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  image     String?
+  roles     String   @default("USER") // JSON string: '["USER"]'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  // Authentication - support both Google OAuth and email/password
+  googleId String? @unique
+  password String? // hashed password for email/password auth
+
+  // Relations
+  rentals              Rental[]
+  approvedRentals      Rental[]       @relation("ApprovedRentals")
+  managedCenters       Center[]       @relation("CenterCoordinator")
+  supervisedCenters    Center[]       @relation("CenterSuperCoordinator")
+
+  @@map("users")
+}
+
+// ===== CENTERS =====
+model Center {
+  id        String   @id @default(cuid())
+  name      String
+  city      String
+  area      String   // 'NORTH', 'CENTER', 'SOUTH', 'JERUSALEM', 'JUDEA_SAMARIA'
+  address   String?
+  phone     String?
+  email     String?
+  latitude  Float?
+  longitude Float?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  coordinatorId      String?
+  coordinator        User? @relation("CenterCoordinator", fields: [coordinatorId], references: [id])
+  
+  superCoordinatorId String?
+  superCoordinator   User? @relation("CenterSuperCoordinator", fields: [superCoordinatorId], references: [id])
+  
+  gameInstances GameInstance[]
+
+  @@map("centers")
+}
+
+// ===== GAMES =====
+model Game {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  longDescription String?
+  imageUrl        String?
+  category        String?  // 'COMMUNICATION', 'INTIMACY', 'FUN', 'THERAPY'
+  targetAudience  String   // 'SINGLES', 'MARRIED', 'GENERAL'
+  minAge          Int?
+  maxAge          Int?
+  duration        String?  // '30-60 minutes'
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  gameInstances GameInstance[]
+
+  @@map("games")
+}
+
+// ===== GAME INSTANCES =====
+model GameInstance {
+  id        String   @id @default(cuid())
+  status    String   @default("AVAILABLE") // 'AVAILABLE', 'BORROWED', 'MAINTENANCE', 'LOST'
+  condition String?  @default("GOOD")      // 'NEW', 'GOOD', 'FAIR', 'POOR'
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  gameId   String
+  game     Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  centerId String
+  center   Center @relation(fields: [centerId], references: [id], onDelete: Cascade)
+
+  rentals Rental[]
+
+  @@map("game_instances")
+}
+
+// ===== RENTALS =====
+model Rental {
+  id                 String    @id @default(cuid())
+  status             String    @default("PENDING") // 'PENDING', 'APPROVED', 'ACTIVE', 'RETURNED', 'REJECTED', 'CANCELLED'
+  requestDate        DateTime  @default(now())
+  approvedDate       DateTime?
+  borrowDate         DateTime?
+  expectedReturnDate DateTime?
+  actualReturnDate   DateTime?
+  rejectionReason    String?
+  notes              String?   // user notes
+  coordinatorNotes   String?   // coordinator notes
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  gameInstanceId String
+  gameInstance   GameInstance @relation(fields: [gameInstanceId], references: [id], onDelete: Cascade)
+
+  // Who approved the rental
+  approvedById String?
+  approvedBy   User?   @relation("ApprovedRentals", fields: [approvedById], references: [id])
+
+  @@map("rentals")
+}
+
+// ===== SYSTEM SETTINGS =====
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_settings")
+}

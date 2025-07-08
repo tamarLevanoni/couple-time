@@ -1,0 +1,163 @@
+// Prisma Schema - מערכת השאלת משחקים
+// Next.js + PostgreSQL + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== USERS =====
+model User {
+  id                     String   @id @default(cuid())
+  name                   String
+  email                  String   @unique
+  phone                  String?
+  roles                  Role[]
+  managedCenterIds       String[]
+  supervisedCenterIds    String[]
+  defaultDashboard       String?  // "user" | "coordinator" | "super" | "admin"
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Authentication - support both Google OAuth and email/password
+  googleId String? @unique
+  password String? // hashed password for email/password auth
+  image    String?
+
+  // Relations
+  managedCenters         Center[] @relation("CenterCoordinator")
+  supervisedCenters      Center[] @relation("CenterSuperCoordinator")
+  rentals                Rental[]
+
+  @@map("users")
+}
+
+// ===== CENTERS =====
+model Center {
+  id                     String   @id @default(cuid())
+  name                   String
+  city                   String
+  area                   Area
+  coordinatorId          String?
+  superCoordinatorId     String?
+  location               Json?    // { lat, lng }
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  coordinator            User?    @relation("CenterCoordinator", fields: [coordinatorId], references: [id])
+  superCoordinator       User?    @relation("CenterSuperCoordinator", fields: [superCoordinatorId], references: [id])
+  gameInstances          GameInstance[]
+
+  @@map("centers")
+}
+
+// ===== GAMES =====
+model Game {
+  id                     String   @id @default(cuid())
+  name                   String
+  description            String?
+  category               GameCategory
+  targetAudience         TargetAudience
+  imageUrl               String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  gameInstances          GameInstance[]
+
+  @@map("games")
+}
+
+// ===== GAME INSTANCES =====
+model GameInstance {
+  id                     String   @id @default(cuid())
+  gameId                 String
+  centerId               String
+  status                 GameInstanceStatus @default(AVAILABLE)
+  expectedReturnDate     DateTime?
+  notes                  String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  game                   Game     @relation(fields: [gameId], references: [id])
+  center                 Center   @relation(fields: [centerId], references: [id])
+  rentals                Rental[]
+
+  @@unique([gameId, centerId])
+  @@map("game_instances")
+}
+
+// ===== RENTALS =====
+model Rental {
+  id                     String   @id @default(cuid())
+  userId                 String
+  gameInstanceId         String
+  status                 RentalStatus @default(PENDING)
+  requestDate            DateTime @default(now())
+  approvedDate           DateTime?
+  borrowDate             DateTime?
+  returnDate             DateTime?
+  expectedReturnDate     DateTime?
+  notes                  String?
+  rejectionReason        String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  user                   User     @relation(fields: [userId], references: [id])
+  gameInstance           GameInstance @relation(fields: [gameInstanceId], references: [id])
+
+  @@map("rentals")
+}
+
+// ===== ENUMS =====
+enum Role {
+  USER
+  CENTER_COORDINATOR
+  SUPER_COORDINATOR
+  ADMIN
+}
+
+enum TargetAudience {
+  SINGLES
+  MARRIED
+  GENERAL
+}
+
+enum GameInstanceStatus {
+  AVAILABLE
+  BORROWED
+  UNAVAILABLE
+}
+
+enum RentalStatus {
+  PENDING
+  APPROVED
+  ACTIVE
+  RETURNED
+  REJECTED
+}
+
+enum GameCategory {
+  COMMUNICATION
+  INTIMACY
+  FUN
+  THERAPY
+  PERSONAL_DEVELOPMENT
+}
+
+enum Area {
+  NORTH
+  CENTER
+  SOUTH
+  JERUSALEM
+  JUDEA_SAMARIA
+}
