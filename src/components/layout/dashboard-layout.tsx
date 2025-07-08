@@ -9,7 +9,7 @@ import { Role } from '@prisma/client';
 import { 
   LayoutDashboard, 
   FileText, 
-  Gamepad2, 
+  GameController, 
   Building2, 
   Users, 
   BarChart3 
@@ -43,7 +43,7 @@ const navItems: NavItem[] = [
   {
     label: 'משחקים',
     href: '/dashboard/games',
-    icon: <Gamepad2 className="h-5 w-5" />,
+    icon: <GameController className="h-5 w-5" />,
     roles: ['CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN'],
   },
   {

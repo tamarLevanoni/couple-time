@@ -10,6 +10,7 @@ export {
   ChevronUp,
   ChevronLeft,
   ChevronRight,
+  ArrowRight,
   User,
   Settings,
   LogOut,
@@ -37,10 +38,14 @@ export {
   Filter,
   MoreHorizontal,
   MoreVertical,
+  Grid,
+  List,
+  Map,
+  ExternalLink,
   // Dashboard icons
   LayoutDashboard,
   FileText,
-  Gamepad2,
+  Gamepad2 as GameController,
   Building2,
   BarChart3,
 } from 'lucide-react';

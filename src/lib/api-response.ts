@@ -62,3 +62,7 @@ export const NotFoundErrors = {
   CENTER: () => createErrorResponse('NOT_FOUND', 'המוקד לא נמצא', 404),
   RENTAL: () => createErrorResponse('NOT_FOUND', 'ההשאלה לא נמצאה', 404),
 };
+
+// Convenience exports for backward compatibility
+export const successResponse = createSuccessResponse;
+export const errorResponse = createErrorResponse;

@@ -60,9 +60,9 @@ export const CreateGameSchema = z.object({
   imageUrl: z.string().url('כתובת תמונה לא תקינה').optional(),
 });
 
-export const UpdateGameSchema = CreateGameSchema.partial().extend({
-  id: IdSchema,
-});
+export const UpdateGameSchema = CreateGameSchema.partial();
+export const createGameSchema = CreateGameSchema;
+export const updateGameSchema = UpdateGameSchema;
 
 // ===== GAME INSTANCE SCHEMAS =====
 export const CreateGameInstanceSchema = z.object({
