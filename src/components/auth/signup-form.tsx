@@ -124,7 +124,7 @@ export function SignupForm({ className = '' }: SignupFormProps) {
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              כתובת דוא"ל *
+              כתובת דוא&quot;ל *
             </label>
             <input
               id="email"

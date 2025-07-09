@@ -91,7 +91,7 @@ export function LoginForm({ callbackUrl = '/', className = '' }: LoginFormProps)
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              כתובת דוא"ל
+              כתובת דוא&quot;ל
             </label>
             <input
               id="email"
