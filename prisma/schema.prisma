@@ -140,10 +140,9 @@ enum GameInstanceStatus {
 
 enum RentalStatus {
   PENDING
-  APPROVED
   ACTIVE
   RETURNED
-  REJECTED
+  CANCELLED
 }
 
 enum GameCategory {
