@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 // Test script to verify the system is working
+import { Role } from '@prisma/client';
 import { prisma as db } from '../src/lib/db';
 import { logger } from '../src/lib/logger';
 
@@ -22,13 +23,13 @@ async function testSystem() {
     // Test user roles
     console.log('👥 Testing user roles...');
     const admin = await db.user.findFirst({
-      where: { roles: { has: 'ADMIN' } }
+      where: { roles: { has: Role.ADMIN } }
     });
     const coordinator = await db.user.findFirst({
-      where: { roles: { has: 'CENTER_COORDINATOR' } }
+      where: { roles: { has: Role.CENTER_COORDINATOR } }
     });
     const regularUser = await db.user.findFirst({
-      where: { roles: { has: 'USER' } }
+      where: { roles: { has: Role.USER } }
     });
 
     console.log(`✅ User roles working:`)
@@ -54,7 +55,7 @@ async function testSystem() {
     });
 
     testUsers.forEach(user => {
-      const role = user.roles[0] || 'USER';
+      const role = user.roles[0] || Role.USER;
       const roleDisplay = {
         ADMIN: '🔧 Admin',
         CENTER_COORDINATOR: '📋 Coordinator',

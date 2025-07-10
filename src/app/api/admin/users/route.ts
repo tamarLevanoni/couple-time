@@ -1,17 +1,10 @@
 import { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { CreateUserSchema, UpdateUserSchema } from '@/lib/validations';
-
-interface AuthToken {
-  id: string;
-  email: string;
-  name: string;
-  roles: string[];
-}
 
 // Extend the base schemas for admin-specific needs
 const createUserSchema = CreateUserSchema.extend({
@@ -24,7 +17,7 @@ const updateUserSchema = UpdateUserSchema.omit({ id: true }).extend({
 
 export async function GET(req: NextRequest) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
@@ -88,7 +81,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
@@ -143,7 +136,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
@@ -219,7 +212,7 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }

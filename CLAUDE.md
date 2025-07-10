@@ -18,13 +18,35 @@
    - Minimal and focused
    - Intuitive and easy to debug
    - Avoid large or complex refactors
+8. **Import interfaces** in all files, include tests and api, import formal interface of relevant schema from /types as much as possible, avoid duplication, and always maintain compatibility.
 
 ### ✅ After Coding
 
 8. **Update the review section** in `projectplan.md` with a clear summary of the work done.
 
+## 2. Project Structure & File Rules
 
-## API Route Standards
+### ✅ Allowed
+- Group logic by feature and permissions
+- Use `utils.ts` and `factories.ts` for reusable logic and test data
+- One export per file (unless strongly justified)
+
+### ❌ Not Allowed
+- Placeholder files, dead code, or unused mocks
+- General-purpose helpers unless reused multiple times
+- New folders without justification in `projectplan.md`
+
+---
+
+## 3. Authentication & Authorization (App Router)
+
+- Use centralized `middleware.ts` for all protected routes
+- **Do not** use `withAuth` wrappers
+- Use `matcher` in `middleware.ts` to define protected routes
+- Avoid permission logic inside individual route handlers
+
+
+## 4. API Route Standards
 - Use consistent URL patterns for all API routes
 - All protected routes should use centralized permission middleware
 - Combine related operations into single files when possible
@@ -32,11 +54,32 @@
 - Group routes by permissions (auth, admin, coordinator, super, public etc.)
 - Avoid checking permissions inside each function separately - use middleware
 
+For each API endpoint:
+1. ✅ Unit tests:
+   - Does the handler behave correctly with valid input?
+   - Are all edge cases covered?
+   - Are expected success and failure cases tested?
 
-### ❌ Not Allowed
-- Placeholder files, dead code, or unused mocks
-- General-purpose helpers unless reused multiple times
-- New folders without justification in `projectplan.md`
+2. ✅ Integration tests (if applicable):
+   - Does the handler integrate properly with authentication middleware?
+   - Are permissions and role-based access enforced correctly?
+   - Are side effects (e.g. DB updates) verified?
+   - Are invalid tokens / no session handled with proper status codes?
+
+3. ✅ Error handling:
+   - Is a test written for every thrown error or invalid input?
+   - Is the error format `{ success: false, error: { message } }` verified?
+
+4. ✅ Response format:
+   - Are success responses tested to follow `{ success: true, data }` format?
+   - Are responses validated with `expect.objectContaining(...)` to avoid brittle tests?
+
+5. ✅ Coverage:
+   - Are all branches, conditionals, and early returns tested?
+
+6. ✅ Mocking:
+   - Are external dependencies (e.g., Prisma, getToken) properly mocked to isolate logic?
+
 
 ---
 
@@ -57,6 +100,10 @@
 - No data fetching inside UI components unless absolutely necessary
 - Each feature/screen must be designed before coding
 - Avoid generic or over-abstracted components unless reused
+- Use elements from /components, ןncluding but not limited to icons, buttons, fields, etc.
+- If a component can be used more than once, save it in a separate file in the appropriate context.
+- Track the required information, and if necessary, request changes to stores and APIs to streamline processes. Don't make big changes all at once.
+- Place a high emphasis on speed, load the information in the background, and show the user as many things as possible that don't require the data being loaded. Show loading signs where necessary.
 
 ---
 

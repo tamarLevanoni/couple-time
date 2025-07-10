@@ -178,6 +178,34 @@ Before starting implementation, I need clarification on:
 
 **Testing Results**: 18/18 endpoints verified, database schema validated, middleware functioning correctly
 
+### JWT Migration Summary ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **Updated 16 API route files** to use JWT from `next-auth/jwt` instead of AuthToken from `@/types/api`
+- **Updated middleware.ts** to use JWT type for authentication
+- **Consistent import patterns** using `import { getToken, JWT } from 'next-auth/jwt'`
+- **Proper type casting** using `as JWT | null` for all token authentication
+- **Maintained existing functionality** while standardizing authentication token handling
+
+**Files Updated:**
+- `middleware.ts` - Global authentication middleware
+- `src/app/api/super/games/[id]/route.ts` - Super coordinator game instance updates
+- `src/app/api/super/games/route.ts` - Super coordinator game instance creation
+- `src/app/api/coordinator/games/[id]/route.ts` - Coordinator game instance updates
+- `src/app/api/coordinator/games/route.ts` - Coordinator game instance creation
+- `src/app/api/super/centers/[id]/route.ts` - Super coordinator center management
+- `src/app/api/user/route.ts` - User profile management
+- `src/app/api/super/centers/route.ts` - Super coordinator center listing
+- `src/app/api/admin/games/route.ts` - Admin game catalog management
+- `src/app/api/admin/roles/route.ts` - Admin role assignment
+- `src/app/api/admin/users/route.ts` - Admin user management
+- `src/app/api/super/rentals/route.ts` - Super coordinator rental creation
+- `src/app/api/admin/centers/route.ts` - Admin center management
+- `src/app/api/user/rentals/[id]/route.ts` - User rental updates
+- `src/app/api/user/rentals/route.ts` - User rental creation and listing
+- `src/app/api/admin/system/route.ts` - Admin system monitoring
+
 ### Validation Schema Refactoring Summary ✅
 **Completed**: January 2025
 
@@ -212,9 +240,28 @@ Before starting implementation, I need clarification on:
 
 ---
 
-## TODO Checklist for Validation Schema Refactoring
+## TODO Checklist for JWT Migration
 
-### ✅ Completed Tasks
+### ✅ Completed Task: Update AuthToken to JWT
+- [x] Update `middleware.ts` to use JWT from next-auth/jwt
+- [x] Update `src/app/api/super/games/[id]/route.ts` to use JWT
+- [x] Update `src/app/api/super/games/route.ts` to use JWT
+- [x] Update `src/app/api/coordinator/games/[id]/route.ts` to use JWT
+- [x] Update `src/app/api/coordinator/games/route.ts` to use JWT
+- [x] Update `src/app/api/super/centers/[id]/route.ts` to use JWT
+- [x] Update `src/app/api/user/route.ts` to use JWT
+- [x] Update `src/app/api/super/centers/route.ts` to use JWT
+- [x] Update `src/app/api/admin/games/route.ts` to use JWT
+- [x] Update `src/app/api/admin/roles/route.ts` to use JWT
+- [x] Update `src/app/api/admin/users/route.ts` to use JWT
+- [x] Update `src/app/api/super/rentals/route.ts` to use JWT
+- [x] Update `src/app/api/admin/centers/route.ts` to use JWT
+- [x] Update `src/app/api/user/rentals/[id]/route.ts` to use JWT
+- [x] Update `src/app/api/user/rentals/route.ts` to use JWT
+- [x] Update `src/app/api/admin/system/route.ts` to use JWT
+- [x] Verify all changes maintain existing functionality
+
+### ✅ Completed Tasks (Previous)
 - [x] Analyze existing validation patterns in API routes
 - [x] Refactor `/api/admin/roles/route.ts` to use centralized RoleSchema and IdSchema
 - [x] Refactor `/api/coordinator/rentals/[id]/route.ts` to use RentalStatusSchema

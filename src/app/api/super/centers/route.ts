@@ -1,18 +1,11 @@
 import { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 
-interface AuthToken {
-  id: string;
-  email: string;
-  name: string;
-  roles: string[];
-}
-
 export async function GET(req: NextRequest) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }

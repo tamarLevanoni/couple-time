@@ -1,22 +1,16 @@
 import { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { UpdateCenterSchema } from '@/lib/validations';
-
-interface AuthToken {
-  id: string;
-  email: string;
-  name: string;
-  roles: string[];
-}
+import { Role } from '@/types/database';
 
 const updateCenterSchema = UpdateCenterSchema.omit({ id: true });
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
@@ -120,7 +114,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
@@ -147,7 +141,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       const coordinator = await prisma.user.findFirst({
         where: {
           id: updateData.coordinatorId,
-          roles: { has: 'CENTER_COORDINATOR' },
+          roles: { has: Role.CENTER_COORDINATOR },
           isActive: true,
         },
       });

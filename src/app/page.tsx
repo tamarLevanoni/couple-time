@@ -6,6 +6,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Shield } from '@/components/icons';
+import { Role } from '@/types/database';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -41,9 +42,9 @@ export default function Home() {
                       <Button size="lg">
                         <Link href="/games">עיין במשחקים</Link>
                       </Button>
-                      {(session.user.roles?.includes('CENTER_COORDINATOR') || 
-                        session.user.roles?.includes('SUPER_COORDINATOR') || 
-                        session.user.roles?.includes('ADMIN')) && (
+                      {(session.user.roles?.includes(Role.CENTER_COORDINATOR) || 
+                        session.user.roles?.includes(Role.SUPER_COORDINATOR) || 
+                        session.user.roles?.includes(Role.ADMIN)) && (
                         <Button variant="outline" size="lg">
                           <Link href="/dashboard">לוח בקרה</Link>
                         </Button>
