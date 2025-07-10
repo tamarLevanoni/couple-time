@@ -3,6 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
+import { UserUpdateRentalSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -10,12 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-// User-specific rental update schema (only allow cancel action)
-const updateRentalSchema = z.object({
-  action: z.enum(['cancel']),
-  reason: z.string().optional(),
-});
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -25,7 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
     const { id } = params;
     const body = await req.json();
-    const { action, reason } = updateRentalSchema.parse(body);
+    const { action, reason } = UserUpdateRentalSchema.parse(body);
 
     // Find the rental and verify ownership
     const rental = await prisma.rental.findFirst({

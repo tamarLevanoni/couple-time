@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { CreateRentalSchema, IdSchema } from '@/lib/validations';
+import { UserCreateRentalSchema, IdSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -12,12 +12,6 @@ interface AuthToken {
   roles: string[];
 }
 
-// Extend base schema for user-specific rental creation
-const createRentalSchema = CreateRentalSchema.extend({
-  requestDate: z.coerce.date(),
-  expectedReturnDate: z.coerce.date(),
-}).omit({ userId: true }); // userId comes from token
-
 export async function POST(req: NextRequest) {
   try {
     const token = await getToken({ req }) as AuthToken | null;
@@ -25,7 +19,7 @@ export async function POST(req: NextRequest) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     const body = await req.json();
-    const { gameInstanceId, requestDate, expectedReturnDate, notes } = createRentalSchema.parse(body);
+    const { gameInstanceId, requestDate, expectedReturnDate, notes } = UserCreateRentalSchema.parse(body);
 
     // Verify game instance exists and is available
     const gameInstance = await prisma.gameInstance.findFirst({

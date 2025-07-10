@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { OptionalPhoneSchema } from '@/lib/validations';
+import { ExtendedUpdateProfileSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -11,14 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-const updateProfileSchema = z.object({
-  name: z.string().min(1, 'Name is required').optional(),
-  phone: OptionalPhoneSchema,
-  address: z.string().optional(),
-  city: z.string().optional(),
-  preferredLanguage: z.enum(['he', 'en']).optional(),
-});
 
 export async function GET(req: NextRequest) {
   try {
@@ -60,7 +52,7 @@ export async function PUT(req: NextRequest) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     const body = await req.json();
-    const validatedData = updateProfileSchema.parse(body);
+    const validatedData = ExtendedUpdateProfileSchema.parse(body);
 
     // Remove undefined values
     const updateData = Object.fromEntries(

@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { RoleSchema, IdSchema } from '@/lib/validations';
+import { AssignRoleSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -11,13 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-const assignRoleSchema = z.object({
-  userId: IdSchema,
-  roles: z.array(RoleSchema),
-  managedCenterIds: z.array(IdSchema).optional(),
-  supervisedCenterIds: z.array(IdSchema).optional(),
-});
 
 export async function PUT(req: NextRequest) {
   try {
@@ -27,7 +20,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const roleData = assignRoleSchema.parse(body);
+    const roleData = AssignRoleSchema.parse(body);
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({

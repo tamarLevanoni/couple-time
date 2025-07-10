@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { GameInstanceStatusSchema } from '@/lib/validations';
+import { UpdateGameInstancePartialSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -11,11 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-const updateGameInstanceSchema = z.object({
-  status: GameInstanceStatusSchema.optional(),
-  notes: z.string().optional(),
-});
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -26,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const { id } = params;
     const body = await req.json();
-    const updateData = updateGameInstanceSchema.parse(body);
+    const updateData = UpdateGameInstancePartialSchema.parse(body);
 
     // Find the game instance and verify access through supervised centers
     const gameInstance = await prisma.gameInstance.findFirst({

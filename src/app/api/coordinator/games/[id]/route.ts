@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { GameInstanceStatusSchema } from '@/lib/validations';
+import { UpdateGameInstancePartialSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -11,11 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-const updateGameInstanceSchema = z.object({
-  status: GameInstanceStatusSchema.optional(),
-  notes: z.string().optional(),
-});
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -26,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const { id } = params;
     const body = await req.json();
-    const updateData = updateGameInstanceSchema.parse(body);
+    const updateData = UpdateGameInstancePartialSchema.parse(body);
 
     // Find the game instance and verify access
     const gameInstance = await prisma.gameInstance.findFirst({
@@ -44,6 +39,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         game: true,
       },
     });
+
+    // Debug log to file
+    const fs = require('fs');
+    fs.appendFileSync('/tmp/api-debug.log', '\nAPI gameInstance: ' + JSON.stringify(gameInstance, null, 2));
+
+    // Debug log
+    console.log('API gameInstance:', JSON.stringify(gameInstance, null, 2));
 
     if (!gameInstance) {
       return apiResponse(false, null, { message: 'Game instance not found or access denied' }, 404);
@@ -91,6 +93,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return apiResponse(true, updatedGameInstance);
   } catch (error) {
     console.error('Error updating game instance:', error);
+    const fs = require('fs');
+    if (error instanceof z.ZodError) {
+      fs.appendFileSync('/tmp/api-debug.log', '\nZod error details: ' + JSON.stringify(error.errors, null, 2));
+      console.error('Zod error details:', error.errors);
+    }
     
     if (error instanceof z.ZodError) {
       return apiResponse(false, null, { message: 'Invalid request data', details: error.errors }, 400);

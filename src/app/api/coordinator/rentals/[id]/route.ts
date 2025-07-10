@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 import { apiResponse } from '@/lib/api-response';
 import { z } from 'zod';
-import { RentalStatusSchema } from '@/lib/validations';
+import { CoordinatorUpdateRentalSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -12,12 +12,6 @@ interface AuthToken {
   roles: string[];
 }
 
-const updateRentalSchema = z.object({
-  status: RentalStatusSchema.optional(),
-  notes: z.string().optional(),
-  rejectionReason: z.string().optional()
-});
-
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = await getToken({ req }) as AuthToken | null;
@@ -25,7 +19,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     const body = await req.json();
-    const { status, notes, rejectionReason } = updateRentalSchema.parse(body);
+    const { status, notes, rejectionReason } = CoordinatorUpdateRentalSchema.parse(body);
 
     const rental = await prisma.rental.findFirst({
       where: { id: params.id },

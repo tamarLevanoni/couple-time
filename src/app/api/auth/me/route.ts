@@ -4,13 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { apiResponse } from '@/lib/api-response';
 import { z } from 'zod';
-import { UpdateUserSchema, PhoneSchema } from '@/lib/validations';
-
-// Profile update schema (subset of UpdateUserSchema)
-const updateProfileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  phone: PhoneSchema
-});
+import { UpdateProfileSchema } from '@/lib/validations';
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +48,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, phone } = updateProfileSchema.parse(body);
+    const { name, phone } = UpdateProfileSchema.parse(body);
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },

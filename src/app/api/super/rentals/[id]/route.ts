@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { RentalStatusSchema } from '@/lib/validations';
+import { SuperUpdateRentalSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -11,12 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-const updateRentalSchema = z.object({
-  status: RentalStatusSchema.optional(),
-  notes: z.string().optional(),
-  rejectionReason: z.string().optional(),
-});
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -27,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const { id } = params;
     const body = await req.json();
-    const { status, notes, rejectionReason } = updateRentalSchema.parse(body);
+    const { status, notes, rejectionReason } = SuperUpdateRentalSchema.parse(body);
 
     // Find the rental and verify access through supervised centers
     const rental = await prisma.rental.findFirst({

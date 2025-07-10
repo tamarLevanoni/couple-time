@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { CreateRentalSchema } from '@/lib/validations';
+import { SuperCreateRentalSchema } from '@/lib/validations';
 
 interface AuthToken {
   id: string;
@@ -11,10 +11,6 @@ interface AuthToken {
   name: string;
   roles: string[];
 }
-
-const createRentalSchema = CreateRentalSchema.extend({
-  requestDate: z.coerce.date(),
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, gameInstanceId, requestDate, expectedReturnDate, notes } = createRentalSchema.parse(body);
+    const { userId, gameInstanceId, requestDate, expectedReturnDate, notes } = SuperCreateRentalSchema.parse(body);
 
     // Verify game instance exists and is at a center this user supervises
     const gameInstance = await prisma.gameInstance.findFirst({
