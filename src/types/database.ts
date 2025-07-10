@@ -19,7 +19,6 @@ export interface User {
   roles: Role[];
   managedCenterIds: string[];
   supervisedCenterIds: string[];
-  defaultDashboard: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

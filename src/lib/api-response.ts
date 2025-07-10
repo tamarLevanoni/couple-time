@@ -63,6 +63,20 @@ export const NotFoundErrors = {
   RENTAL: () => createErrorResponse('NOT_FOUND', 'ההשאלה לא נמצאה', 404),
 };
 
+// Simple apiResponse function for new API style
+export function apiResponse<T>(
+  success: boolean,
+  data?: T,
+  error?: { message: string; details?: any },
+  status: number = 200
+): NextResponse {
+  if (success) {
+    return NextResponse.json({ success: true, data }, { status });
+  } else {
+    return NextResponse.json({ success: false, error }, { status });
+  }
+}
+
 // Convenience exports for backward compatibility
 export const successResponse = createSuccessResponse;
 export const errorResponse = createErrorResponse;

@@ -54,7 +54,7 @@ GameInstance (עותק משחק במוקד)
 
 Rental (השאלה)
 ├── userId, gameInstanceId
-├── status: 'PENDING' | 'APPROVED' | 'ACTIVE' | 'RETURNED' | 'REJECTED'
+├── status: 'PENDING' | 'ACTIVE' | 'RETURNED' | 'CANCELLED'
 ├── requestDate, approvedDate, borrowDate, returnDate
 └── expectedReturnDate
 ```

@@ -15,11 +15,10 @@ model User {
   id                     String   @id @default(cuid())
   name                   String
   email                  String   @unique
-  phone                  String?
+  phone                  String
   roles                  Role[]
   managedCenterIds       String[]
   supervisedCenterIds    String[]
-  defaultDashboard       String?  // "user" | "coordinator" | "super" | "admin"
   isActive               Boolean  @default(true)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt

@@ -73,7 +73,6 @@ export interface AuthResponse {
 export interface UpdateUserRequest {
   name?: string;
   phone?: string;
-  defaultDashboard?: string;
 }
 
 export interface UserSearchRequest {

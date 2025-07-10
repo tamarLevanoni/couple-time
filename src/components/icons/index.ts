@@ -48,4 +48,5 @@ export {
   Gamepad2 as GameController,
   Building2,
   BarChart3,
+  CheckCircle
 } from 'lucide-react';

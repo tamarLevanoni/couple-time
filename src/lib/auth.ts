@@ -55,11 +55,10 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
-            image: user.image,
+            phone: user.phone,
             roles: user.roles,
             managedCenterIds: user.managedCenterIds,
             supervisedCenterIds: user.supervisedCenterIds,
-            defaultDashboard: user.defaultDashboard,
             isActive: user.isActive,
           };
         } catch (error) {
@@ -99,17 +98,18 @@ export const authOptions: NextAuthOptions = {
               });
             }
           } else {
-            // Create new user with Google OAuth
+            // For Google OAuth, we need phone number which Google doesn't provide
+            // User will need to complete registration after first sign-in
             await prisma.user.create({
               data: {
                 email: user.email!,
                 name: user.name || '',
-                image: user.image,
+                phone: '', // Empty phone - user will need to update this
                 googleId: account.providerAccountId,
                 roles: [Role.USER],
                 managedCenterIds: [],
                 supervisedCenterIds: [],
-                isActive: true,
+                isActive: false, // Inactive until phone is provided
               },
             });
           }
@@ -136,11 +136,9 @@ export const authOptions: NextAuthOptions = {
 
           if (dbUser) {
             token.id = dbUser.id;
-            token.roles = dbUser.roles;
-            token.managedCenterIds = dbUser.managedCenterIds;
-            token.supervisedCenterIds = dbUser.supervisedCenterIds;
-            token.defaultDashboard = dbUser.defaultDashboard;
-            token.isActive = dbUser.isActive;
+            token.email = dbUser.email;
+            token.name = dbUser.name;
+            token.roles = dbUser.roles as Role[];
           }
         }
 
@@ -157,11 +155,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
         session.user.roles = token.roles as Role[];
-        session.user.managedCenterIds = token.managedCenterIds as string[];
-        session.user.supervisedCenterIds = token.supervisedCenterIds as string[];
-        session.user.defaultDashboard = token.defaultDashboard as string;
-        session.user.isActive = token.isActive as boolean;
+
       }
 
       return session;
