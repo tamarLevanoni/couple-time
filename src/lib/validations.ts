@@ -1,181 +1,325 @@
+// Validation schemas using Zod - matches Prisma schema exactly
+// Source: /prisma/schema.prisma
+
 import { z } from 'zod';
+import {
+  Role,
+  Area,
+  GameCategory,
+  TargetAudience,
+  GameInstanceStatus,
+  RentalStatus,
+} from '@prisma/client';
 
-// ===== ENUMS =====
-export const RoleSchema = z.enum(['USER', 'CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN']);
-export const TargetAudienceSchema = z.enum(['SINGLES', 'MARRIED', 'GENERAL']);
-export const GameInstanceStatusSchema = z.enum(['AVAILABLE', 'BORROWED', 'UNAVAILABLE']);
-export const RentalStatusSchema = z.enum(['PENDING','ACTIVE', 'RETURNED', 'CANCELLED']);
-export const GameCategorySchema = z.enum(['COMMUNICATION', 'INTIMACY', 'FUN', 'THERAPY', 'PERSONAL_DEVELOPMENT']);
-export const AreaSchema = z.enum(['NORTH', 'CENTER', 'SOUTH', 'JERUSALEM', 'JUDEA_SAMARIA']);
+// ===== ENUM VALIDATIONS =====
 
-// ===== SHARED SCHEMAS =====
-export const IdSchema = z.string().cuid();
-export const EmailSchema = z.string().email('כתובת דוא"ל לא תקינה');
-export const PhoneSchema = z.string().regex(/^05\d{8}$/, 'מספר טלפון לא תקין (צריך להתחיל ב-05 ולהכיל 10 ספרות)');
-export const OptionalPhoneSchema = PhoneSchema.optional();
+export const RoleSchema = z.nativeEnum(Role);
+export const AreaSchema = z.nativeEnum(Area);
+export const GameCategorySchema = z.nativeEnum(GameCategory);
+export const TargetAudienceSchema = z.nativeEnum(TargetAudience);
+export const GameInstanceStatusSchema = z.nativeEnum(GameInstanceStatus);
+export const RentalStatusSchema = z.nativeEnum(RentalStatus);
 
-// ===== USER SCHEMAS =====
-export const CreateUserSchema = z.object({
-  name: z.string().min(2, 'שם חייב להכיל לפחות 2 תווים').max(100, 'שם לא יכול להכיל יותר מ-100 תווים'),
-  email: EmailSchema,
-  phone: PhoneSchema, // Required to match Prisma schema
-  password: z.string().min(6, 'סיסמה חייבת להכיל לפחות 6 תווים').optional(),
-  roles: z.array(RoleSchema).default(['USER']),
-  managedCenterIds: z.array(IdSchema).default([]),
-  supervisedCenterIds: z.array(IdSchema).default([]),
+// ===== BASE MODEL VALIDATIONS =====
+
+// User validation
+export const UserSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string().min(1, 'Name is required').max(100),
+  email: z.string().email('Invalid email format'),
+  phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
+  roles: z.array(RoleSchema).min(1, 'At least one role is required'),
+  managedCenterIds: z.array(z.string().cuid()),
+  supervisedCenterIds: z.array(z.string().cuid()),
+  isActive: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  // Optional auth fields
+  googleId: z.string().optional(),
+  password: z.string().optional(),
+  image: z.string().url().optional(),
 });
 
-export const UpdateUserSchema = CreateUserSchema.partial().extend({
-  id: IdSchema,
-});
-
-export const LoginSchema = z.object({
-  email: EmailSchema,
-  password: z.string().min(1, 'סיסמה נדרשת'),
-});
-
-// ===== CENTER SCHEMAS =====
-export const CreateCenterSchema = z.object({
-  name: z.string().min(2, 'שם מרכז חייב להכיל לפחות 2 תווים').max(100, 'שם מרכז לא יכול להכיל יותר מ-100 תווים'),
-  city: z.string().min(2, 'שם עיר חייב להכיל לפחות 2 תווים').max(50, 'שם עיר לא יכול להכיל יותר מ-50 תווים'),
+// Center validation
+export const CenterSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string().min(1, 'Center name is required').max(100),
+  city: z.string().min(1, 'City is required').max(50),
   area: AreaSchema,
-  coordinatorId: IdSchema.optional(),
-  superCoordinatorId: IdSchema.optional(),
+  coordinatorId: z.string().cuid().optional(),
+  superCoordinatorId: z.string().cuid().optional(),
   location: z.object({
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
   }).optional(),
+  isActive: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const UpdateCenterSchema = CreateCenterSchema.partial().extend({
-  id: IdSchema,
-});
-
-// ===== GAME SCHEMAS =====
-export const CreateGameSchema = z.object({
-  name: z.string().min(2, 'שם משחק חייב להכיל לפחות 2 תווים').max(100, 'שם משחק לא יכול להכיל יותר מ-100 תווים'),
-  description: z.string().max(1000, 'תיאור לא יכול להכיל יותר מ-1000 תווים').optional(),
+// Game validation
+export const GameSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string().min(1, 'Game name is required').max(100),
+  description: z.string().max(1000).optional(),
   category: GameCategorySchema,
   targetAudience: TargetAudienceSchema,
-  imageUrl: z.string().url('כתובת תמונה לא תקינה').optional(),
+  imageUrl: z.string().url().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const UpdateGameSchema = CreateGameSchema.partial();
-export const createGameSchema = CreateGameSchema;
-export const updateGameSchema = UpdateGameSchema;
-
-// ===== GAME INSTANCE SCHEMAS =====
-export const CreateGameInstanceSchema = z.object({
-  gameId: IdSchema,
-  centerId: IdSchema,
-  status: GameInstanceStatusSchema.default('AVAILABLE'),
-  expectedReturnDate: z.coerce.date().optional(),
-  notes: z.string().max(500, 'הערות לא יכולות להכיל יותר מ-500 תווים').optional(),
+// Game Instance validation
+export const GameInstanceSchema = z.object({
+  id: z.string().cuid(),
+  gameId: z.string().cuid(),
+  centerId: z.string().cuid(),
+  status: GameInstanceStatusSchema,
+  expectedReturnDate: z.date().optional(),
+  notes: z.string().max(500).optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const UpdateGameInstanceSchema = CreateGameInstanceSchema.partial().extend({
-  id: IdSchema,
+// Rental validation
+export const RentalSchema = z.object({
+  id: z.string().cuid(),
+  userId: z.string().cuid(),
+  gameInstanceId: z.string().cuid(),
+  status: RentalStatusSchema,
+  requestDate: z.date(),
+  borrowDate: z.date().optional(),
+  returnDate: z.date().optional(),
+  expectedReturnDate: z.date().optional(),
+  notes: z.string().max(500).optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-// ===== RENTAL SCHEMAS =====
-export const CreateRentalSchema = z.object({
-  userId: IdSchema,
-  gameInstanceId: IdSchema,
-  expectedReturnDate: z.coerce.date().optional(),
-  notes: z.string().max(500, 'הערות לא יכולות להכיל יותר מ-500 תווים').optional(),
+// ===== API REQUEST VALIDATIONS =====
+
+// User API validations
+export const UpdateUserProfileSchema = UserSchema.pick({
+  name: true,
+  phone: true,
+}).partial();
+
+// Game API validations
+export const CreateGameSchema = GameSchema.pick({
+  name: true,
+  category: true,
+  targetAudience: true,
+}).extend({
+  description: GameSchema.shape.description,
+  imageUrl: GameSchema.shape.imageUrl,
 });
 
-export const UpdateRentalSchema = z.object({
-  id: IdSchema,
-  status: RentalStatusSchema.optional(),
-  approvedDate: z.coerce.date().optional(),
-  borrowDate: z.coerce.date().optional(),
-  returnDate: z.coerce.date().optional(),
-  expectedReturnDate: z.coerce.date().optional(),
-  notes: z.string().max(500, 'הערות לא יכולות להכיל יותר מ-500 תווים').optional(),
-  rejectionReason: z.string().max(500, 'סיבת דחייה לא יכולה להכיל יותר מ-500 תווים').optional(),
+export const GameCatalogRequestSchema = z.object({
+  centerId: z.string().cuid().optional(),
+  filters: z.object({
+    category: GameCategorySchema.optional(),
+    targetAudience: TargetAudienceSchema.optional(),
+    centerId: z.string().cuid().optional(),
+    status: GameInstanceStatusSchema.optional(),
+    search: z.string().min(1).max(100).optional(),
+  }).optional(),
 });
 
-// ===== GUEST RENTAL SCHEMA =====
-export const GuestRentalSchema = z.object({
-  // User data for auto-registration
-  name: z.string().min(2, 'שם חייב להכיל לפחות 2 תווים').max(100, 'שם לא יכול להכיל יותר מ-100 תווים'),
-  email: EmailSchema,
-  phone: PhoneSchema, // Required for user creation
-  
-  // Rental data
-  gameInstanceId: IdSchema,
-  expectedReturnDate: z.coerce.date().optional(),
-  notes: z.string().max(500, 'הערות לא יכולות להכיל יותר מ-500 תווים').optional(),
+// Center API validations
+export const CreateCenterSchema = CenterSchema.pick({
+  name: true,
+  city: true,
+  area: true,
+}).extend({
+  coordinatorId: CenterSchema.shape.coordinatorId,
+  superCoordinatorId: CenterSchema.shape.superCoordinatorId,
+  location: CenterSchema.shape.location,
 });
 
-// ===== QUERY PARAMETER SCHEMAS =====
+export const UpdateCenterSchema = CenterSchema.pick({
+  name: true,
+  city: true,
+  area: true,
+  coordinatorId: true,
+  superCoordinatorId: true,
+  location: true,
+  isActive: true,
+}).partial();
+
+export const CenterListRequestSchema = z.object({
+  filters: z.object({
+    area: AreaSchema.optional(),
+    city: z.string().min(1).max(50).optional(),
+    isActive: z.boolean().optional(),
+    hasCoordinator: z.boolean().optional(),
+    search: z.string().min(1).max(100).optional(),
+  }).optional(),
+});
+
+// Rental API validations
+export const CreateRentalSchema = RentalSchema.pick({
+  gameInstanceId: true,
+}).extend({
+  notes: RentalSchema.shape.notes,
+});
+
+export const CreateManualRentalSchema = RentalSchema.pick({
+  userId: true,
+  gameInstanceId: true,
+}).extend({
+  expectedReturnDate: z.string().datetime().optional(),
+  notes: RentalSchema.shape.notes,
+});
+
+export const UpdateRentalSchema = RentalSchema.pick({
+  status: true,
+  notes: true,
+}).extend({
+  expectedReturnDate: z.string().datetime().optional(),
+}).partial();
+
+export const RentalListRequestSchema = z.object({
+  filters: z.object({
+    userId: z.string().cuid().optional(),
+    centerId: z.string().cuid().optional(),
+    status: RentalStatusSchema.optional(),
+    overdue: z.boolean().optional(),
+    dateRange: z.object({
+      start: z.date(),
+      end: z.date(),
+    }).optional(),
+  }).optional(),
+});
+
+// Admin API validations
+export const UpdateUserSchema = UserSchema.pick({
+  name: true,
+  phone: true,
+  roles: true,
+  isActive: true,
+  managedCenterIds: true,
+  supervisedCenterIds: true,
+}).partial();
+
+export const UserListRequestSchema = z.object({
+  filters: z.object({
+    roles: z.array(RoleSchema).optional(),
+    isActive: z.boolean().optional(),
+    search: z.string().min(1).max(100).optional(),
+    centerId: z.string().cuid().optional(),
+  }).optional(),
+});
+
+// Coordinator API validations
+export const AddGameToCenterSchema = z.object({
+  gameId: z.string().cuid(),
+});
+
+// Super Coordinator API validations
+export const OverdueReportRequestSchema = z.object({
+  centerId: z.string().cuid().optional(),
+  dateRange: z.object({
+    start: z.string().datetime(),
+    end: z.string().datetime(),
+  }).optional(),
+});
+
+// Admin Reports validation
+export const ReportRequestSchema = z.object({
+  type: z.enum(['rentals', 'games', 'centers', 'coordinators']),
+  dateRange: z.object({
+    start: z.string().datetime(),
+    end: z.string().datetime(),
+  }).optional(),
+  centerId: z.string().cuid().optional(),
+  area: AreaSchema.optional(),
+  format: z.enum(['json', 'csv', 'excel']).optional(),
+});
+
+// ===== UTILITY VALIDATIONS =====
+
+// Common validations
+export const IdParamSchema = z.object({
+  id: z.string().cuid(),
+});
+
 export const PaginationSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(100).default(20),
 });
 
-export const GameFiltersSchema = z.object({
-  category: GameCategorySchema.optional(),
-  targetAudience: TargetAudienceSchema.optional(),
-  search: z.string().optional(),
-}).merge(PaginationSchema);
+// Bulk operations
+export const BulkUpdateSchema = z.object({
+  items: z.array(z.object({
+    id: z.string().cuid(),
+    data: z.record(z.any()),
+  })).min(1).max(100),
+});
 
-export const RentalFiltersSchema = z.object({
-  status: RentalStatusSchema.optional(),
-  userId: IdSchema.optional(),
-  centerId: IdSchema.optional(),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
-}).merge(PaginationSchema);
+// File upload
+export const FileUploadSchema = z.object({
+  type: z.enum(['game_image', 'center_image', 'document']),
+});
+
+// Search and filters
+export const SearchSchema = z.object({
+  query: z.string().min(1).max(100),
+  filters: z.record(z.any()).optional(),
+});
+
+// Date range validation
+export const DateRangeSchema = z.object({
+  start: z.string().datetime(),
+  end: z.string().datetime(),
+}).refine(
+  (data) => new Date(data.start) < new Date(data.end),
+  { message: "Start date must be before end date" }
+);
+
+// ===== COMPUTED FIELD VALIDATIONS =====
+
+// For API responses with computed fields
+export const RentalWithDetailsSchema = RentalSchema.extend({
+  isOverdue: z.boolean(),
+  daysOverdue: z.number().int().min(0),
+  canCancel: z.boolean(),
+  canReturn: z.boolean(),
+});
+
+export const CenterWithStatsSchema = CenterSchema.extend({
+  totalGames: z.number().int().min(0),
+  availableGames: z.number().int().min(0),
+  pendingRequests: z.number().int().min(0),
+  activeRentals: z.number().int().min(0),
+  overdueRentals: z.number().int().min(0),
+});
+
+export const GameWithAvailabilitySchema = GameSchema.extend({
+  totalCenters: z.number().int().min(0),
+  availableCount: z.number().int().min(0),
+  borrowedCount: z.number().int().min(0),
+  availableCenters: z.array(z.object({
+    centerId: z.string().cuid(),
+    centerName: z.string(),
+    city: z.string(),
+    area: AreaSchema,
+    availableCount: z.number().int().min(0),
+  })),
+});
 
 // ===== TYPE EXPORTS =====
-export type CreateUser = z.infer<typeof CreateUserSchema>;
-export type UpdateUser = z.infer<typeof UpdateUserSchema>;
-export type Login = z.infer<typeof LoginSchema>;
 
-export type CreateCenter = z.infer<typeof CreateCenterSchema>;
-export type UpdateCenter = z.infer<typeof UpdateCenterSchema>;
-
-export type CreateGame = z.infer<typeof CreateGameSchema>;
-export type UpdateGame = z.infer<typeof UpdateGameSchema>;
-
-export type CreateGameInstance = z.infer<typeof CreateGameInstanceSchema>;
-export type UpdateGameInstance = z.infer<typeof UpdateGameInstanceSchema>;
-
-export type CreateRental = z.infer<typeof CreateRentalSchema>;
-export type UpdateRental = z.infer<typeof UpdateRentalSchema>;
-export type GuestRental = z.infer<typeof GuestRentalSchema>;
-
-export type GameFilters = z.infer<typeof GameFiltersSchema>;
-export type RentalFilters = z.infer<typeof RentalFiltersSchema>;
-export type Pagination = z.infer<typeof PaginationSchema>;
-
-// ===== VALIDATION HELPER FUNCTIONS =====
-export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; errors: string[] } {
-  try {
-    const validatedData = schema.parse(data);
-    return { success: true, data: validatedData };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        errors: error.errors.map(err => `${err.path.join('.')}: ${err.message}`)
-      };
-    }
-    return {
-      success: false,
-      errors: ['שגיאה בתיקוף נתונים']
-    };
-  }
-}
-
-export function createValidationMiddleware<T>(schema: z.ZodSchema<T>) {
-  return (data: unknown) => {
-    const result = validateSchema(schema, data);
-    if (!result.success) {
-      throw new Error(`Validation failed: ${result.errors.join(', ')}`);
-    }
-    return result.data;
-  };
-}
+// Export inferred types for use in components
+export type UpdateUserProfileInput = z.infer<typeof UpdateUserProfileSchema>;
+export type CreateGameInput = z.infer<typeof CreateGameSchema>;
+export type CreateCenterInput = z.infer<typeof CreateCenterSchema>;
+export type UpdateCenterInput = z.infer<typeof UpdateCenterSchema>;
+export type CreateRentalInput = z.infer<typeof CreateRentalSchema>;
+export type CreateManualRentalInput = z.infer<typeof CreateManualRentalSchema>;
+export type UpdateRentalInput = z.infer<typeof UpdateRentalSchema>;
+export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
+export type AddGameToCenterInput = z.infer<typeof AddGameToCenterSchema>;
+export type ReportRequestInput = z.infer<typeof ReportRequestSchema>;
+export type IdParam = z.infer<typeof IdParamSchema>;
+export type SearchInput = z.infer<typeof SearchSchema>;
+export type DateRangeInput = z.infer<typeof DateRangeSchema>;

@@ -231,12 +231,78 @@ Before starting implementation, I need clarification on:
 
 ---
 
+## PHASE 1.9: Complete API Route Refactor ⚡ IN PROGRESS
+
+### Comprehensive API Route Modernization
+**Goal**: Refactor all API routes to use proper TypeScript types, validation schemas, and follow CLAUDE.md standards
+
+**Key Requirements:**
+- Import interfaces from `/types/api.ts` and `/types/database.ts` 
+- Use Zod validation schemas from `/lib/validations.ts`
+- Follow standardized `{ success: boolean, data?: any, error?: { message: string } }` format
+- Minimal, clean, and safe implementation
+- Proper error handling and type safety
+- Remove any dead code or placeholder files
+
+**Current API Route Structure Analysis:**
+```
+/api/
+├── auth/
+│   ├── [...nextauth]/route.ts (NextAuth - no changes needed)
+│   ├── me/route.ts (user profile)
+│   └── register/route.ts (user registration)
+├── public/
+│   ├── centers/route.ts (public center listing)
+│   └── games/route.ts (public game catalog)
+├── user/
+│   ├── route.ts (user profile management)
+│   └── rentals/
+│       ├── route.ts (user rentals CRUD)
+│       └── [id]/route.ts (specific rental management)
+├── coordinator/
+│   ├── route.ts (coordinator dashboard)
+│   ├── games/
+│   │   ├── route.ts (add games to center)
+│   │   └── [id]/route.ts (update game instances)
+│   └── rentals/
+│       ├── route.ts (coordinator rental management)
+│       └── [id]/route.ts (specific rental actions)
+├── super/
+│   ├── centers/
+│   │   ├── route.ts (supervised centers)
+│   │   └── [id]/route.ts (center management)
+│   ├── games/
+│   │   ├── route.ts (add games across centers)
+│   │   └── [id]/route.ts (game instance management)
+│   └── rentals/
+│       ├── route.ts (create rentals for users)
+│       └── [id]/route.ts (rental management)
+└── admin/
+    ├── centers/route.ts (full center CRUD)
+    ├── games/route.ts (game catalog management)
+    ├── roles/route.ts (role assignment)
+    ├── system/route.ts (system health/stats)
+    └── users/route.ts (user management)
+```
+
+**Refactoring Strategy:**
+1. **Group by permissions** - public, auth, user, coordinator, super, admin
+2. **Use proper types** - Import from api.ts, use Pick/Partial patterns
+3. **Validate inputs** - Use Zod schemas from validations.ts
+4. **Standard responses** - ApiResponse<T> format consistently
+5. **Clean imports** - Remove unused, add missing type imports
+6. **Error handling** - Proper error catching and user-friendly messages
+7. **Remove cruft** - Any dead code, unused functions, placeholder logic
+
+---
+
 ## Next Steps
-1. **CURRENT**: Begin Phase 2 - Update stores to match new API endpoints
-2. Implement state management updates for all stores
-3. Create new stores for authentication and rentals
-4. Test store integration with new APIs
-5. Move to Phase 3 - UI implementation and dashboard completion
+1. **CURRENT**: Complete Phase 1.9 - API Route Refactor
+2. Begin Phase 2 - Update stores to match new API endpoints
+3. Implement state management updates for all stores
+4. Create new stores for authentication and rentals
+5. Test store integration with new APIs
+6. Move to Phase 3 - UI implementation and dashboard completion
 
 ---
 

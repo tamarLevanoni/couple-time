@@ -3,7 +3,7 @@
 ## 1. User Stories - Regular User
 
 ### US-1.1: Browse Game Catalog
-**As a user**, I want to **see all available games** so that **I can choose a game that suits me**
+**As a user**, I want to **see all games** so that **I can choose a game that suits me**
 
 **Acceptance Criteria:**
 - [ ] I can see a general catalog of recommended games (without availability)

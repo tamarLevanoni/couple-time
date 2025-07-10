@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-
-interface AuthToken {
-  id: string;
-  email: string;
-  name: string;
-  roles: string[];
-}
+import { getToken, JWT } from 'next-auth/jwt';
+import { Role } from '@prisma/client';
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -18,10 +12,10 @@ export async function middleware(req: NextRequest) {
 
   // Check if this is a protected API route
   const protectedRoutes = [
-    { path: '/api/admin', requiredRole: 'ADMIN' },
-    { path: '/api/coordinator', requiredRole: 'CENTER_COORDINATOR' },
-    { path: '/api/super', requiredRole: 'SUPER_COORDINATOR' },
-    { path: '/api/user', requiredRole: 'USER' },
+    { path: '/api/admin', requiredRole: Role.ADMIN },
+    { path: '/api/coordinator', requiredRole: Role.CENTER_COORDINATOR },
+    { path: '/api/super', requiredRole: Role.SUPER_COORDINATOR },
+    { path: '/api/user', requiredRole: Role.USER },
   ];
 
   const matchedRoute = protectedRoutes.find(route => pathname.startsWith(route.path));
@@ -31,7 +25,7 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    const token = await getToken({ req }) as AuthToken | null;
+    const token = await getToken({ req }) as JWT | null;
 
     if (!token) {
       return NextResponse.json(
@@ -48,9 +42,9 @@ export async function middleware(req: NextRequest) {
     // SUPER_COORDINATOR can access coordinator routes
     // Others must match exactly
     const hasAccess = 
-      userRoles.includes('ADMIN') ||
+      userRoles.includes(Role.ADMIN) ||
       userRoles.includes(requiredRole) ||
-      (requiredRole === 'CENTER_COORDINATOR' && userRoles.includes('SUPER_COORDINATOR'));
+      (requiredRole === Role.CENTER_COORDINATOR && userRoles.includes(Role.SUPER_COORDINATOR));
 
     if (!hasAccess) {
       return NextResponse.json(

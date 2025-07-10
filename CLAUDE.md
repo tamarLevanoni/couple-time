@@ -53,6 +53,7 @@
 - Use standardized response format: { success: boolean, data?: any, error?: { message: string } }
 - Group routes by permissions (auth, admin, coordinator, super, public etc.)
 - Avoid checking permissions inside each function separately - use middleware
+- Use pagination only after approval. This will probably only be in the admin API, in the other requests a relatively small amount of data is expected, so all the logic will be done in the client.
 
 For each API endpoint:
 1. ✅ Unit tests:
