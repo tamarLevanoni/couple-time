@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const { email, password, name, phone } = await req.json();
 
     // Validate input
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !phone) {
       return NextResponse.json(
         { error: 'חסרים פרטים נדרשים' },
         { status: 400 }
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         email,
         password: hashedPassword,
         name,
-        phone: phone || null,
+        phone,
         roles: [Role.USER],
         managedCenterIds: [],
         supervisedCenterIds: [],

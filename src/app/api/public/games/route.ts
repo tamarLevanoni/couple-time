@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
-import { successResponse, errorResponse } from '@/lib/api-response';
+import { apiResponse } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,17 +11,24 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             status: true,
-            expectedReturnDate: true,
-            centerId: true
+            centerId: true,
+            center: {
+              select: {
+                id: true,
+                name: true,
+                city: true,
+                area: true
+              }
+            }
           }
         }
       }
     });
 
-    return successResponse(games);
+    return apiResponse(true, games);
 
   } catch (error) {
     console.error('Error fetching games:', error);
-    return errorResponse('INTERNAL_ERROR', 'שגיאה בטעינת המשחקים');
+    return apiResponse(false, null, { message: 'Error fetching games' }, 500);
   }
 }

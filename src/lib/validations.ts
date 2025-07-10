@@ -4,25 +4,25 @@ import { z } from 'zod';
 export const RoleSchema = z.enum(['USER', 'CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN']);
 export const TargetAudienceSchema = z.enum(['SINGLES', 'MARRIED', 'GENERAL']);
 export const GameInstanceStatusSchema = z.enum(['AVAILABLE', 'BORROWED', 'UNAVAILABLE']);
-export const RentalStatusSchema = z.enum(['PENDING', 'APPROVED', 'ACTIVE', 'RETURNED', 'REJECTED']);
+export const RentalStatusSchema = z.enum(['PENDING','ACTIVE', 'RETURNED', 'CANCELLED']);
 export const GameCategorySchema = z.enum(['COMMUNICATION', 'INTIMACY', 'FUN', 'THERAPY', 'PERSONAL_DEVELOPMENT']);
 export const AreaSchema = z.enum(['NORTH', 'CENTER', 'SOUTH', 'JERUSALEM', 'JUDEA_SAMARIA']);
 
 // ===== SHARED SCHEMAS =====
 export const IdSchema = z.string().cuid();
 export const EmailSchema = z.string().email('כתובת דוא"ל לא תקינה');
-export const PhoneSchema = z.string().regex(/^05\d{8}$/, 'מספר טלפון לא תקין (צריך להתחיל ב-05 ולהכיל 10 ספרות)').optional();
+export const PhoneSchema = z.string().regex(/^05\d{8}$/, 'מספר טלפון לא תקין (צריך להתחיל ב-05 ולהכיל 10 ספרות)');
+export const OptionalPhoneSchema = PhoneSchema.optional();
 
 // ===== USER SCHEMAS =====
 export const CreateUserSchema = z.object({
   name: z.string().min(2, 'שם חייב להכיל לפחות 2 תווים').max(100, 'שם לא יכול להכיל יותר מ-100 תווים'),
   email: EmailSchema,
-  phone: PhoneSchema,
+  phone: PhoneSchema, // Required to match Prisma schema
   password: z.string().min(6, 'סיסמה חייבת להכיל לפחות 6 תווים').optional(),
   roles: z.array(RoleSchema).default(['USER']),
   managedCenterIds: z.array(IdSchema).default([]),
   supervisedCenterIds: z.array(IdSchema).default([]),
-  defaultDashboard: z.string().optional(),
 });
 
 export const UpdateUserSchema = CreateUserSchema.partial().extend({
@@ -79,7 +79,7 @@ export const UpdateGameInstanceSchema = CreateGameInstanceSchema.partial().exten
 
 // ===== RENTAL SCHEMAS =====
 export const CreateRentalSchema = z.object({
-  userId: IdSchema.optional(), // Optional for guest rentals
+  userId: IdSchema,
   gameInstanceId: IdSchema,
   expectedReturnDate: z.coerce.date().optional(),
   notes: z.string().max(500, 'הערות לא יכולות להכיל יותר מ-500 תווים').optional(),
@@ -101,7 +101,7 @@ export const GuestRentalSchema = z.object({
   // User data for auto-registration
   name: z.string().min(2, 'שם חייב להכיל לפחות 2 תווים').max(100, 'שם לא יכול להכיל יותר מ-100 תווים'),
   email: EmailSchema,
-  phone: PhoneSchema,
+  phone: PhoneSchema, // Required for user creation
   
   // Rental data
   gameInstanceId: IdSchema,

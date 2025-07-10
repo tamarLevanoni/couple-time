@@ -1,27 +1,33 @@
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { getToken } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
+import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { UpdateUserSchema, PhoneSchema } from '@/lib/validations';
+import { OptionalPhoneSchema } from '@/lib/validations';
 
-// Profile update schema (subset of UpdateUserSchema)
+interface AuthToken {
+  id: string;
+  email: string;
+  name: string;
+  roles: string[];
+}
+
 const updateProfileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  phone: PhoneSchema
+  name: z.string().min(1, 'Name is required').optional(),
+  phone: OptionalPhoneSchema,
+  address: z.string().optional(),
+  city: z.string().optional(),
+  preferredLanguage: z.enum(['he', 'en']).optional(),
 });
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const token = await getToken({ req }) as AuthToken | null;
+    if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
-
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: token.id },
       select: {
         id: true,
         name: true,
@@ -29,8 +35,11 @@ export async function GET(request: NextRequest) {
         phone: true,
         roles: true,
         isActive: true,
-        createdAt: true
-      }
+        managedCenterIds: true,
+        supervisedCenterIds: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     if (!user) {
@@ -38,30 +47,33 @@ export async function GET(request: NextRequest) {
     }
 
     return apiResponse(true, user);
-
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return apiResponse(false, null, { message: 'Internal server error' }, 500);
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+    const token = await getToken({ req }) as AuthToken | null;
+    if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
+    const body = await req.json();
+    const validatedData = updateProfileSchema.parse(body);
 
-    const body = await request.json();
-    const { name, phone } = updateProfileSchema.parse(body);
+    // Remove undefined values
+    const updateData = Object.fromEntries(
+      Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+    );
+
+    if (Object.keys(updateData).length === 0) {
+      return apiResponse(false, null, { message: 'No valid fields to update' }, 400);
+    }
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        name,
-        phone
-      },
+      where: { id: token.id },
+      data: updateData,
       select: {
         id: true,
         name: true,
@@ -69,12 +81,14 @@ export async function PUT(request: NextRequest) {
         phone: true,
         roles: true,
         isActive: true,
-        createdAt: true
-      }
+        managedCenterIds: true,
+        supervisedCenterIds: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return apiResponse(true, updatedUser);
-
   } catch (error) {
     console.error('Error updating user profile:', error);
     
