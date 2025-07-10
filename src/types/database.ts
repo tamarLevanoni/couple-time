@@ -15,7 +15,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  phone: string | null;
+  phone: string;
   roles: Role[];
   managedCenterIds: string[];
   supervisedCenterIds: string[];
@@ -132,12 +132,10 @@ export interface Rental {
   gameInstanceId: string;
   status: RentalStatus;
   requestDate: Date;
-  approvedDate: Date | null;
   borrowDate: Date | null;
   returnDate: Date | null;
   expectedReturnDate: Date | null;
   notes: string | null;
-  rejectionReason: string | null;
   createdAt: Date;
   updatedAt: Date;
   

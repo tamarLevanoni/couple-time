@@ -21,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const { id } = params;
     const body = await req.json();
-    const { status, notes, rejectionReason } = SuperUpdateRentalSchema.parse(body);
+    const { status, notes } = SuperUpdateRentalSchema.parse(body);
 
     // Find the rental and verify access through supervised centers
     const rental = await prisma.rental.findFirst({
@@ -55,7 +55,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       
       // Add timestamps based on status
       if (status === 'ACTIVE') {
-        updateData.approvedDate = new Date();
         updateData.borrowDate = new Date();
       } else if (status === 'RETURNED') {
         updateData.returnDate = new Date();
@@ -68,9 +67,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       updateData.notes = notes;
     }
     
-    if (rejectionReason !== undefined) {
-      updateData.rejectionReason = rejectionReason;
-    }
 
     const updatedRental = await prisma.rental.update({
       where: { id },

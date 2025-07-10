@@ -94,12 +94,10 @@ model Rental {
   gameInstanceId         String
   status                 RentalStatus @default(PENDING)
   requestDate            DateTime @default(now())
-  approvedDate           DateTime?
   borrowDate             DateTime?
   returnDate             DateTime?
   expectedReturnDate     DateTime?
   notes                  String?
-  rejectionReason        String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 

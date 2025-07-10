@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     const body = await req.json();
-    const { status, notes, rejectionReason } = CoordinatorUpdateRentalSchema.parse(body);
+    const { status, notes } = CoordinatorUpdateRentalSchema.parse(body);
 
     const rental = await prisma.rental.findFirst({
       where: { id: params.id },
@@ -51,9 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       data: {
         ...(status && { status }),
         ...(notes !== undefined && { notes }),
-        ...(rejectionReason !== undefined && { rejectionReason }),
         ...(status === 'ACTIVE' && { 
-          approvedDate: new Date(),
           borrowDate: new Date()
         }),
         ...(status === 'RETURNED' && { 
