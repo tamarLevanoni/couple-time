@@ -125,10 +125,93 @@ For each API endpoint:
 
 ---
 
+---
+
+## 9. Types Architecture
+
+### 📁 Type File Structure
+Our types follow a practical, business-focused approach organized in layers:
+
+```
+/types/
+├── schema.ts       # Base Prisma types (User, Center, Game, etc.)
+├── models.ts       # Query objects + generated types for stores/UI
+├── computed.ts     # Business logic enhancements
+├── api.ts          # Request contracts only
+└── index.ts        # Central exports
+```
+
+### ✅ Type File Purposes
+
+**`schema.ts`** - Foundation Layer
+- Re-exports base Prisma model types (`User`, `Center`, `Game`, etc.)
+- Re-exports enums (`Role`, `Area`, `GameCategory`, etc.)
+- Source of truth for database entities
+
+**`models.ts`** - Data Models Layer
+- Query objects for database operations (`USER_CONTACT_FIELDS`, `RENTAL_FOR_USER`)
+- Generated TypeScript types for stores/UI (`UserContact`, `RentalForUser`)
+- Clean composition using select/include patterns
+
+**`computed.ts`** - Business Logic Layer
+- Enhanced types with computed fields (`RentalWithDetails`, `CenterWithStats`)
+- Context-specific business logic (users vs coordinators see different data)
+- Only reusable business enhancements, not single-use API responses
+
+**`api.ts`** - Request Contracts Layer
+- Request payload types only (`CreateGameRequest`, `UpdateUserRequest`)
+- Filter types (`GameFilters`, `CenterFilters`)
+- Responses use `ApiResponse<T>` from `/lib/api-response.ts`
+
+### ✅ Type Usage Patterns
+
+**In API Routes:**
+```typescript
+// Use query objects for database operations
+const rentals = await prisma.rental.findMany(RENTAL_FOR_USER);
+const centers = await prisma.center.findMany({ select: CENTER_BASIC_FIELDS });
+
+// Use request types for validation
+const body = CreateGameRequest.parse(await request.json());
+
+// Return with ApiResponse wrapper
+return apiResponse(true, computedData);
+```
+
+**In Stores/UI:**
+```typescript
+// Use generated types for state management
+const [rental, setRental] = useState<RentalForUser | null>(null);
+const [centers, setCenters] = useState<CenterWithCoordinator[]>([]);
+
+// Use computed types for enhanced business logic
+const enhancedRental: RentalWithDetails = {
+  ...rental,
+  isOverdue: computeOverdue(rental),
+  canCancel: computeCanCancel(rental)
+};
+```
+
+### ❌ Anti-Patterns to Avoid
+- Don't create interfaces for single-use API responses
+- Don't duplicate types that can be generated from query objects
+- Don't put business logic in the basic model types
+- Don't create over-engineered select/include patterns unless actually used
+
+### ✅ Type Naming Conventions
+- **Base models**: `User`, `Center`, `Game` (from Prisma)
+- **Query objects**: `USER_CONTACT_FIELDS`, `RENTAL_FOR_USER` (SCREAMING_SNAKE_CASE)
+- **Generated types**: `UserContact`, `RentalForUser` (PascalCase)
+- **Enhanced types**: `RentalWithDetails`, `CenterWithStats` (descriptive suffixes)
+- **Context-specific**: `ForUser`, `ForCoordinator` (shows perspective)
+
+---
+
 ## Claude Agent Summary
 
 - ✅ Plan before coding  
 - ✅ Keep things minimal and clean  
 - ❌ No unnecessary files  
 - ✅ Explain every step  
-- ✅ Delete what’s not needed
+- ✅ Delete what's not needed
+- ✅ Follow practical type architecture
