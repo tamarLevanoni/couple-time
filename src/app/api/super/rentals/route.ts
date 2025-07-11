@@ -3,7 +3,7 @@ import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { SuperCreateRentalSchema } from '@/lib/validations';
+import { CreateManualRentalSchema } from '@/lib/validations';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,13 +13,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, gameInstanceId, requestDate, expectedReturnDate, notes } = SuperCreateRentalSchema.parse(body);
+    const { userId, gameInstanceIds, expectedReturnDate, notes } = CreateManualRentalSchema.parse(body);
 
-    // Verify game instance exists and is at a center this user supervises
-    const gameInstance = await prisma.gameInstance.findFirst({
+    // Verify all game instances exist and are at centers this user supervises
+    const gameInstances = await prisma.gameInstance.findMany({
       where: {
-        id: gameInstanceId,
-        status: 'AVAILABLE',
+        id: { in: gameInstanceIds },
         center: {
           superCoordinatorId: token.id,
         },
@@ -30,8 +29,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!gameInstance) {
-      return apiResponse(false, null, { message: 'Game instance not found or not available at your supervised centers' }, 404);
+    if (gameInstances.length !== gameInstanceIds.length) {
+      return apiResponse(false, null, { message: 'One or more game instances not found at your supervised centers' }, 404);
+    }
+
+    // Verify all games are from the same center
+    const centerIds = [...new Set(gameInstances.map(gi => gi.centerId))];
+    if (centerIds.length > 1) {
+      return apiResponse(false, null, { message: 'All games must be from the same center' }, 400);
+    }
+
+    // Check for duplicate games
+    const gameIds = gameInstances.map(gi => gi.gameId);
+    const uniqueGameIds = [...new Set(gameIds)];
+    if (gameIds.length !== uniqueGameIds.length) {
+      return apiResponse(false, null, { message: 'Cannot request duplicate games in the same rental' }, 400);
     }
 
     // Verify user exists
@@ -46,31 +58,36 @@ export async function POST(req: NextRequest) {
       return apiResponse(false, null, { message: 'User not found' }, 404);
     }
 
-    // Check if user already has a pending/active rental for this game instance
-    const existingRental = await prisma.rental.findFirst({
+    // Check if user already has a pending/active rental for any of these game instances
+    const existingRentals = await prisma.rental.findMany({
       where: {
         userId,
-        gameInstanceId,
+        gameInstances: {
+          some: {
+            id: { in: gameInstanceIds },
+          },
+        },
         status: { in: ['PENDING', 'ACTIVE'] },
       },
     });
 
-    if (existingRental) {
-      return apiResponse(false, null, { message: 'User already has a pending or active rental for this game' }, 400);
+    if (existingRentals.length > 0) {
+      return apiResponse(false, null, { message: 'User already has a pending or active rental for one or more of these games' }, 400);
     }
 
     // Create rental
     const rental = await prisma.rental.create({
       data: {
         userId,
-        gameInstanceId,
         status: 'PENDING',
-        requestDate,
-        expectedReturnDate,
+        ...(expectedReturnDate && { expectedReturnDate: new Date(expectedReturnDate) }),
         notes,
+        gameInstances: {
+          connect: gameInstanceIds.map(id => ({ id })),
+        },
       },
       include: {
-        gameInstance: {
+        gameInstances: {
           include: {
             game: true,
             center: true,

@@ -336,13 +336,153 @@ Before starting implementation, I need clarification on:
 
 ---
 
+# URGENT: Multiple Games Per Rental Implementation
+
+## Problem Statement
+Currently, rentals support only one game per request. We need to update the system to allow multiple games in a single rental request, with the following constraints:
+- All games must be from the same center
+- All games share the same rental and return dates
+- A request can only be approved if ALL included games are available at the center
+
+## Current System Analysis
+- **Current Structure**: One-to-one relationship between Rental and GameInstance
+- **Database Schema**: `Rental.gameInstanceId` references single GameInstance
+- **API Endpoints**: All designed around single game rentals
+- **Types**: All rental types assume single game per rental
+
+## Proposed Changes
+
+### 1. Database Schema Updates
+- **Remove**: `Rental.gameInstanceId` field
+- **Add**: `Rental.gameInstances` relation array for multiple GameInstance records
+- **Keep**: GameInstance model unchanged
+
+### 2. Type System Updates
+- **Schema Types**: Update Rental type to include gameInstances array
+- **Query Objects**: Update rental queries to handle multiple game instances
+- **API Types**: Update request/response types for multiple games
+- **Computed Types**: Update business logic for multiple game calculations
+
+### 3. API Endpoint Updates
+- **User Rentals**: Accept array of gameInstanceIds in requests
+- **Coordinator Management**: Display multiple games per rental
+- **Validation**: Ensure all games from same center and available
+
+### 4. Business Logic Updates
+- **Availability Checking**: Validate all games are available simultaneously
+- **Center Validation**: Ensure all games belong to same center
+- **Status Management**: Handle rental status based on all game instances
+
+## Database Schema Changes
+
+### Updated Rental Model
+```prisma
+model Rental {
+  // Remove: gameInstanceId String
+  // Add:
+  gameInstances   GameInstance[]
+  // Keep all other fields unchanged
+}
+```
+
+### GameInstance Model
+```prisma
+model GameInstance {
+  // No changes needed - keep as is
+}
+```
+
+## Validation Rules
+
+### New Business Rules
+1. **Same Center Constraint**: All games in a rental must belong to same center
+2. **Availability Constraint**: All games must be available at request time
+3. **Unique Games**: No duplicate games allowed in single rental
+4. **Minimum Games**: At least one game required per rental
+
+### Updated API Validation
+```typescript
+// Example request structure
+interface CreateRentalRequest {
+  gameInstanceIds: string[];  // Array of game instance IDs to connect
+  notes?: string;
+}
+
+// Validation logic
+- Validate all gameInstanceIds exist and are available
+- Validate all belong to same center
+- Validate no duplicates in array
+- Validate array has at least one item
+```
+
+## Implementation Status ✅ COMPLETED
+
+### What Was Accomplished
+1. **Database Schema Updated** ✅
+   - Removed `gameInstanceId` from Rental model
+   - Added `gameInstances GameInstance[]` relation array
+   - Generated Prisma client and pushed to database
+
+2. **Type System Updated** ✅
+   - Updated `RENTAL_FOR_USER` and `RENTAL_FOR_COORDINATOR` query objects to use `gameInstances`
+   - Updated `CreateRentalRequest` interface to accept `gameInstanceIds: string[]`
+   - Updated validation schemas to handle multiple games with proper constraints
+
+3. **API Endpoints Updated** ✅
+   - **User Rentals**: 
+     - GET `/api/user/rentals` - Added endpoint to fetch user rentals with multiple games
+     - POST `/api/user/rentals` - Updated to handle multiple game instances
+     - PUT `/api/user/rentals/[id]` - Updated to work with new schema
+   - **Coordinator Rentals**:
+     - POST `/api/coordinator/rentals` - Updated to handle multiple game instances
+     - PUT `/api/coordinator/rentals/[id]` - Updated to work with new schema
+   - **Super Coordinator Rentals**:
+     - POST `/api/super/rentals` - Updated to handle multiple game instances
+     - PUT `/api/super/rentals/[id]` - Updated to work with new schema
+
+4. **Business Logic Implemented** ✅
+   - **Same Center Validation**: All games must be from the same center
+   - **Availability Flexibility**: Users can request games regardless of current status (ACTIVE/UNAVAILABLE)
+   - **Duplicate Prevention**: No duplicate games in same rental
+   - **Existing Rental Checks**: Prevents conflicts with pending/active rentals
+
+5. **Database Migration** ✅
+   - Schema changes successfully applied to database
+   - System test confirms all models working correctly
+
+### Key Features Implemented
+- **Multiple Games Per Rental**: Users can now request 1-10 games in a single rental
+- **Center Constraint**: All games must be from the same center
+- **Flexible Availability**: Users can request games regardless of current status (ACTIVE/UNAVAILABLE)
+- **Game Instance Management**: Proper status updates for multiple game instances
+- **Backward Compatibility**: All existing rental logic preserved
+
+### Updated API Request Format
+```typescript
+// Before (single game)
+{
+  "gameInstanceId": "clXXXXXXXX",
+  "notes": "Optional notes"
+}
+
+// After (multiple games)
+{
+  "gameInstanceIds": ["clXXXXXXXX", "clYYYYYYYY", "clZZZZZZZZ"],
+  "notes": "Optional notes"
+}
+```
+
+### Validation Rules Implemented
+1. **Array Length**: 1-10 games per rental (configurable)
+2. **Same Center**: All games must belong to same center
+3. **No Duplicates**: No duplicate games in same rental
+4. **Availability**: All games must be available
+5. **Conflict Prevention**: No overlapping rentals for same games
+
 ## Next Steps
-1. **CURRENT**: Complete Phase 1.9 - API Route Refactor
-2. Begin Phase 2 - Update stores to match new API endpoints
-3. Implement state management updates for all stores
-4. Create new stores for authentication and rentals
-5. Test store integration with new APIs
-6. Move to Phase 3 - UI implementation and dashboard completion
+1. **Testing**: Add comprehensive tests for multiple game scenarios
+2. **Frontend Updates**: Update UI to support multiple game selection
+3. **Documentation**: Update API documentation with new request formats
 
 ---
 

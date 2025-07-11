@@ -3,7 +3,7 @@ import { getToken, JWT } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 import { apiResponse } from '@/lib/api-response';
 import { z } from 'zod';
-import { CoordinatorUpdateRentalSchema } from '@/lib/validations';
+import { UpdateRentalSchema } from '@/lib/validations';
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -12,12 +12,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     const body = await req.json();
-    const { status, notes } = CoordinatorUpdateRentalSchema.parse(body);
+    const { status, notes } = UpdateRentalSchema.parse(body);
 
     const rental = await prisma.rental.findFirst({
       where: { id: params.id },
       include: {
-        gameInstance: {
+        gameInstances: {
           include: {
             center: true,
             game: true
@@ -30,9 +30,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return apiResponse(false, null, { message: 'Rental not found' }, 404);
     }
 
-    // Check if coordinator has access to this rental's center
-    const hasAccess = rental.gameInstance.center.coordinatorId === token.id ||
-                     rental.gameInstance.center.superCoordinatorId === token.id;
+    // Check if coordinator has access to this rental's centers
+    const hasAccess = rental.gameInstances.every(gi => 
+      gi.center.coordinatorId === token.id || gi.center.superCoordinatorId === token.id
+    );
 
     if (!hasAccess) {
       return apiResponse(false, null, { message: 'Access denied to this center' }, 403);
@@ -52,7 +53,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         })
       },
       include: {
-        gameInstance: {
+        gameInstances: {
           include: {
             game: true,
             center: true
@@ -69,11 +70,20 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       }
     });
 
-    // Update game instance status if needed
+    // Update game instance statuses if needed
     if (status === 'CANCELLED' || status === 'RETURNED') {
-      await prisma.gameInstance.update({
-        where: { id: rental.gameInstanceId },
+      await prisma.gameInstance.updateMany({
+        where: { 
+          id: { in: rental.gameInstances.map(gi => gi.id) },
+        },
         data: { status: 'AVAILABLE' }
+      });
+    } else if (status === 'ACTIVE') {
+      await prisma.gameInstance.updateMany({
+        where: { 
+          id: { in: rental.gameInstances.map(gi => gi.id) },
+        },
+        data: { status: 'BORROWED' }
       });
     }
 

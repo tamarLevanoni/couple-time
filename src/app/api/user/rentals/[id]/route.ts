@@ -3,7 +3,7 @@ import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { UserUpdateRentalSchema } from '@/lib/validations';
+import { UpdateRentalSchema } from '@/lib/validations';
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -13,7 +13,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
     const { id } = params;
     const body = await req.json();
-    const { action, reason } = UserUpdateRentalSchema.parse(body);
+    const { status, notes } = UpdateRentalSchema.parse(body);
 
     // Find the rental and verify ownership
     const rental = await prisma.rental.findFirst({
@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         userId: token.id,
       },
       include: {
-        gameInstance: {
+        gameInstances: {
           include: {
             game: true,
             center: true,
@@ -35,39 +35,36 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return apiResponse(false, null, { message: 'Rental not found' }, 404);
     }
 
-    // Check if rental can be cancelled
-    if (rental.status !== 'PENDING') {
+    // Check if rental can be updated
+    if (status && status === 'CANCELLED' && rental.status !== 'PENDING') {
       return apiResponse(false, null, { message: 'Only pending rentals can be cancelled' }, 400);
     }
 
-    if (action === 'cancel') {
-      // Update rental status to cancelled
-      const updatedRental = await prisma.rental.update({
-        where: { id },
-        data: {
-          status: 'CANCELLED',
-        },
-        include: {
-          gameInstance: {
-            include: {
-              game: true,
-              center: true,
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
+    // Update rental
+    const updatedRental = await prisma.rental.update({
+      where: { id },
+      data: {
+        ...(status && { status }),
+        ...(notes && { notes }),
+      },
+      include: {
+        gameInstances: {
+          include: {
+            game: true,
+            center: true,
           },
         },
-      });
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
 
-      return apiResponse(true, updatedRental);
-    }
-
-    return apiResponse(false, null, { message: 'Invalid action' }, 400);
+    return apiResponse(true, updatedRental);
   } catch (error) {
     console.error('Error updating rental:', error);
     

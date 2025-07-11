@@ -98,7 +98,6 @@ model GameInstance {
 model Rental {
   id                     String   @id @default(cuid())
   userId                 String
-  gameInstanceId         String
   status                 RentalStatus @default(PENDING)
   requestDate            DateTime @default(now())
   borrowDate             DateTime?
@@ -110,7 +109,7 @@ model Rental {
 
   // Relations
   user                   User     @relation(fields: [userId], references: [id])
-  gameInstance           GameInstance @relation(fields: [gameInstanceId], references: [id])
+  gameInstances          GameInstance[]
 
   @@map("rentals")
 }

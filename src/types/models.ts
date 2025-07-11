@@ -53,7 +53,7 @@ export const GAME_INSTANCE_WITH_CENTER = {
 // ===== RENTAL INCLUDES =====
 
 export const RENTAL_FOR_USER = {
-  gameInstance: {
+  gameInstances: {
     include: GAME_INSTANCE_WITH_CENTER,
   },
 } as const satisfies Prisma.RentalInclude;
@@ -62,7 +62,7 @@ export const RENTAL_FOR_COORDINATOR = {
   user: {
     select: USER_CONTACT_FIELDS,
   },
-  gameInstance: {
+  gameInstances: {
     include: GAME_INSTANCE_WITH_GAME,
   },
 } as const satisfies Prisma.RentalInclude;

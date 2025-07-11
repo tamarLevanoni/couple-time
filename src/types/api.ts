@@ -50,8 +50,10 @@ export type UpdateCenterRequest = Partial<Pick<Center,
   'name' | 'city' | 'area' | 'coordinatorId' | 'superCoordinatorId' | 'location' | 'isActive'>>;
 
 // Rental requests
-export type CreateRentalRequest = Pick<Rental, 'gameInstanceId'> & 
-  Partial<Pick<Rental, 'notes'>>;
+export interface CreateRentalRequest {
+  gameInstanceIds: string[];
+  notes?: string;
+}
 
 export type UpdateRentalRequest = Partial<Pick<Rental, 
   'status' | 'expectedReturnDate' | 'notes'>>;

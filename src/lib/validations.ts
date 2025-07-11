@@ -85,7 +85,6 @@ export const GameInstanceSchema = z.object({
 export const RentalSchema = z.object({
   id: z.string().cuid(),
   userId: z.string().cuid(),
-  gameInstanceId: z.string().cuid(),
   status: RentalStatusSchema,
   requestDate: z.date(),
   borrowDate: z.date().optional(),
@@ -157,18 +156,16 @@ export const CenterListRequestSchema = z.object({
 });
 
 // Rental API validations
-export const CreateRentalSchema = RentalSchema.pick({
-  gameInstanceId: true,
-}).extend({
-  notes: RentalSchema.shape.notes,
+export const CreateRentalSchema = z.object({
+  gameInstanceIds: z.array(z.string().cuid()).min(1, "At least one game instance is required").max(10, "Maximum 10 games per rental"),
+  notes: z.string().max(500).optional(),
 });
 
-export const CreateManualRentalSchema = RentalSchema.pick({
-  userId: true,
-  gameInstanceId: true,
-}).extend({
+export const CreateManualRentalSchema = z.object({
+  userId: z.string().cuid(),
+  gameInstanceIds: z.array(z.string().cuid()).min(1, "At least one game instance is required").max(10, "Maximum 10 games per rental"),
   expectedReturnDate: z.string().datetime().optional(),
-  notes: RentalSchema.shape.notes,
+  notes: z.string().max(500).optional(),
 });
 
 export const UpdateRentalSchema = RentalSchema.pick({
