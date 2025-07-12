@@ -55,8 +55,7 @@ export interface CreateRentalRequest {
   notes?: string;
 }
 
-export type UpdateRentalRequest = Partial<Pick<Rental, 
-  'status' | 'expectedReturnDate' | 'notes'>>;
+export type UpdateRentalRequest = Partial<Pick<Rental, 'status'>>;
 
 export interface RentalListRequest {
   filters?: RentalFilters;
@@ -69,7 +68,7 @@ export type AddGameToCenterRequest = {
 
 // Admin requests
 export type UpdateUserRequest = Partial<Pick<User, 
-  'name' | 'phone' | 'roles' | 'isActive' | 'managedCenterIds' | 'supervisedCenterIds'>>;
+  'name' | 'phone' | 'roles' | 'isActive' | 'managedCenterId' | 'supervisedCenterIds'>>;
 
 // ===== UTILITY TYPES =====
 

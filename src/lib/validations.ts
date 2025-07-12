@@ -29,7 +29,7 @@ export const UserSchema = z.object({
   email: z.string().email('Invalid email format'),
   phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
   roles: z.array(RoleSchema).min(1, 'At least one role is required'),
-  managedCenterIds: z.array(z.string().cuid()),
+  managedCenterId: z.string().cuid().optional(),
   supervisedCenterIds: z.array(z.string().cuid()),
   isActive: z.boolean(),
   createdAt: z.date(),
@@ -194,7 +194,7 @@ export const UpdateUserSchema = UserSchema.pick({
   phone: true,
   roles: true,
   isActive: true,
-  managedCenterIds: true,
+  managedCenterId: true,
   supervisedCenterIds: true,
 }).partial();
 
@@ -205,6 +205,13 @@ export const UserListRequestSchema = z.object({
     search: z.string().min(1).max(100).optional(),
     centerId: z.string().cuid().optional(),
   }).optional(),
+});
+
+export const AssignRoleSchema = z.object({
+  userId: z.string().cuid(),
+  roles: z.array(RoleSchema).min(1, 'At least one role is required'),
+  managedCenterId: z.string().cuid().optional(),
+  supervisedCenterIds: z.array(z.string().cuid()).optional(),
 });
 
 // Coordinator API validations

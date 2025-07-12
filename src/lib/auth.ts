@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             phone: user.phone,
             roles: user.roles,
-            managedCenterIds: user.managedCenterIds,
+            managedCenterId: user.managedCenterId,
             supervisedCenterIds: user.supervisedCenterIds,
             isActive: user.isActive,
           };
@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
                 phone: '', // Empty phone - user will need to update this
                 googleId: account.providerAccountId,
                 roles: [Role.USER],
-                managedCenterIds: [],
+                managedCenterId: null,
                 supervisedCenterIds: [],
                 isActive: false, // Inactive until phone is provided
               },
@@ -184,6 +184,6 @@ export const hasAnyRole = (user: any, roles: Role[]): boolean => {
 
 export const canManageCenter = (user: any, centerId: string): boolean => {
   return hasRole(user, Role.ADMIN) || 
-         user?.managedCenterIds?.includes(centerId) ||
+         user?.managedCenterId === centerId ||
          user?.supervisedCenterIds?.includes(centerId);
 };
