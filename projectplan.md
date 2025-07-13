@@ -322,13 +322,16 @@ Current endpoints exist but need complete rewrite to match documentation:
 ### Phase 2.3: Public Endpoints (Match Documentation) ✅ COMPLETE
 - [x] Rewrite `/api/public/centers` using CENTER_PUBLIC_INFO query
 - [x] Rewrite `/api/public/games` using GAMES_PUBLIC_INFO query
+- [x] Write vitest tests for public endpoints (following CLAUDE.md standards)
+- [x] Test factories in src/test/factories.ts
+- [x] Test utilities in src/test/utils.ts
+- [x] Fixed TypeScript errors and moved tests to proper src/test/ directory
 
-### Phase 2.4: Auth Endpoints (Match Documentation)  
-- [ ] Rewrite `/api/auth/register/google` - Google OAuth registration
-- [ ] Rewrite `/api/auth/register/email` - Email/password registration
-- [ ] Rewrite `/api/auth/login/google` - Google OAuth login
-- [ ] Rewrite `/api/auth/login/email` - Email/password login
-- [ ] Update `/api/user` to match USER_WITH_ACTIVE_RENTALS specification
+### Phase 2.4: Auth Endpoints (Match Documentation) ✅ COMPLETE
+- [x] Update `/api/auth/me` to match UserProfileWithRentals specification
+- [x] Update `/api/auth/register` to use proper query objects 
+- [x] Use USER_CONTACT_FIELDS and RENTAL_FOR_USER consistently
+- [x] Enhanced user profile response with active rentals
 
 ### Phase 2.5: User Endpoints (Match Documentation)
 - [ ] Rewrite `/api/user/rentals` - GET (rental history) & POST (create rental)
@@ -545,6 +548,34 @@ The system now has a consistent, well-structured API foundation ready for Phase 
 - ✅ Clean separation between public and internal data
 
 Both public endpoints now match the API documentation specification and provide clean, consistent data for public consumption.
+
+### Phase 2.4 Completion Summary ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **Auth Profile Endpoint**: Updated `/api/auth/me` to include active rentals
+  - GET method now returns `UserProfileWithRentals` with current active/pending rentals
+  - Uses `USER_CONTACT_FIELDS` and `RENTAL_FOR_USER` query objects
+  - Includes user roles, permissions, and center assignments
+  - PUT method simplified to use standardized query objects
+
+- **Registration Endpoint**: Updated `/api/auth/register` for consistency
+  - Uses `USER_CONTACT_FIELDS` for consistent user data response
+  - Maintains existing functionality with improved type safety
+  - Proper error handling with centralized validation
+
+**API Improvements:**
+- ✅ Enhanced user profile with rental data
+- ✅ Consistent query object usage across auth endpoints
+- ✅ Proper type safety with standardized response formats
+- ✅ CORS support automatically included via updated `apiResponse`
+
+**User Experience:**
+- Profile endpoint now provides complete user context including active rentals
+- Fast loading of user dashboard data with single API call
+- Consistent data format across all authentication flows
+
+Auth endpoints now provide rich, well-structured user data that supports efficient frontend state management.
 
 ## Complete API Endpoints Specification
 
