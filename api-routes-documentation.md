@@ -52,7 +52,7 @@ Based on user stories and business requirements from `/characterization/user_sto
 
 **GET /api/public/centers** - Find nearby centers (US-1.2)
 - Request: None  
-- DB Query: [`CENTERS_PUBLIC_INFO`](#centers_public_info) → **models.ts**
+- DB Query: [`CENTER_PUBLIC_INFO`](#center_public_info) → **models.ts**
 - Response: `CenterForPublic[]` - Array of center objects
 
 ### 📁 AUTH ROUTES
@@ -498,7 +498,7 @@ Based on user stories and business requirements from `/characterization/user_sto
 }
 ```
 
-#### CENTERS_PUBLIC_INFO
+#### CENTER_PUBLIC_INFO
 ```typescript
 {
   select: {

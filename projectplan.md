@@ -271,19 +271,34 @@ Before starting implementation, I need clarification on:
 
 ---
 
-# API Endpoints Complete Rewrite Project
+# PHASE 2: Complete Types & API Rewrite Project
 
 ## Overview
-Complete rewrite of all API endpoints from scratch, using the existing types from `@src/types` for type safety and consistency. The goal is to create minimal, clean, organized and well-documented API endpoints.
+Complete rewrite of all types and API endpoints to match the api-routes-documentation.md specification. The goal is to create a clean, consistent, and well-documented API that matches the business requirements outlined in user stories.
 
-## Current API Structure Analysis
-Based on the existing endpoints, we have:
+## Current State Analysis
+
+### Types Structure ✅ (Strong Foundation)
+- **schema.ts**: Base Prisma types and enums ✅
+- **models.ts**: Query objects and generated types ✅ 
+- **computed.ts**: Business logic enhancements ✅
+- **validations.ts**: Comprehensive API request schemas ✅
+
+### API Structure Analysis
+Current endpoints exist but need complete rewrite to match documentation:
 - **Auth endpoints**: `/auth/me`, `/auth/register`, `/auth/[...nextauth]`
 - **Public endpoints**: `/public/centers`, `/public/games`
 - **User endpoints**: `/user/`, `/user/rentals`, `/user/rentals/[id]`
 - **Coordinator endpoints**: `/coordinator/`, `/coordinator/games`, `/coordinator/games/[id]`, `/coordinator/rentals`, `/coordinator/rentals/[id]`
 - **Admin endpoints**: `/admin/games`, `/admin/roles`, `/admin/users`, `/admin/system`, `/admin/centers`
 - **Super endpoints**: `/super/games`, `/super/games/[id]`, `/super/centers`, `/super/centers/[id]`, `/super/rentals`, `/super/rentals/[id]`
+
+### Gaps Identified
+1. **Inconsistent response formats**: Not using standardized apiResponse
+2. **Missing query objects**: Several query objects missing from models.ts
+3. **Missing computed types**: Dashboard and analytics types incomplete
+4. **Route structure mismatch**: Current routes don't match the specification
+5. **Route functionality gaps**: Several endpoints need complete functionality rewrite
 
 ## Types Architecture Available
 - **Schema types**: Base Prisma types (User, Center, Game, etc.)
@@ -293,55 +308,179 @@ Based on the existing endpoints, we have:
 
 ## Implementation Plan
 
-### Phase 1: Core Infrastructure & Auth
-- [ ] Set up common API response utilities
-- [ ] Rewrite auth endpoints (`/auth/me`, `/auth/register`)
-- [ ] Ensure middleware integration works correctly
+### Phase 2.1: Complete Types Architecture ✅ (Priority 1)
+- [ ] Add missing query objects to models.ts (GAMES_PUBLIC_INFO, CENTER_PUBLIC_INFO, etc.)
+- [ ] Add missing computed types for dashboards and analytics  
+- [ ] Update computed.ts with proper dashboard response types
+- [ ] Add proper type exports to index.ts
 
-### Phase 2: Public Endpoints
-- [ ] Rewrite `/public/centers` - public center listing
-- [ ] Rewrite `/public/games` - public game catalog
+### Phase 2.2: Core Infrastructure Updates
+- [ ] Standardize all responses to use apiResponse format
+- [ ] Update validation to use centralized schemas consistently
+- [ ] Ensure middleware works with new route structure
 
-### Phase 3: User Endpoints
-- [ ] Rewrite `/user/` - user profile management
-- [ ] Rewrite `/user/rentals` - user rental management
-- [ ] Rewrite `/user/rentals/[id]` - individual rental operations
+### Phase 2.3: Public Endpoints (Match Documentation)
+- [ ] Rewrite `/api/public/centers` using CENTER_PUBLIC_INFO query
+- [ ] Rewrite `/api/public/games` using GAMES_PUBLIC_INFO query
 
-### Phase 4: Coordinator Endpoints
-- [ ] Rewrite `/coordinator/` - coordinator dashboard
-- [ ] Rewrite `/coordinator/games` - center game management
-- [ ] Rewrite `/coordinator/games/[id]` - individual game operations
-- [ ] Rewrite `/coordinator/rentals` - rental management for coordinators
-- [ ] Rewrite `/coordinator/rentals/[id]` - individual rental operations
+### Phase 2.4: Auth Endpoints (Match Documentation)  
+- [ ] Rewrite `/api/auth/register/google` - Google OAuth registration
+- [ ] Rewrite `/api/auth/register/email` - Email/password registration
+- [ ] Rewrite `/api/auth/login/google` - Google OAuth login
+- [ ] Rewrite `/api/auth/login/email` - Email/password login
+- [ ] Update `/api/user` to match USER_WITH_ACTIVE_RENTALS specification
 
-### Phase 5: Admin Endpoints
-- [ ] Rewrite `/admin/games` - system-wide game management
-- [ ] Rewrite `/admin/roles` - role management
-- [ ] Rewrite `/admin/users` - user management
-- [ ] Rewrite `/admin/system` - system analytics
-- [ ] Rewrite `/admin/centers` - center management
+### Phase 2.5: User Endpoints (Match Documentation)
+- [ ] Rewrite `/api/user/rentals` - GET (rental history) & POST (create rental)
+- [ ] Rewrite `/api/user/rentals/[id]` - PUT (cancel rental)
+- [ ] Update user profile endpoint to match UserProfileWithRentals type
 
-### Phase 6: Super Endpoints
-- [ ] Rewrite `/super/games` - super coordinator game management
-- [ ] Rewrite `/super/games/[id]` - individual game operations
-- [ ] Rewrite `/super/centers` - super coordinator center management
-- [ ] Rewrite `/super/centers/[id]` - individual center operations
-- [ ] Rewrite `/super/rentals` - super coordinator rental oversight
-- [ ] Rewrite `/super/rentals/[id]` - individual rental operations
+### Phase 2.6: Coordinator Endpoints (Match Documentation)
+- [ ] Rewrite `/api/coordinator` - GET (complete dashboard using COORDINATOR_DASHBOARD)
+- [ ] Rewrite `/api/coordinator/rentals` - GET with filters & POST (manual rental)
+- [ ] Rewrite `/api/coordinator/rentals/[id]` - PUT (update status)
+- [ ] Rewrite `/api/coordinator/games` - GET (center games) & POST (add game)
+- [ ] Rewrite `/api/coordinator/games/[id]` - PUT (update game status)
+- [ ] Add `/api/coordinator/stats` - GET (center statistics)
+
+### Phase 2.7: Super Coordinator Endpoints (Match Documentation)
+- [ ] Rewrite `/api/super/centers` - GET (supervised centers with CENTERS_FOR_SUPER_COORDINATOR)
+- [ ] Rewrite `/api/super/rentals` - GET (cross-center rental management)
+- [ ] Rewrite `/api/super/rentals/[id]` - PUT (update rental status)
+- [ ] Remove super game management endpoints (not in specification)
+
+### Phase 2.8: Admin Endpoints (Match Documentation)
+- [ ] Rewrite `/api/admin/users` - GET (user management with USERS_FOR_ADMIN)
+- [ ] Rewrite `/api/admin/users/[id]` - PUT (update user details)
+- [ ] Rewrite `/api/admin/centers` - GET, POST & PUT, plus add `/api/admin/centers/[id]` PUT
+- [ ] Rewrite `/api/admin/games` - GET (global game management)
+- [ ] Rewrite `/api/admin/games/[id]` - PUT (edit games)
+- [ ] Rewrite `/api/admin/rentals` - GET (system-wide rental oversight)
+- [ ] Rewrite `/api/admin/rentals/[id]` - PUT (admin override updates)
+
+## Development Process & Best Practices
+
+### 1. **Types-First Development**
+Always complete type system before writing routes to prevent constant refactoring.
+
+### 2. **Route Development Template**
+Standard template for all API routes:
+```typescript
+export async function GET(req: NextRequest) {
+  try {
+    // 1. Auth check
+    const token = await getToken({ req }) as JWT | null;
+    if (!token) return apiResponse(false, null, { message: 'Auth required' }, 401);
+    
+    // 2. Permission check
+    if (!hasPermission(token, 'REQUIRED_PERMISSION')) return apiResponse(false, null, { message: 'Forbidden' }, 403);
+    
+    // 3. Validation (if needed)
+    const params = ValidationSchema.parse(await req.json());
+    
+    // 4. Database query with predefined query object
+    const data = await prisma.model.operation(QUERY_OBJECT);
+    
+    // 5. Apply computed logic (if needed)
+    const enhancedData = addComputedFields(data);
+    
+    // 6. Standardized response
+    return apiResponse(true, enhancedData);
+  } catch (error) {
+    return handleError(error);
+  }
+}
+```
+
+### 3. **Documentation-Driven Development**
+For each route:
+1. Copy exact specification from api-routes-documentation.md
+2. Identify required query object from models.ts
+3. Identify validation schema from validations.ts
+4. Write test first (optional but recommended)
+5. Implement route using template
+6. Test immediately
+
+### 4. **Development Priority Order**
+**Quick Wins (Start Here):**
+- Public routes (no auth, simple)
+- Auth routes (well-defined patterns)
+
+**Medium Complexity:**
+- User routes (single user context)
+- Basic admin routes
+
+**Complex (Do Last):**
+- Dashboard routes (complex aggregations)
+- Super coordinator routes (cross-center logic)
+
+### 5. **Quality Gates**
+Before considering a route "done":
+- [ ] Matches api-routes-documentation.md exactly
+- [ ] Uses correct validation schema from validations.ts
+- [ ] Uses correct query object from models.ts
+- [ ] Returns standardized apiResponse format
+- [ ] Has proper error handling
+- [ ] Manual test passes (use Postman/curl)
+
+### 6. **Testing Strategy**
+```bash
+# Test each route immediately after writing
+npm test -- src/app/api/public/games/route.test.ts
+
+# Run full test suite before committing
+npm test
+
+# Ensure no type errors
+npm run build
+```
+
+### 7. **Incremental Database Query Building**
+```typescript
+// Start simple
+const users = await prisma.user.findMany();
+
+// Add the documented query object
+const users = await prisma.user.findMany(USERS_FOR_ADMIN);
+
+// Add computed fields last
+return users.map(user => ({ ...user, computedField: calculateValue(user) }));
+```
 
 ## Design Principles
-1. **Type Safety**: Use existing types from `@src/types` extensively
-2. **Consistency**: Standardized response format `{ success: boolean, data?: any, error?: { message: string } }`
-3. **Minimal Code**: Keep handlers focused and concise
-4. **Clear Documentation**: Each endpoint clearly documented
-5. **Permission Grouping**: Group routes by permission level
-6. **Error Handling**: Comprehensive error handling with proper status codes
+1. **API Documentation Compliance**: Match api-routes-documentation.md exactly
+2. **Type Safety**: Use existing types from `@src/types` + validation schemas
+3. **Consistency**: Standardized response format using apiResponse helper
+4. **Route Structure**: Follow exact URL patterns from specification
+5. **Query Objects**: Use predefined query objects from models.ts
+6. **Business Logic**: Apply computed types for enhanced data
+7. **Validation**: Use existing schemas from `@src/lib/validations.ts`
 
-## New Type Requirements
-Based on the endpoint analysis, we may need to suggest these additional types:
-- Dashboard-specific response types for coordinators/admins
-- System analytics types for admin dashboard
-- Role management types for admin operations
+## Critical Type Requirements (Phase 2.1)
+
+### Request Schemas ✅ Available in validations.ts:
+- `RegisterWithGoogleSchema`, `RegisterWithEmailSchema` ✅
+- `CreateRentalSchema`, `UpdateRentalSchema` ✅  
+- `CreateCenterSchema`, `UpdateCenterSchema` ✅
+- `AssignRoleSchema`, `UserListRequestSchema` ✅
+- `AddGameToCenterSchema`, `CreateManualRentalSchema` ✅
+
+### Missing Query Objects in models.ts:
+```typescript
+export const GAMES_PUBLIC_INFO = { select: { id: true, name: true, description: true, categories: true, targetAudiences: true, imageUrl: true } }
+export const CENTER_PUBLIC_INFO = { include: { coordinator: { select: USER_CONTACT_FIELDS }, gameInstances: { select: { id: true, gameId: true, status: true, expectedReturnDate: true } } } }
+export const COORDINATOR_DASHBOARD = { include: { superCoordinator: { select: USER_CONTACT_FIELDS }, gameInstances: true, rentals: { where: { status: { in: ['PENDING', 'ACTIVE'] } }, include: { user: { select: USER_CONTACT_FIELDS } } } } }
+export const CENTERS_FOR_SUPER_COORDINATOR = { /* from documentation */ }
+export const USERS_FOR_ADMIN = { include: { managedCenter: { select: CENTER_BASIC_FIELDS }, supervisedCenters: { select: CENTER_BASIC_FIELDS } } }
+```
+
+### Missing Computed Types:
+```typescript
+export interface UserProfileWithRentals extends UserProfile { currentRentals: RentalForUser[]; }
+export interface CoordinatorDashboard { center: CenterWithStats; pendingRentals: RentalForCoordinator[]; activeRentals: RentalForCoordinator[]; /* etc */ }
+export interface GameForPublic { id: string; name: string; description?: string; categories: GameCategory[]; targetAudiences: TargetAudience[]; imageUrl?: string; }
+export interface CenterForPublic { id: string; name: string; city: string; area: Area; location?: object; coordinator: UserContact; gameInstances: object[]; }
+```
 
 ## Complete API Endpoints Specification
 

@@ -30,7 +30,7 @@ export const UserSchema = z.object({
   phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
   roles: z.array(RoleSchema).min(1, 'At least one role is required'),
   managedCenterId: z.string().cuid().optional(),
-  supervisedCenterIds: z.array(z.string().cuid()),
+  supervisedCenterIds: z.array(z.string().cuid()).optional(),
   isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
