@@ -37,7 +37,6 @@ export const UserSchema = z.object({
   // Optional auth fields
   googleId: z.string().optional(),
   password: z.string().optional(),
-  image: z.string().url().optional(),
 });
 
 // Center validation
@@ -62,8 +61,8 @@ export const GameSchema = z.object({
   id: z.string().cuid(),
   name: z.string().min(1, 'Game name is required').max(100),
   description: z.string().max(1000).optional(),
-  category: GameCategorySchema,
-  targetAudience: TargetAudienceSchema,
+  categories: z.array(GameCategorySchema).min(1, 'At least one category is required'),
+  targetAudiences: z.array(TargetAudienceSchema).min(1, 'At least one targetAudience is required'),
   imageUrl: z.string().url().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -85,6 +84,7 @@ export const GameInstanceSchema = z.object({
 export const RentalSchema = z.object({
   id: z.string().cuid(),
   userId: z.string().cuid(),
+  centerId: z.string().cuid(),
   status: RentalStatusSchema,
   requestDate: z.date(),
   borrowDate: z.date().optional(),
@@ -98,6 +98,29 @@ export const RentalSchema = z.object({
 // ===== API REQUEST VALIDATIONS =====
 
 // User API validations
+export const RegisterWithGoogleSchema = z.object({
+  googleId: z.string().min(1, 'Google ID is required'),
+  name: UserSchema.shape.name,
+  email: UserSchema.shape.email,
+  phone: UserSchema.shape.phone,
+});
+
+export const RegisterWithEmailSchema = z.object({
+  name: UserSchema.shape.name,
+  email: UserSchema.shape.email,
+  phone: UserSchema.shape.phone,
+  password: z.string().min(8, 'Password must be at least 8 characters').max(100),
+});
+
+export const LoginWithGoogleSchema = z.object({
+  googleId: z.string().min(1, 'Google ID is required'),
+});
+
+export const LoginWithEmailSchema = z.object({
+  email: UserSchema.shape.email,
+  password: z.string().min(1, 'Password is required'),
+});
+
 export const UpdateUserProfileSchema = UserSchema.pick({
   name: true,
   phone: true,
@@ -106,23 +129,13 @@ export const UpdateUserProfileSchema = UserSchema.pick({
 // Game API validations
 export const CreateGameSchema = GameSchema.pick({
   name: true,
-  category: true,
-  targetAudience: true,
+  categories: true,
+  targetAudiences: true,
 }).extend({
   description: GameSchema.shape.description,
   imageUrl: GameSchema.shape.imageUrl,
 });
 
-export const GameCatalogRequestSchema = z.object({
-  centerId: z.string().cuid().optional(),
-  filters: z.object({
-    category: GameCategorySchema.optional(),
-    targetAudience: TargetAudienceSchema.optional(),
-    centerId: z.string().cuid().optional(),
-    status: GameInstanceStatusSchema.optional(),
-    search: z.string().min(1).max(100).optional(),
-  }).optional(),
-});
 
 // Center API validations
 export const CreateCenterSchema = CenterSchema.pick({
@@ -145,48 +158,59 @@ export const UpdateCenterSchema = CenterSchema.pick({
   isActive: true,
 }).partial();
 
-export const CenterListRequestSchema = z.object({
-  filters: z.object({
-    area: AreaSchema.optional(),
-    city: z.string().min(1).max(50).optional(),
-    isActive: z.boolean().optional(),
-    hasCoordinator: z.boolean().optional(),
-    search: z.string().min(1).max(100).optional(),
-  }).optional(),
-});
+// ===== RENTAL API VALIDATIONS =====
+// Business Rule: All game instances in a rental must belong to the same center
+// This prevents cross-center rental attempts and ensures operational efficiency
 
 // Rental API validations
 export const CreateRentalSchema = z.object({
-  gameInstanceIds: z.array(z.string().cuid()).min(1, "At least one game instance is required").max(10, "Maximum 10 games per rental"),
-  notes: z.string().max(500).optional(),
+  centerId: z.string().cuid(),
+  gameInstanceIds: z.array(z.string().cuid())
+    .min(1, "At least one game instance is required")
+    .max(10, "Maximum 10 games per rental")
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: "Duplicate game instance IDs are not allowed"
+    }),
+  notes: RentalSchema.shape.notes,
 });
+
+// Note: Additional validation should be implemented in API route handlers:
+// 1. Verify all gameInstanceIds exist and belong to the specified centerId
+// 2. Check that all game instances are available (status: AVAILABLE)
+// 3. Validate user permissions for the center
+//
+// Example implementation:
+// const instances = await prisma.gameInstance.findMany({
+//   where: { id: { in: data.gameInstanceIds }, centerId: data.centerId, status: 'AVAILABLE' }
+// });
+// if (instances.length !== data.gameInstanceIds.length) {
+//   throw new Error("Some game instances are unavailable or don't belong to this center");
+// }
 
 export const CreateManualRentalSchema = z.object({
-  userId: z.string().cuid(),
-  gameInstanceIds: z.array(z.string().cuid()).min(1, "At least one game instance is required").max(10, "Maximum 10 games per rental"),
-  expectedReturnDate: z.string().datetime().optional(),
-  notes: z.string().max(500).optional(),
+  userId: RentalSchema.shape.userId,
+  centerId: z.string().cuid(),
+  gameInstanceIds: z.array(z.string().cuid())
+    .min(1, "At least one game instance is required")
+    .max(10, "Maximum 10 games per rental")
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: "Duplicate game instance IDs are not allowed"
+    }),
+  borrowDate: RentalSchema.shape.borrowDate,
+  expectedReturnDate: RentalSchema.shape.expectedReturnDate,
+  notes: RentalSchema.shape.notes,
 });
 
-export const UpdateRentalSchema = RentalSchema.pick({
-  status: true,
-  notes: true,
-}).extend({
-  expectedReturnDate: z.string().datetime().optional(),
-}).partial();
+// Note: Same validation logic applies for manual rentals
 
-export const RentalListRequestSchema = z.object({
-  filters: z.object({
-    userId: z.string().cuid().optional(),
-    centerId: z.string().cuid().optional(),
-    status: RentalStatusSchema.optional(),
-    overdue: z.boolean().optional(),
-    dateRange: z.object({
-      start: z.date(),
-      end: z.date(),
-    }).optional(),
-  }).optional(),
+export const UpdateRentalSchema = z.object({
+  borrowDate: RentalSchema.shape.borrowDate,
+  returnDate: RentalSchema.shape.returnDate,
+  expectedReturnDate: RentalSchema.shape.expectedReturnDate,
+  notes: RentalSchema.shape.notes,
+  gameInstanceIds: z.array(z.string().cuid()).min(1).max(10).optional(),
 });
+
 
 // Admin API validations
 export const UpdateUserSchema = UserSchema.pick({
@@ -216,17 +240,15 @@ export const AssignRoleSchema = z.object({
 
 // Coordinator API validations
 export const AddGameToCenterSchema = z.object({
-  gameId: z.string().cuid(),
+  gameId: GameInstanceSchema.shape.gameId,
+  centerId: GameInstanceSchema.shape.centerId,
+  status: GameInstanceSchema.shape.status.refine(
+    (val) => val !== GameInstanceStatus.BORROWED,
+    { message: "Cannot add game to center with status 'RENTED'" }
+  ),
+  notes: GameInstanceSchema.shape.notes,
 });
 
-// Super Coordinator API validations
-export const OverdueReportRequestSchema = z.object({
-  centerId: z.string().cuid().optional(),
-  dateRange: z.object({
-    start: z.string().datetime(),
-    end: z.string().datetime(),
-  }).optional(),
-});
 
 // Admin Reports validation
 export const ReportRequestSchema = z.object({
@@ -252,68 +274,14 @@ export const PaginationSchema = z.object({
   pageSize: z.number().int().min(1).max(100).default(20),
 });
 
-// Bulk operations
-export const BulkUpdateSchema = z.object({
-  items: z.array(z.object({
-    id: z.string().cuid(),
-    data: z.record(z.any()),
-  })).min(1).max(100),
-});
-
-// File upload
-export const FileUploadSchema = z.object({
-  type: z.enum(['game_image', 'center_image', 'document']),
-});
-
-// Search and filters
-export const SearchSchema = z.object({
-  query: z.string().min(1).max(100),
-  filters: z.record(z.any()).optional(),
-});
-
-// Date range validation
-export const DateRangeSchema = z.object({
-  start: z.string().datetime(),
-  end: z.string().datetime(),
-}).refine(
-  (data) => new Date(data.start) < new Date(data.end),
-  { message: "Start date must be before end date" }
-);
-
-// ===== COMPUTED FIELD VALIDATIONS =====
-
-// For API responses with computed fields
-export const RentalWithDetailsSchema = RentalSchema.extend({
-  isOverdue: z.boolean(),
-  daysOverdue: z.number().int().min(0),
-  canCancel: z.boolean(),
-  canReturn: z.boolean(),
-});
-
-export const CenterWithStatsSchema = CenterSchema.extend({
-  totalGames: z.number().int().min(0),
-  availableGames: z.number().int().min(0),
-  pendingRequests: z.number().int().min(0),
-  activeRentals: z.number().int().min(0),
-  overdueRentals: z.number().int().min(0),
-});
-
-export const GameWithAvailabilitySchema = GameSchema.extend({
-  totalCenters: z.number().int().min(0),
-  availableCount: z.number().int().min(0),
-  borrowedCount: z.number().int().min(0),
-  availableCenters: z.array(z.object({
-    centerId: z.string().cuid(),
-    centerName: z.string(),
-    city: z.string(),
-    area: AreaSchema,
-    availableCount: z.number().int().min(0),
-  })),
-});
 
 // ===== TYPE EXPORTS =====
 
 // Export inferred types for use in components
+export type RegisterWithGoogleInput = z.infer<typeof RegisterWithGoogleSchema>;
+export type RegisterWithEmailInput = z.infer<typeof RegisterWithEmailSchema>;
+export type LoginWithGoogleInput = z.infer<typeof LoginWithGoogleSchema>;
+export type LoginWithEmailInput = z.infer<typeof LoginWithEmailSchema>;
 export type UpdateUserProfileInput = z.infer<typeof UpdateUserProfileSchema>;
 export type CreateGameInput = z.infer<typeof CreateGameSchema>;
 export type CreateCenterInput = z.infer<typeof CreateCenterSchema>;
@@ -325,5 +293,6 @@ export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
 export type AddGameToCenterInput = z.infer<typeof AddGameToCenterSchema>;
 export type ReportRequestInput = z.infer<typeof ReportRequestSchema>;
 export type IdParam = z.infer<typeof IdParamSchema>;
-export type SearchInput = z.infer<typeof SearchSchema>;
-export type DateRangeInput = z.infer<typeof DateRangeSchema>;
+export type AssignRoleInput = z.infer<typeof AssignRoleSchema>;
+export type UserListRequestInput = z.infer<typeof UserListRequestSchema>;
+

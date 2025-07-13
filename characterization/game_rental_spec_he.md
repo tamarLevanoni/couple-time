@@ -43,8 +43,8 @@ Center (מוקד)
 └── isActive: boolean
 
 Game (משחק - גלובלי)
-├── id, name, description, category
-├── targetAudience: 'SINGLES' | 'MARRIED' | 'GENERAL'
+├── id, name, description, categories
+├── targetAudiences: 'SINGLES' | 'MARRIED' | 'GENERAL'
 └── imageUrl
 
 GameInstance (עותק משחק במוקד)

@@ -9,7 +9,7 @@
 - [ ] I can see a general catalog of recommended games (without availability)
 - [ ] I can select a center and see only games available there
 - [ ] I can filter by status (all/available/borrowed)
-- [ ] I see for each game: image, name, short description, category, target audience
+- [ ] I see for each game: image, name, short description, categories, target audience
 - [ ] On mobile - the display is comfortable and readable
 
 ### US-1.2: Find Nearby Center
@@ -27,7 +27,7 @@
 **Acceptance Criteria:**
 - [ ] I can fill out a form with: center, game, personal details
 - [ ] If the game is borrowed - I see a warning but can continue
-- [ ] On submission - Google registration is required (if not logged in)
+- [ ] On submission - registration is required (if not logged in): Google OAuth or email/password
 - [ ] After submission - I get confirmation with coordinator details
 - [ ] I can open WhatsApp with a ready message or make a call
 
@@ -54,21 +54,36 @@
 
 **Acceptance Criteria:**
 - [ ] I can edit: name, phone
-- [ ] I cannot edit: email (comes from Google)
+- [ ] I cannot edit: email (protected field regardless of registration method)
 - [ ] Changes are saved immediately
+
+### US-1.7: User Registration Options
+**As a user**, I want to **register with my preferred method** so that **I can access the system easily**
+
+**Acceptance Criteria:**
+- [ ] I can register with Google OAuth (quick, no password needed)
+- [ ] I can register with email and password (traditional method)
+- [ ] Both methods require: name, email, phone number
+- [ ] Password registration requires minimum 8 characters
+- [ ] After registration, I can immediately request rentals
+- [ ] I can later link/unlink authentication methods in my profile
 
 ---
 
 ## 2. User Stories - Center Coordinator
 
-### US-2.1: View New Requests
-**As a center coordinator**, I want to **see all new requests** so that **I can handle them quickly**
+### US-2.1: View Dashboard with All Current Rentals
+**As a center coordinator**, I want to **see all pending and active rentals immediately** so that **I can get a complete overview when I log in**
 
 **Acceptance Criteria:**
-- [ ] I see a "pending" tab with all new requests
-- [ ] I see: requester name, phone, game, request date
+- [ ] On first login, I see both pending and active rentals in one API call
+- [ ] I see tabs: "Pending" (new requests) and "Active" (current rentals)
+- [ ] Pending shows: requester name, phone, game, request date
+- [ ] Active shows: borrower name, game, borrow date, expected return date, overdue status
+- [ ] Overdue items are highlighted in red/orange
 - [ ] I receive alerts (email+WhatsApp) for every new request
 - [ ] On mobile - I can view and manage easily
+- [ ] Returned rentals are loaded separately with date range filters (not in initial load)
 
 ### US-2.2: Approve Rental
 **As a center coordinator**, I want to **approve a rental** so that **I can document that the game was taken**
@@ -94,7 +109,7 @@
 
 **Acceptance Criteria:**
 - [ ] I can add a new game to the general catalog
-- [ ] I fill out: name, description, category, target audience, image
+- [ ] I fill out: name, description, categories, target audience, image
 - [ ] The game is automatically added to my center as "available"
 - [ ] I can add an existing game from the catalog to my center
 

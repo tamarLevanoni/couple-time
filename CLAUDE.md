@@ -145,7 +145,7 @@ Our types follow a practical, business-focused approach organized in layers:
 
 **`schema.ts`** - Foundation Layer
 - Re-exports base Prisma model types (`User`, `Center`, `Game`, etc.)
-- Re-exports enums (`Role`, `Area`, `GameCategory`, etc.)
+- Re-exports enums (`Role`, `Area`, `GameCategories`, etc.)
 - Source of truth for database entities
 
 **`models.ts`** - Data Models Layer

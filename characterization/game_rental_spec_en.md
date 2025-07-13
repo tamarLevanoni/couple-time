@@ -43,8 +43,8 @@ Center (Center)
 └── isActive: boolean
 
 Game (Game - Global)
-├── id, name, description, category
-├── targetAudience: 'SINGLES' | 'MARRIED' | 'GENERAL'
+├── id, name, description, categories
+├── targetAudiences: 'SINGLES' | 'MARRIED' | 'GENERAL'
 └── imageUrl
 
 GameInstance (Game copy in center)
@@ -104,7 +104,7 @@ Rental (Rental)
 
 **Filters:**
 - Center selection (required)
-- Category: Singles/Married/General
+- Categories: Singles/Married/General
 - Availability: Available/Borrowed/Unavailable
 
 **Game Display:**

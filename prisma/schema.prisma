@@ -18,7 +18,6 @@ model User {
   phone                  String
   roles                  Role[]
   managedCenterId        String?  @unique // Single center ID if user is coordinator - unique for one-to-one
-  supervisedCenterIds    String[]
   isActive               Boolean  @default(true)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
@@ -26,7 +25,6 @@ model User {
   // Authentication - support both Google OAuth and email/password
   googleId String? @unique
   password String? // hashed password for email/password auth
-  image    String?
 
   // Relations
   managedCenter          Center?  @relation("CenterCoordinator", fields: [managedCenterId], references: [id])
@@ -53,7 +51,7 @@ model Center {
   coordinator            User?    @relation("CenterCoordinator")
   superCoordinator       User?    @relation("CenterSuperCoordinator", fields: [superCoordinatorId], references: [id])
   gameInstances          GameInstance[]
-
+  rentals                Rental[] @relation("RentalCenter")
   @@map("centers")
 }
 
@@ -62,8 +60,8 @@ model Game {
   id                     String   @id @default(cuid())
   name                   String
   description            String?
-  category               GameCategory
-  targetAudience         TargetAudience
+  categories             GameCategory[]
+  targetAudiences        TargetAudience[]
   imageUrl               String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
@@ -98,8 +96,9 @@ model GameInstance {
 model Rental {
   id                     String   @id @default(cuid())
   userId                 String
+  centerId               String
   status                 RentalStatus @default(PENDING)
-  requestDate            DateTime @default(now())
+  requestDate            DateTime? 
   borrowDate             DateTime?
   returnDate             DateTime?
   expectedReturnDate     DateTime?
@@ -109,6 +108,7 @@ model Rental {
 
   // Relations
   user                   User     @relation(fields: [userId], references: [id])
+  center                 Center   @relation("RentalCenter", fields: [centerId], references: [id])
   gameInstances          GameInstance[]
 
   @@map("rentals")

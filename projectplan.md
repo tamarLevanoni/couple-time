@@ -271,68 +271,353 @@ Before starting implementation, I need clarification on:
 
 ---
 
-## PHASE 1.10: Complete API Route Refactor ⚡ IN PROGRESS
+# API Endpoints Complete Rewrite Project
 
-### Comprehensive API Route Modernization
-**Goal**: Refactor all API routes to use proper TypeScript types, validation schemas, and follow CLAUDE.md standards
+## Overview
+Complete rewrite of all API endpoints from scratch, using the existing types from `@src/types` for type safety and consistency. The goal is to create minimal, clean, organized and well-documented API endpoints.
 
-**Key Requirements:**
-- Import interfaces from `/types/api.ts` and `/types/database.ts` 
-- Use Zod validation schemas from `/lib/validations.ts`
-- Follow standardized `{ success: boolean, data?: any, error?: { message: string } }` format
-- Minimal, clean, and safe implementation
-- Proper error handling and type safety
-- Remove any dead code or placeholder files
+## Current API Structure Analysis
+Based on the existing endpoints, we have:
+- **Auth endpoints**: `/auth/me`, `/auth/register`, `/auth/[...nextauth]`
+- **Public endpoints**: `/public/centers`, `/public/games`
+- **User endpoints**: `/user/`, `/user/rentals`, `/user/rentals/[id]`
+- **Coordinator endpoints**: `/coordinator/`, `/coordinator/games`, `/coordinator/games/[id]`, `/coordinator/rentals`, `/coordinator/rentals/[id]`
+- **Admin endpoints**: `/admin/games`, `/admin/roles`, `/admin/users`, `/admin/system`, `/admin/centers`
+- **Super endpoints**: `/super/games`, `/super/games/[id]`, `/super/centers`, `/super/centers/[id]`, `/super/rentals`, `/super/rentals/[id]`
 
-**Current API Route Structure Analysis:**
+## Types Architecture Available
+- **Schema types**: Base Prisma types (User, Center, Game, etc.)
+- **Model types**: Query objects and generated types for stores/UI
+- **Computed types**: Business logic enhancements
+- **API types**: Request contracts and filters
+
+## Implementation Plan
+
+### Phase 1: Core Infrastructure & Auth
+- [ ] Set up common API response utilities
+- [ ] Rewrite auth endpoints (`/auth/me`, `/auth/register`)
+- [ ] Ensure middleware integration works correctly
+
+### Phase 2: Public Endpoints
+- [ ] Rewrite `/public/centers` - public center listing
+- [ ] Rewrite `/public/games` - public game catalog
+
+### Phase 3: User Endpoints
+- [ ] Rewrite `/user/` - user profile management
+- [ ] Rewrite `/user/rentals` - user rental management
+- [ ] Rewrite `/user/rentals/[id]` - individual rental operations
+
+### Phase 4: Coordinator Endpoints
+- [ ] Rewrite `/coordinator/` - coordinator dashboard
+- [ ] Rewrite `/coordinator/games` - center game management
+- [ ] Rewrite `/coordinator/games/[id]` - individual game operations
+- [ ] Rewrite `/coordinator/rentals` - rental management for coordinators
+- [ ] Rewrite `/coordinator/rentals/[id]` - individual rental operations
+
+### Phase 5: Admin Endpoints
+- [ ] Rewrite `/admin/games` - system-wide game management
+- [ ] Rewrite `/admin/roles` - role management
+- [ ] Rewrite `/admin/users` - user management
+- [ ] Rewrite `/admin/system` - system analytics
+- [ ] Rewrite `/admin/centers` - center management
+
+### Phase 6: Super Endpoints
+- [ ] Rewrite `/super/games` - super coordinator game management
+- [ ] Rewrite `/super/games/[id]` - individual game operations
+- [ ] Rewrite `/super/centers` - super coordinator center management
+- [ ] Rewrite `/super/centers/[id]` - individual center operations
+- [ ] Rewrite `/super/rentals` - super coordinator rental oversight
+- [ ] Rewrite `/super/rentals/[id]` - individual rental operations
+
+## Design Principles
+1. **Type Safety**: Use existing types from `@src/types` extensively
+2. **Consistency**: Standardized response format `{ success: boolean, data?: any, error?: { message: string } }`
+3. **Minimal Code**: Keep handlers focused and concise
+4. **Clear Documentation**: Each endpoint clearly documented
+5. **Permission Grouping**: Group routes by permission level
+6. **Error Handling**: Comprehensive error handling with proper status codes
+
+## New Type Requirements
+Based on the endpoint analysis, we may need to suggest these additional types:
+- Dashboard-specific response types for coordinators/admins
+- System analytics types for admin dashboard
+- Role management types for admin operations
+
+## Complete API Endpoints Specification
+
+### 🔐 Authentication Routes
+
+#### `POST /api/auth/register`
+- **Purpose**: User registration
+- **Input**: `{ email: string, password: string, name: string, phone?: string }`
+- **Output**: `ApiResponse<UserContact>`
+- **Types**: Create `CreateUserRequest` type in `api.ts`
+
+#### `GET /api/auth/me`  
+- **Purpose**: Get complete user profile with rentals for fast profile page load
+- **Input**: None (JWT token)
+- **Output**: `ApiResponse<UserProfileWithRentals>`
+- **Types**: Create `UserProfileWithRentals` type that includes user data + active/recent rentals
+
+#### `PUT /api/auth/me`
+- **Purpose**: Update current user profile  
+- **Input**: `UpdateUserProfileRequest` from `api.ts`
+- **Output**: `ApiResponse<UserContact>`
+
+### 🌐 Public Routes
+
+#### `GET /api/public/centers`
+- **Purpose**: List all active centers with coordinator info
+- **Input**: None
+- **Output**: `ApiResponse<CenterWithCoordinator[]>`
+- **Types**: Use `CENTER_WITH_COORDINATOR` include
+
+#### `GET /api/public/games`
+- **Purpose**: List all games
+- **Input**: None  
+- **Output**: `ApiResponse<Game[]>`
+- **Types**: creat type in selects with gameInstances data (without rentals)
+
+### 👤 User Routes
+
+#### `GET /api/user/`
+- **Purpose**: Get extended user profile with center assignments
+- **Input**: None (JWT token)
+- **Output**: `ApiResponse<UserProfile>` (extended user data)
+- **Types**: Create `UserProfile` type with center assignments
+
+#### `PUT /api/user/`
+- **Purpose**: Update user profile
+- **Input**: `UpdateUserProfileRequest` from `api.ts`
+- **Output**: `ApiResponse<UserProfile>`
+
+#### `GET /api/user/rentals`
+- **Purpose**: Get user's rental history and current rentals
+- **Input**: None (JWT token)
+- **Output**: `ApiResponse<RentalForUser[]>`
+- **Types**: Use `RENTAL_FOR_USER` include and `RentalForUser` type
+
+#### `POST /api/user/rentals`
+- **Purpose**: Create new rental request
+- **Input**: `CreateRentalRequest` from `api.ts`
+- **Output**: `ApiResponse<RentalForUser>`
+
+#### `PUT /api/user/rentals/[id]`
+- **Purpose**: Update rental (only cancellation)
+- **Input**: `UpdateRentalRequest` from `api.ts`
+- **Output**: `ApiResponse<RentalForUser>`
+
+### 📋 Coordinator Routes
+
+#### `GET /api/coordinator/`
+- **Purpose**: Coordinator dashboard with center stats and rentals
+- **Input**: None (JWT token)
+- **Output**: `ApiResponse<CoordinatorDashboard>`
+- **Types**: Use `CoordinatorDashboard` from `computed.ts`
+
+#### `POST /api/coordinator/games`
+- **Purpose**: Add game instance to coordinator's center
+- **Input**: `AddGameToCenterRequest` from `api.ts`
+- **Output**: `ApiResponse<GameInstanceWithCenter>`
+
+#### `PUT /api/coordinator/games/[id]`
+- **Purpose**: Update game instance status
+- **Input**: `{ status: GameInstanceStatus }`
+- **Output**: `ApiResponse<GameInstanceWithCenter>`
+
+#### `POST /api/coordinator/rentals`
+- **Purpose**: Create manual rental for user
+- **Input**: `CreateRentalRequest` + `{ userId: string }`
+- **Output**: `ApiResponse<RentalForCoordinator>`
+
+#### `PUT /api/coordinator/rentals/[id]`
+- **Purpose**: Update rental status (approve/return/etc.)
+- **Input**: `UpdateRentalRequest` from `api.ts`
+- **Output**: `ApiResponse<RentalForCoordinator>`
+
+### 🏢 Admin Routes
+
+#### `GET /api/admin/centers`
+- **Purpose**: List all centers with pagination
+- **Input**: `CenterListRequest` from `api.ts`
+- **Output**: `ApiResponse<{ centers: CenterWithCoordinator[], total: number }>`
+
+#### `POST /api/admin/centers`
+- **Purpose**: Create new center
+- **Input**: `CreateCenterRequest` from `api.ts`
+- **Output**: `ApiResponse<CenterWithCoordinator>`
+
+#### `PUT /api/admin/centers`
+- **Purpose**: Update center
+- **Input**: `UpdateCenterRequest` from `api.ts`
+- **Output**: `ApiResponse<CenterWithCoordinator>`
+
+#### `DELETE /api/admin/centers`
+- **Purpose**: Soft delete center
+- **Input**: `IdParam` from `api.ts`
+- **Output**: `ApiResponse<{ success: boolean }>`
+
+#### `GET /api/admin/games`
+- **Purpose**: List all games with pagination
+- **Input**: `GameCatalogRequest` from `api.ts`
+- **Output**: `ApiResponse<{ games: GameBasic[], total: number }>`
+
+#### `POST /api/admin/games`
+- **Purpose**: Create new game
+- **Input**: `CreateGameRequest` from `api.ts`
+- **Output**: `ApiResponse<GameBasic>`
+
+#### `PUT /api/admin/games`
+- **Purpose**: Update game
+- **Input**: `UpdateGameRequest` (needs to be added to `api.ts`)
+- **Output**: `ApiResponse<GameBasic>`
+
+#### `DELETE /api/admin/games`
+- **Purpose**: Soft delete game
+- **Input**: `IdParam` from `api.ts`
+- **Output**: `ApiResponse<{ success: boolean }>`
+
+#### `GET /api/admin/users`
+- **Purpose**: List all users with pagination
+- **Input**: `UserListRequest` (needs to be added to `api.ts`)
+- **Output**: `ApiResponse<{ users: UserContact[], total: number }>`
+
+#### `POST /api/admin/users`
+- **Purpose**: Create new user
+- **Input**: `CreateUserRequest` (needs to be added to `api.ts`)
+- **Output**: `ApiResponse<UserContact>`
+
+#### `PUT /api/admin/users`
+- **Purpose**: Update user
+- **Input**: `UpdateUserRequest` from `api.ts`
+- **Output**: `ApiResponse<UserContact>`
+
+#### `DELETE /api/admin/users`
+- **Purpose**: Soft delete user
+- **Input**: `IdParam` from `api.ts`
+- **Output**: `ApiResponse<{ success: boolean }>`
+
+#### `PUT /api/admin/roles`
+- **Purpose**: Assign roles and center permissions
+- **Input**: `AssignRoleRequest` (needs to be added to `api.ts`)
+- **Output**: `ApiResponse<UserContact>`
+
+#### `GET /api/admin/system`
+- **Purpose**: System statistics and health monitoring
+- **Input**: None
+- **Output**: `ApiResponse<SystemStats>`
+- **Types**: Use `SystemStats` from `computed.ts`
+
+### 🔧 Super Coordinator Routes
+
+#### `GET /api/super/centers`
+- **Purpose**: List supervised centers with stats
+- **Input**: None (JWT token)
+- **Output**: `ApiResponse<CenterWithStats[]>`
+
+#### `GET /api/super/centers/[id]`
+- **Purpose**: Get detailed supervised center
+- **Input**: `IdParam` from `api.ts`
+- **Output**: `ApiResponse<CenterWithStats>`
+
+#### `PUT /api/super/centers/[id]`
+- **Purpose**: Update supervised center
+- **Input**: `UpdateCenterRequest` from `api.ts`
+- **Output**: `ApiResponse<CenterWithStats>`
+
+#### `POST /api/super/games`
+- **Purpose**: Add game instance to supervised center
+- **Input**: `AddGameToCenterRequest` from `api.ts`
+- **Output**: `ApiResponse<GameInstanceWithCenter>`
+
+#### `PUT /api/super/games/[id]`
+- **Purpose**: Update game instance in supervised center
+- **Input**: `{ status: GameInstanceStatus }`
+- **Output**: `ApiResponse<GameInstanceWithCenter>`
+
+#### `POST /api/super/rentals`
+- **Purpose**: Create manual rental in supervised center
+- **Input**: `CreateRentalRequest` + `{ userId: string }`
+- **Output**: `ApiResponse<RentalForCoordinator>`
+
+#### `PUT /api/super/rentals/[id]`
+- **Purpose**: Update rental in supervised center
+- **Input**: `UpdateRentalRequest` from `api.ts`
+- **Output**: `ApiResponse<RentalForCoordinator>`
+
+## 📝 Missing Types to Add
+
+### In `api.ts`:
+```typescript
+// User management
+export type CreateUserRequest = Pick<User, 'email' | 'name'> & 
+  Partial<Pick<User, 'phone'>> & { password: string };
+
+export interface UserListRequest {
+  filters?: { search?: string; role?: string; isActive?: boolean };
+  pagination?: { page: number; limit: number };
+}
+
+// Game management  
+export type UpdateGameRequest = Partial<Pick<Game, 'name' | 'description' | 'imageUrl' | 'isActive'>>;
+
+// Role management
+export interface AssignRoleRequest {
+  userId: string;
+  roles: Role[];
+  managedCenterId?: string;           // Single center ID if user is coordinator
+  supervisedCenterIds?: string[];     // Multiple center IDs if user is super coordinator
+}
 ```
-/api/
-├── auth/
-│   ├── [...nextauth]/route.ts (NextAuth - no changes needed)
-│   ├── me/route.ts (user profile)
-│   └── register/route.ts (user registration)
-├── public/
-│   ├── centers/route.ts (public center listing)
-│   └── games/route.ts (public game catalog)
-├── user/
-│   ├── route.ts (user profile management)
-│   └── rentals/
-│       ├── route.ts (user rentals CRUD)
-│       └── [id]/route.ts (specific rental management)
-├── coordinator/
-│   ├── route.ts (coordinator dashboard)
-│   ├── games/
-│   │   ├── route.ts (add games to center)
-│   │   └── [id]/route.ts (update game instances)
-│   └── rentals/
-│       ├── route.ts (coordinator rental management)
-│       └── [id]/route.ts (specific rental actions)
-├── super/
-│   ├── centers/
-│   │   ├── route.ts (supervised centers)
-│   │   └── [id]/route.ts (center management)
-│   ├── games/
-│   │   ├── route.ts (add games across centers)
-│   │   └── [id]/route.ts (game instance management)
-│   └── rentals/
-│       ├── route.ts (create rentals for users)
-│       └── [id]/route.ts (rental management)
-└── admin/
-    ├── centers/route.ts (full center CRUD)
-    ├── games/route.ts (game catalog management)
-    ├── roles/route.ts (role assignment)
-    ├── system/route.ts (system health/stats)
-    └── users/route.ts (user management)
+
+### In `computed.ts`:
+```typescript
+// Extended user profile
+export interface UserProfile extends UserContact {
+  managedCenter: CenterBasic | null;     // Single center if user is coordinator
+  supervisedCenters: CenterBasic[];      // Multiple centers if user is super coordinator
+  roles: Role[];
+}
+
+// Complete user profile with rentals for fast profile page loading
+export interface UserProfileWithRentals extends UserProfile {
+  activeRentals: RentalForUser[];      // Currently active rentals
+  pendingRentals: RentalForUser[];     // Pending approval rentals
+  recentRentals: RentalForUser[];      // Last 5 completed rentals
+  overdueRentals: RentalForUser[];     // Overdue rentals
+  totalRentals: number;                // Total rental count
+  favoriteGames: GameBasic[];          // User's favorite games (if we add this feature)
+}
 ```
 
-**Refactoring Strategy:**
-1. **Group by permissions** - public, auth, user, coordinator, super, admin
-2. **Use proper types** - Import from api.ts, use Pick/Partial patterns
-3. **Validate inputs** - Use Zod schemas from validations.ts
-4. **Standard responses** - ApiResponse<T> format consistently
-5. **Clean imports** - Remove unused, add missing type imports
-6. **Error handling** - Proper error catching and user-friendly messages
-7. **Remove cruft** - Any dead code, unused functions, placeholder logic
+## 🔄 Documentation Maintenance Guidelines
+
+### Master Documentation Update Instructions
+When making changes to API endpoints, the following documentation must be updated:
+
+1. **This section** - Update endpoint specifications with new routes, modified inputs/outputs, or changed types
+2. **CLAUDE.md** - Update API route standards and type requirements if patterns change
+3. **Type files** - Add new types to appropriate files (`api.ts`, `computed.ts`, `models.ts`)
+4. **Test files** - Update test specifications to match new endpoint contracts
+
+### Change Documentation Format
+For each API change, document:
+- **Endpoint**: Which route was modified
+- **Change Type**: New, Modified, Deprecated, Removed
+- **Input Changes**: What input parameters changed
+- **Output Changes**: What response format changed  
+- **Type Changes**: Which types were added/modified
+- **Migration Notes**: How to update existing code
+
+### Example Change Entry:
+```markdown
+#### `POST /api/user/rentals` - Modified
+- **Change**: Updated to accept multiple game instances
+- **Input**: Changed from `gameInstanceId: string` to `gameInstanceIds: string[]`
+- **Output**: No change to response format
+- **Types**: Updated `CreateRentalRequest` interface
+- **Migration**: Replace single ID with array of IDs in request body
+```
 
 ---
 
