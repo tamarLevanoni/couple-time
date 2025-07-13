@@ -8,6 +8,3 @@ export * from './models';
 
 // ===== BUSINESS LOGIC TYPES =====
 export * from './computed';
-
-// ===== API REQUEST TYPES =====
-export * from './api';
