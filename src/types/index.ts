@@ -17,7 +17,7 @@
 export * from './schema';
 
 // ===== DATA MODELS =====
-// Query objects: USER_CONTACT_FIELDS, GAMES_PUBLIC_INFO, COORDINATOR_DASHBOARD, etc.
+// Query objects: USER_CONTACT_FIELDS, GAME_BASIC_FIELDS, COORDINATOR_DASHBOARD, etc.
 // Generated types: UserContact, GameBasic, RentalForUser, CenterWithCoordinator, etc.
 export * from './models';
 

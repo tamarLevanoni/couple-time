@@ -44,11 +44,8 @@ export const CENTER_WITH_COORDINATOR = {
 } as const satisfies Prisma.CenterInclude;
 
 export const CENTER_PUBLIC_INFO = {
-  select: {
     ...CENTER_BASIC_FIELDS,
     location: true,
-  },
-  include: {
     gameInstances: {
       select: {
         id: true,
@@ -59,8 +56,7 @@ export const CENTER_PUBLIC_INFO = {
     coordinator: {
       select: USER_CONTACT_FIELDS,
     },
-  },
-} as const satisfies Prisma.CenterFindManyArgs;
+} as const satisfies Prisma.CenterSelect;
 
 // ===== GAME SELECTS =====
 
@@ -71,6 +67,15 @@ export const GAME_BASIC_FIELDS = {
   categories: true,
   targetAudiences: true,
   imageUrl: true,
+} as const satisfies Prisma.GameSelect;
+
+export const GAMES_PUBLIC_INFO = {
+    id: true,
+    name: true,
+    description: true,
+    categories: true,
+    targetAudiences: true,
+    imageUrl: true,
 } as const satisfies Prisma.GameSelect;
 
 export const GAME_WITH_INSTANCES = {
@@ -258,7 +263,7 @@ export type UserWithActiveRentals = Prisma.UserGetPayload<{ include: typeof USER
 
 export type CenterBasic = Prisma.CenterGetPayload<{ select: typeof CENTER_BASIC_FIELDS }>;
 export type CenterWithCoordinator = Prisma.CenterGetPayload<{ include: typeof CENTER_WITH_COORDINATOR }>;
-export type CenterPublicInfo = Prisma.CenterGetPayload<typeof CENTER_PUBLIC_INFO>;
+export type CenterPublicInfo = Prisma.CenterGetPayload<{ select: typeof CENTER_PUBLIC_INFO}>;
 
 export type GameBasic = Prisma.GameGetPayload<{ select: typeof GAME_BASIC_FIELDS }>;
 export type GameWithInstances = Prisma.GameGetPayload<{ include: typeof GAME_WITH_INSTANCES }>;

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { apiResponse } from '@/lib/api-response';
+import { CENTER_PUBLIC_INFO, type CenterPublicInfo } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,43 +10,13 @@ export async function GET(request: NextRequest) {
         isActive: true
       },
       orderBy: { name: 'asc' },
-      include: {
-        coordinator: {
-          select: {
-            id: true,
-            name: true,
-            phone: true,
-            email: true
-          }
-        },
-        superCoordinator: {
-          select: {
-            id: true,
-            name: true,
-            phone: true,
-            email: true
-          }
-        },
-        gameInstances: {
-          select: {
-            id: true,
-            status: true,
-            game: {
-              select: {
-                id: true,
-                name: true,
-                category: true
-              }
-            }
-          }
-        }
-      }
+      select: CENTER_PUBLIC_INFO,
     });
 
     return apiResponse(true, centers);
 
   } catch (error) {
-    console.error('Error fetching centers:', error);
-    return apiResponse(false, null, { message: 'Error fetching centers' }, 500);
+    console.error('Error fetching public centers:', error);
+    return apiResponse(false, null, { message: 'שגיאה בטעינת המרכזים' }, 500);
   }
 }

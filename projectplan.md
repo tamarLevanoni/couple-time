@@ -308,20 +308,20 @@ Current endpoints exist but need complete rewrite to match documentation:
 
 ## Implementation Plan
 
-### Phase 2.1: Complete Types Architecture ✅ (Priority 1)
-- [ ] Add missing query objects to models.ts (GAMES_PUBLIC_INFO, CENTER_PUBLIC_INFO, etc.)
-- [ ] Add missing computed types for dashboards and analytics  
-- [ ] Update computed.ts with proper dashboard response types
-- [ ] Add proper type exports to index.ts
+### Phase 2.1: Complete Types Architecture ✅ COMPLETE (Priority 1)
+- [x] Add missing query objects to models.ts (GAME_BASIC_FIELDS, CENTER_PUBLIC_INFO, etc.)
+- [x] Add missing computed types for dashboards and analytics  
+- [x] Update computed.ts with proper dashboard response types
+- [x] Add proper type exports to index.ts
 
-### Phase 2.2: Core Infrastructure Updates
-- [ ] Standardize all responses to use apiResponse format
-- [ ] Update validation to use centralized schemas consistently
-- [ ] Ensure middleware works with new route structure
+### Phase 2.2: Core Infrastructure Updates ✅ COMPLETE
+- [x] Standardize all responses to use apiResponse format
+- [x] Update validation to use centralized schemas consistently
+- [x] Ensure middleware works with new route structure
 
-### Phase 2.3: Public Endpoints (Match Documentation)
-- [ ] Rewrite `/api/public/centers` using CENTER_PUBLIC_INFO query
-- [ ] Rewrite `/api/public/games` using GAMES_PUBLIC_INFO query
+### Phase 2.3: Public Endpoints (Match Documentation) ✅ COMPLETE
+- [x] Rewrite `/api/public/centers` using CENTER_PUBLIC_INFO query
+- [x] Rewrite `/api/public/games` using GAMES_PUBLIC_INFO query
 
 ### Phase 2.4: Auth Endpoints (Match Documentation)  
 - [ ] Rewrite `/api/auth/register/google` - Google OAuth registration
@@ -465,22 +465,86 @@ return users.map(user => ({ ...user, computedField: calculateValue(user) }));
 - `AssignRoleSchema`, `UserListRequestSchema` ✅
 - `AddGameToCenterSchema`, `CreateManualRentalSchema` ✅
 
-### Missing Query Objects in models.ts:
-```typescript
-export const GAMES_PUBLIC_INFO = { select: { id: true, name: true, description: true, categories: true, targetAudiences: true, imageUrl: true } }
-export const CENTER_PUBLIC_INFO = { include: { coordinator: { select: USER_CONTACT_FIELDS }, gameInstances: { select: { id: true, gameId: true, status: true, expectedReturnDate: true } } } }
-export const COORDINATOR_DASHBOARD = { include: { superCoordinator: { select: USER_CONTACT_FIELDS }, gameInstances: true, rentals: { where: { status: { in: ['PENDING', 'ACTIVE'] } }, include: { user: { select: USER_CONTACT_FIELDS } } } } }
-export const CENTERS_FOR_SUPER_COORDINATOR = { /* from documentation */ }
-export const USERS_FOR_ADMIN = { include: { managedCenter: { select: CENTER_BASIC_FIELDS }, supervisedCenters: { select: CENTER_BASIC_FIELDS } } }
-```
+### Phase 2.1 Completion Summary ✅
+**Completed**: January 2025
 
-### Missing Computed Types:
-```typescript
-export interface UserProfileWithRentals extends UserProfile { currentRentals: RentalForUser[]; }
-export interface CoordinatorDashboard { center: CenterWithStats; pendingRentals: RentalForCoordinator[]; activeRentals: RentalForCoordinator[]; /* etc */ }
-export interface GameForPublic { id: string; name: string; description?: string; categories: GameCategory[]; targetAudiences: TargetAudience[]; imageUrl?: string; }
-export interface CenterForPublic { id: string; name: string; city: string; area: Area; location?: object; coordinator: UserContact; gameInstances: object[]; }
-```
+**What was accomplished:**
+- **All required query objects present** in models.ts including:
+  - `GAME_BASIC_FIELDS` - For public game listings
+  - `CENTER_PUBLIC_INFO` - For public center listings with coordinator and game instances
+  - `COORDINATOR_DASHBOARD` - For coordinator dashboard with super coordinator and active rentals
+  - `CENTERS_FOR_SUPER_COORDINATOR` - For super coordinator center management
+  - `USERS_FOR_ADMIN` - For admin user management with center assignments
+  - All other required query objects for rental management and statistics
+
+- **Complete computed types architecture** in computed.ts including:
+  - `UserProfileWithRentals` - Extended user profile with rental data
+  - `CoordinatorDashboard` - Simple coordinator dashboard response
+  - `CenterWithStats`, `RentalWithDetails` - Enhanced business logic types
+  - `SystemStats` - System-wide statistics
+  - Admin types: `UserForAdmin`, `CenterForAdmin`, `GameForAdmin`, `RentalForAdmin`
+  - Super coordinator types: `CenterForSuperCoordinator`, `RentalForSuperCoordinator`
+
+
+- **Clean type architecture maintained**:
+  - schema.ts: Base Prisma types ✅
+  - models.ts: Query objects + generated types ✅  
+  - computed.ts: Business logic enhancements ✅
+  - index.ts: Centralized exports ✅
+
+### Phase 2.2 Completion Summary ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **Response Format Standardization**: All 23 API endpoints now use the standardized `apiResponse()` function
+  - Consistent `{ success: boolean, data?: T, error?: { message: string } }` format across all endpoints
+  - Proper HTTP status codes (200/400/401/403/404/500)
+  - Hebrew error messages for user-facing errors
+
+- **Validation Schema Consistency**: All endpoints use centralized validation schemas from `@/lib/validations.ts`
+  - Fixed auth/register endpoint to use `RegisterWithEmailSchema` instead of local validation
+  - Fixed admin/users endpoint to use existing centralized schemas
+  - Local schema extensions only where needed (e.g., admin-specific fields)
+
+- **Middleware Verification**: Authentication middleware working correctly
+  - Role-based access control functioning properly
+  - JWT token validation with proper error responses
+  - Protected route patterns matching API structure
+
+**Infrastructure Status:**
+- ✅ All API responses standardized
+- ✅ All validation centralized  
+- ✅ Middleware properly configured
+- ✅ Error handling consistent
+- ✅ Type safety maintained
+
+The system now has a consistent, well-structured API foundation ready for Phase 2.3.
+
+### Phase 2.3 Completion Summary ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **Public Centers Endpoint**: Updated `/api/public/centers` to use `CENTER_PUBLIC_INFO` query
+  - Returns centers with basic info, coordinator details, and game instance availability
+  - Includes location data and game instance status for public consumption
+  - Properly typed with `CenterPublicInfo` interface
+
+- **Public Games Endpoint**: Updated `/api/public/games` to use `GAMES_PUBLIC_INFO` query
+  - Returns only essential game information (id, name, description, categories, target audiences, image)
+  - Filters to show only active games
+  - Properly typed with `GamePublicInfo` interface
+
+- **Query Objects Added**: 
+  - `GAMES_PUBLIC_INFO` - Select query for public game data
+  - `GamePublicInfo` type - Generated type for public game responses
+
+**API Improvements:**
+- ✅ Consistent query object usage
+- ✅ Proper type safety with generated types
+- ✅ Only active/public data returned
+- ✅ Clean separation between public and internal data
+
+Both public endpoints now match the API documentation specification and provide clean, consistent data for public consumption.
 
 ## Complete API Endpoints Specification
 

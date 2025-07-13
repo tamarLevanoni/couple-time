@@ -70,11 +70,22 @@ export function apiResponse<T>(
   error?: { message: string; details?: any },
   status: number = 200
 ): NextResponse {
+  let response: NextResponse;
+  
   if (success) {
-    return NextResponse.json({ success: true, data }, { status });
+    response = NextResponse.json({ success: true, data }, { status });
   } else {
-    return NextResponse.json({ success: false, error }, { status });
+    response = NextResponse.json({ success: false, error }, { status });
   }
+  
+  // Add CORS headers in development
+  if (process.env.NODE_ENV === 'development') {
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+  
+  return response;
 }
 
 // Convenience exports for backward compatibility

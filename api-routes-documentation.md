@@ -47,7 +47,7 @@ Based on user stories and business requirements from `/characterization/user_sto
 
 **GET /api/public/games** - Browse game catalog (US-1.1)
 - Request: None
-- DB Query: [`GAMES_PUBLIC_INFO`](#games_public_info) → **models.ts**
+- DB Query: [`GAME_BASIC_FIELDS`](#game_basic_fields) → **models.ts**
 - Response: `GameForPublic[]` - Array of game objects
 
 **GET /api/public/centers** - Find nearby centers (US-1.2)
@@ -484,7 +484,7 @@ Based on user stories and business requirements from `/characterization/user_sto
 ```
 
 
-#### GAMES_PUBLIC_INFO
+#### GAME_BASIC_FIELDS
 ```typescript
 {
   select: {
