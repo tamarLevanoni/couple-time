@@ -347,16 +347,21 @@ Current endpoints exist but need complete rewrite to match documentation:
 - [x] Rewrite `/api/user/rentals` - GET (rental history) & POST (create rental)
 - [x] Rewrite `/api/user/rentals/[id]` - PUT (cancel rental)
 - [x] Update user profile endpoint to match UserProfileWithRentals type
+- [x] **Enhanced User Capabilities**: Implement cancellation and game changes for pending rentals
+  - [x] Users can cancel pending rentals (`status: 'CANCELLED'`)
+  - [x] Users can change games in pending rentals (same center validation)
+  - [x] Business logic validation prevents conflicts and maintains data integrity
 - [x] **Testing Requirements (per CLAUDE.md)**:
-  - [x] Write comprehensive tests for `/api/user/rentals` GET/POST methods
-  - [x] Write comprehensive tests for `/api/user/rentals/[id]` PUT method
-  - [x] Write comprehensive tests for `/api/user` GET/PUT methods
+  - [x] Write comprehensive tests for `/api/user/rentals` GET/POST methods (6 test cases)
+  - [x] Write comprehensive tests for `/api/user/rentals/[id]` PUT method (4 test cases)
+  - [x] Write comprehensive tests for `/api/user` GET/PUT methods (7 test cases)
   - [x] Test authentication and authorization
   - [x] Test validation and error cases
-  - [x] Test business logic (multi-game rentals, same center validation, etc.)
+  - [x] Test business logic (multi-game rentals, same center validation, cancellation, etc.)
   - [x] Test response format standardization
+  - [x] Fixed all vitest mocking issues and achieved 100% test pass rate (62/62 tests)
 
-### Phase 2.6: Coordinator Endpoints (Match Documentation)
+### Phase 2.6: Coordinator Endpoints (Match Documentation) 🔄 IN PROGRESS
 - [ ] Rewrite `/api/coordinator` - GET (complete dashboard using COORDINATOR_DASHBOARD)
 - [ ] Rewrite `/api/coordinator/rentals` - GET with filters & POST (manual rental)
 - [ ] Rewrite `/api/coordinator/rentals/[id]` - PUT (update status)

@@ -2,9 +2,8 @@ import { NextRequest } from 'next/server';
 import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
-import { z } from 'zod';
-import { UpdateRentalSchema } from '@/lib/validations';
 import { RENTAL_FOR_USER } from '@/types';
+import { UpdateByUserRentalSchema } from '@/lib/validations';
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -14,7 +13,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
     const { id } = params;
     const body = await req.json();
-    const { status, notes, gameInstanceIds } = UpdateRentalSchema.parse(body);
+    const { action, notes, gameInstanceIds } =UpdateByUserRentalSchema.parse(body);
 
     // Find the rental and verify ownership using predefined query object
     const rental = await prisma.rental.findFirst({
@@ -34,8 +33,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return apiResponse(false, null, { message: 'Only pending rentals can be updated' }, 400);
     }
 
-    // Handle status changes (cancellation)
-    if (status && status === 'CANCELLED') {
+    // Handle cancellation
+    if (action === 'cancel') {
       const updatedRental = await prisma.rental.update({
         where: { id },
         data: { status: 'CANCELLED', notes },
@@ -119,11 +118,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return apiResponse(true, updatedRental);
   } catch (error) {
     console.error('Error updating rental:', error);
-    
-    if (error instanceof z.ZodError) {
-      return apiResponse(false, null, { message: 'Invalid request data', details: error.errors }, 400);
-    }
-    
     return apiResponse(false, null, { message: 'Internal server error' }, 500);
   }
 }

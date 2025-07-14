@@ -3,7 +3,7 @@ import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { CreateRentalSchema } from '@/lib/validations';
+import { CreateRentalSchema, RentalStatusSchema } from '@/lib/validations';
 import { RENTAL_FOR_USER } from '@/types';
 
 export async function GET(req: NextRequest) {
@@ -13,9 +13,45 @@ export async function GET(req: NextRequest) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
 
-    // Fetch user rentals using predefined query object
+    // Parse query parameters
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get('status');
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
+
+    // Build where clause
+    const whereClause: any = { userId: token.id };
+
+    // Add status filter
+    if (status) {
+      try {
+        const validStatus = RentalStatusSchema.parse(status);
+        whereClause.status = validStatus;
+      } catch {
+        return apiResponse(false, null, { message: 'Invalid status parameter' }, 400);
+      }
+    }
+
+    // Add date range filters
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      if (isNaN(fromDate.getTime())) {
+        return apiResponse(false, null, { message: 'Invalid dateFrom parameter' }, 400);
+      }
+      whereClause.createdAt = { ...whereClause.createdAt, gte: fromDate };
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      if (isNaN(toDate.getTime())) {
+        return apiResponse(false, null, { message: 'Invalid dateTo parameter' }, 400);
+      }
+      whereClause.createdAt = { ...whereClause.createdAt, lte: toDate };
+    }
+
+    // Fetch user rentals using predefined query object with filters
     const rentals = await prisma.rental.findMany({
-      where: { userId: token.id },
+      where: whereClause,
       include: RENTAL_FOR_USER,
       orderBy: { createdAt: 'desc' },
     });
@@ -94,6 +130,7 @@ export async function POST(req: NextRequest) {
         userId: token.id,
         centerId,
         status: 'PENDING',
+        requestDate: new Date(),
         notes,
         gameInstances: {
           connect: gameInstanceIds.map(id => ({ id })),

@@ -317,6 +317,88 @@
         }
       }
     },
+    "/api/auth/test-token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Generate JWT token for API testing",
+        "description": "Login with email/password and get JWT token for use in Swagger UI and API testing tools.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginWithEmailRequest"
+              },
+              "example": {
+                "email": "admin@example.com",
+                "password": "password123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT token generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "Raw JWT token string"
+                    },
+                    "usage": {
+                      "type": "string",
+                      "description": "Instructions for using the token"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {"type": "string"},
+                        "email": {"type": "string"},
+                        "name": {"type": "string"},
+                        "roles": {
+                          "type": "array",
+                          "items": {"type": "string"}
+                        }
+                      }
+                    }
+                  },
+                  "required": ["token", "usage", "user"]
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "usage": "Use this token in Swagger UI Authorization header as: Bearer <token>",
+                  "user": {
+                    "id": "user123",
+                    "email": "admin@example.com",
+                    "name": "Admin User",
+                    "roles": ["ADMIN"]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid email or password"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/user": {
       "get": {
         "tags": ["User"],
@@ -432,9 +514,27 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": ["RETURNED", "CANCELLED"]
+              "enum": ["PENDING", "ACTIVE", "RETURNED", "CANCELLED"]
             },
             "description": "Filter by rental status"
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter rentals from this date (ISO 8601 format)"
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter rentals until this date (ISO 8601 format)"
           }
         ],
         "responses": {

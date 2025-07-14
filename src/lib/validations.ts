@@ -211,6 +211,11 @@ export const UpdateRentalSchema = z.object({
   gameInstanceIds: z.array(z.string().cuid()).min(1).max(10).optional(),
   status: z.enum([RentalStatus.CANCELLED]).optional(), // Users can only cancel rentals
 });
+export const UpdateByUserRentalSchema = z.object({
+  notes: RentalSchema.shape.notes,
+  gameInstanceIds: z.array(z.string().cuid()).min(1).max(10).optional(),
+  action: z.enum(['cancel']).optional(), // Users can only cancel rentals
+});
 
 
 // Admin API validations

@@ -2,12 +2,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getToken, JWT } from 'next-auth/jwt';
 import { Role } from '@prisma/client';
 
+// CORS headers for API routes
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Handle preflight CORS requests for all API routes
+  if (req.method === 'OPTIONS' && pathname.startsWith('/api/')) {
+    return new NextResponse(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
   // Allow public and auth routes without restriction
   if (pathname.startsWith('/api/public') || pathname.startsWith('/api/auth')) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Add CORS headers to response
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+    return response;
   }
 
   // Check if this is a protected API route
@@ -30,7 +50,7 @@ export async function middleware(req: NextRequest) {
     if (!token) {
       return NextResponse.json(
         { success: false, error: { message: 'Authentication required' } },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -49,25 +69,27 @@ export async function middleware(req: NextRequest) {
     if (!hasAccess) {
       return NextResponse.json(
         { success: false, error: { message: 'Insufficient permissions' } },
-        { status: 403 }
+        { status: 403, headers: corsHeaders }
       );
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Add CORS headers to protected route responses
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+    return response;
   } catch (error) {
     console.error('Middleware error:', error);
     return NextResponse.json(
       { success: false, error: { message: 'Authentication failed' } },
-      { status: 401 }
+      { status: 401, headers: corsHeaders }
     );
   }
 }
 
 export const config = {
   matcher: [
-    '/api/admin/:path*',
-    '/api/coordinator/:path*',
-    '/api/super/:path*',
-    '/api/user/:path*',
+    '/api/:path*', // Handle all API routes for CORS
   ],
 };
