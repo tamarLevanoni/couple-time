@@ -3,7 +3,8 @@ import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
-import { CreateRentalSchema, IdSchema } from '@/lib/validations';
+import { CreateRentalSchema } from '@/lib/validations';
+import { RENTAL_FOR_USER } from '@/types';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,25 +13,10 @@ export async function GET(req: NextRequest) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
 
-    // Fetch user rentals with multiple game instances
+    // Fetch user rentals using predefined query object
     const rentals = await prisma.rental.findMany({
       where: { userId: token.id },
-      include: {
-        gameInstances: {
-          include: {
-            game: true,
-            center: true,
-          },
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
-      },
+      include: RENTAL_FOR_USER,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -48,16 +34,18 @@ export async function POST(req: NextRequest) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     const body = await req.json();
-    const { gameInstanceIds, notes } = CreateRentalSchema.parse(body);
+    const {centerId, gameInstanceIds, notes } = CreateRentalSchema.parse(body);
 
-    // Verify all game instances exist (regardless of status)
+    // Verify all game instances exist and get necessary info for validation
     const gameInstances = await prisma.gameInstance.findMany({
       where: {
         id: { in: gameInstanceIds },
       },
-      include: {
-        game: true,
-        center: true,
+      select: {
+        id: true,
+        gameId: true,
+        centerId: true,
+        status: true,
       },
     });
 
@@ -67,8 +55,13 @@ export async function POST(req: NextRequest) {
 
     // Verify all games are from the same center
     const centerIds = [...new Set(gameInstances.map(gi => gi.centerId))];
-    if (centerIds.length > 1) {
-      return apiResponse(false, null, { message: 'All games must be from the same center' }, 400);
+    if (centerIds.length > 1 || centerId != centerIds[0]) {
+      return apiResponse(
+        false,
+        null,
+        { message: 'All games must be from the same center' },
+        400
+      );
     }
 
     // Check for duplicate games
@@ -95,32 +88,18 @@ export async function POST(req: NextRequest) {
       return apiResponse(false, null, { message: 'You already have a pending or active rental for one or more of these games' }, 400);
     }
 
-    // Create rental request
+    // Create rental request using predefined query object
     const rental = await prisma.rental.create({
       data: {
         userId: token.id,
+        centerId,
         status: 'PENDING',
         notes,
         gameInstances: {
           connect: gameInstanceIds.map(id => ({ id })),
         },
       },
-      include: {
-        gameInstances: {
-          include: {
-            game: true,
-            center: true,
-          },
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
-      },
+      include: RENTAL_FOR_USER,
     });
 
     return apiResponse(true, rental);

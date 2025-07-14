@@ -209,6 +209,7 @@ export const UpdateRentalSchema = z.object({
   expectedReturnDate: RentalSchema.shape.expectedReturnDate,
   notes: RentalSchema.shape.notes,
   gameInstanceIds: z.array(z.string().cuid()).min(1).max(10).optional(),
+  status: z.enum([RentalStatus.CANCELLED]).optional(), // Users can only cancel rentals
 });
 
 

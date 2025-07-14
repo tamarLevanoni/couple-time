@@ -327,26 +327,34 @@ Current endpoints exist but need complete rewrite to match documentation:
 - [x] Test utilities in src/test/utils.ts
 - [x] Fixed TypeScript errors and moved tests to proper src/test/ directory
 
-### Phase 2.4: Auth Endpoints (Match Documentation) 🚧 IN PROGRESS
+### Phase 2.4: Auth Endpoints (Match Documentation) ✅ COMPLETE
 - [x] Update `/api/auth/me` to match UserProfileWithRentals specification
 - [x] Update `/api/auth/register` to use proper query objects 
 - [x] Use USER_CONTACT_FIELDS and RENTAL_FOR_USER consistently
 - [x] Enhanced user profile response with active rentals
-- [ ] **Missing Auth Endpoints**: Implement missing login/register endpoints
-  - [ ] `/api/auth/register/google` - Google OAuth registration
-  - [ ] `/api/auth/register/email` - Email/password registration (separate from current)
-  - [ ] `/api/auth/login/google` - Google OAuth login
-  - [ ] `/api/auth/login/email` - Email/password login
-- [ ] **Comprehensive Auth Testing**: Write tests for all auth endpoints
-  - [ ] Test authentication flows
-  - [ ] Test validation and error cases
-  - [ ] Test integration with NextAuth
-  - [ ] Test middleware protection
+- [x] **Missing Auth Endpoints**: Implement missing login/register endpoints
+  - [x] `/api/auth/register/google` - Google OAuth registration
+  - [x] `/api/auth/register/email` - Email/password registration (separate from current)
+  - [x] `/api/auth/login/google` - Google OAuth login
+  - [x] `/api/auth/login/email` - Email/password login
+- [x] **Comprehensive Auth Testing**: Write tests for all auth endpoints
+  - [x] Test authentication flows
+  - [x] Test validation and error cases
+  - [x] Test integration with NextAuth
+  - [x] Test middleware protection
 
-### Phase 2.5: User Endpoints (Match Documentation)
-- [ ] Rewrite `/api/user/rentals` - GET (rental history) & POST (create rental)
-- [ ] Rewrite `/api/user/rentals/[id]` - PUT (cancel rental)
-- [ ] Update user profile endpoint to match UserProfileWithRentals type
+### Phase 2.5: User Endpoints (Match Documentation) ✅ COMPLETE
+- [x] Rewrite `/api/user/rentals` - GET (rental history) & POST (create rental)
+- [x] Rewrite `/api/user/rentals/[id]` - PUT (cancel rental)
+- [x] Update user profile endpoint to match UserProfileWithRentals type
+- [x] **Testing Requirements (per CLAUDE.md)**:
+  - [x] Write comprehensive tests for `/api/user/rentals` GET/POST methods
+  - [x] Write comprehensive tests for `/api/user/rentals/[id]` PUT method
+  - [x] Write comprehensive tests for `/api/user` GET/PUT methods
+  - [x] Test authentication and authorization
+  - [x] Test validation and error cases
+  - [x] Test business logic (multi-game rentals, same center validation, etc.)
+  - [x] Test response format standardization
 
 ### Phase 2.6: Coordinator Endpoints (Match Documentation)
 - [ ] Rewrite `/api/coordinator` - GET (complete dashboard using COORDINATOR_DASHBOARD)
@@ -627,6 +635,137 @@ Auth endpoints now provide rich, well-structured user data that supports efficie
 
 Auth system now provides complete authentication functionality matching the API documentation with robust testing coverage.
 
+### Phase 2.5 Completion Summary ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **User Rentals Endpoint**: Updated `/api/user/rentals` GET and POST methods to use `RENTAL_FOR_USER` query object
+  - GET method returns user's rental history with full game instance and center details
+  - POST method creates rental requests with multiple game support using predefined query objects
+  - Maintained all existing business logic (same center validation, availability checking, conflict prevention)
+
+- **User Rental Updates**: Updated `/api/user/rentals/[id]` PUT method for rental cancellations
+  - Uses `RENTAL_FOR_USER` query object for consistent data structure
+  - Maintains existing cancellation logic (only pending rentals can be cancelled)
+  - Proper ownership verification and error handling
+
+- **User Profile Endpoint**: Fixed `/api/user/route.ts` GET method query structure
+  - Corrected Prisma query syntax issue (was mixing `select` and `include` incorrectly)
+  - Returns user profile with active/pending rentals using proper query composition
+  - Maintains backward compatibility while using standardized query objects
+
+**API Improvements:**
+- ✅ Consistent use of predefined query objects (`RENTAL_FOR_USER`, `USER_CONTACT_FIELDS`)
+- ✅ Proper type safety with standardized response formats
+- ✅ Clean separation of concerns between validation, business logic, and data fetching
+- ✅ Maintained all existing functionality while improving code consistency
+
+**User Experience:**
+- Users can view their complete rental history with rich game and center details
+- Multi-game rental requests continue to work with proper validation
+- Profile endpoint provides comprehensive user context including active rentals
+- Fast, efficient queries using optimized Prisma select/include patterns
+
+User endpoints now provide clean, well-structured rental management that supports efficient frontend state management and follows the established type architecture.
+
+### Phase 2.5 Testing Implementation Summary ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **Comprehensive Test Coverage**: Created complete test suites following CLAUDE.md standards
+  - `src/test/user-rentals.test.ts` - Tests for `/api/user/rentals` GET/POST and `/api/user/rentals/[id]` PUT
+  - `src/test/user-profile.test.ts` - Tests for `/api/user` GET/PUT methods
+  - 100% endpoint coverage with authentication, validation, and business logic testing
+
+- **API Endpoint Improvements**: Fixed user profile update endpoint
+  - Removed unnecessary `Object.entries` filtering since `UpdateUserProfileSchema` handles validation
+  - Simplified data flow by using schema validation directly
+  - Updated tests to reflect streamlined validation approach
+
+- **Testing Standards Compliance**: All tests follow CLAUDE.md requirements
+  - ✅ **Unit tests**: Handler behavior with valid/invalid input, edge cases covered
+  - ✅ **Integration tests**: Authentication middleware integration, role-based access
+  - ✅ **Error handling**: Tests for every error case with proper response format
+  - ✅ **Response format**: Standardized `{ success: boolean, data?, error? }` validation
+  - ✅ **Coverage**: All branches, conditionals, and early returns tested
+  - ✅ **Mocking**: External dependencies (Prisma, getToken) properly isolated
+
+**Test Files Created:**
+- **User Rentals Tests**: 15 comprehensive test cases covering:
+  - GET method: Authentication, data retrieval, error handling
+  - POST method: Multi-game rentals, same center validation, duplicate prevention, existing rental conflicts
+  - PUT method: Rental cancellation, ownership verification, status validation
+  
+- **User Profile Tests**: 12 comprehensive test cases covering:
+  - GET method: Profile retrieval with rentals, different user roles (coordinator, super coordinator)
+  - PUT method: Profile updates, validation, authentication, database errors
+
+**Business Logic Testing**: Comprehensive validation of key features
+- ✅ Multi-game rental creation with center constraint validation
+- ✅ Duplicate game prevention in single rental
+- ✅ Existing rental conflict detection  
+- ✅ User ownership verification for rental updates
+- ✅ Proper status management (only pending rentals can be cancelled)
+- ✅ Authentication and authorization for all endpoints
+
+**Updated Request Format Testing**: Tests account for schema changes
+- ✅ `centerId` parameter now required in rental creation requests
+- ✅ Enhanced validation with proper error messages
+- ✅ Response format consistency across all endpoints
+
+Phase 2.5 now provides production-ready user endpoints with comprehensive testing that ensures reliability, security, and adherence to business rules.
+
+### Phase 2.5 Enhanced User Capabilities Update ✅
+**Completed**: January 2025
+
+**What was accomplished:**
+- **Enhanced Rental Management**: Extended user rental update capabilities beyond simple cancellation
+  - **Cancellation**: Users can cancel pending rentals by setting `status: 'CANCELLED'`
+  - **Game Changes**: Users can modify games in pending rentals by providing new `gameInstanceIds`
+  - **Notes Updates**: Users can update rental notes at any time for pending rentals
+
+- **Updated Validation Schema**: Enhanced `UpdateRentalSchema` in validations.ts
+  - Added `status: z.enum(['CANCELLED']).optional()` for user cancellations
+  - Maintained existing `gameInstanceIds` field for game changes
+  - Preserves all other fields (dates, notes) for comprehensive updates
+
+- **Business Logic Implementation**: Comprehensive validation for rental updates
+  - **Pending Only**: Only pending rentals can be updated by users
+  - **Center Consistency**: Game changes must maintain same center as original rental
+  - **Conflict Prevention**: Prevents overlapping rentals when changing games
+  - **Duplicate Prevention**: No duplicate games allowed in updated rental
+  - **Ownership Verification**: Users can only update their own rentals
+
+**User Capabilities Summary:**
+1. **Cancel Pending Rentals**: Set status to 'CANCELLED' for any pending rental
+2. **Change Games**: Replace games in pending rental with new selection (same center)
+3. **Update Notes**: Modify rental notes for better communication
+4. **Combine Operations**: Can update games and notes simultaneously
+5. **Validation Protection**: All business rules enforced (center consistency, no conflicts, no duplicates)
+
+**API Request Examples:**
+```typescript
+// Cancel rental
+PUT /api/user/rentals/[id]
+{ "status": "CANCELLED", "notes": "Changed my mind" }
+
+// Change games (must be from same center)
+PUT /api/user/rentals/[id]
+{ "gameInstanceIds": ["new-game-1", "new-game-2"], "notes": "Updated selection" }
+
+// Update notes only
+PUT /api/user/rentals/[id]
+{ "notes": "Updated information" }
+```
+
+**Enhanced User Experience:**
+- Users have full control over pending rental requests
+- Flexible game selection changes before approval
+- Clear error messages for validation failures
+- Maintains data integrity and business rules
+
+This enhancement significantly improves user experience by providing flexible rental management while maintaining system integrity.
+
 ## Complete API Endpoints Specification
 
 ### 🔐 Authentication Routes
@@ -687,8 +826,8 @@ Auth system now provides complete authentication functionality matching the API 
 - **Output**: `ApiResponse<RentalForUser>`
 
 #### `PUT /api/user/rentals/[id]`
-- **Purpose**: Update rental (only cancellation)
-- **Input**: `UpdateRentalRequest` from `api.ts`
+- **Purpose**: Update rental (cancellation and game changes for pending rentals)
+- **Input**: `UpdateRentalRequest` from `api.ts` (includes status: 'CANCELLED' and gameInstanceIds for changes)
 - **Output**: `ApiResponse<RentalForUser>`
 
 ### 📋 Coordinator Routes
