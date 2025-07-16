@@ -53,6 +53,8 @@ model Center {
   gameInstances          GameInstance[]
   rentals                Rental[] @relation("RentalCenter")
   @@map("centers")
+  @@index([coordinatorId])
+  @@index([superCoordinatorId])
 }
 
 // ===== GAMES =====

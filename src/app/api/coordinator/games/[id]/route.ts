@@ -4,6 +4,8 @@ import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { UpdateGameInstancePartialSchema } from '@/lib/validations';
+import { GAME_INSTANCE_WITH_CENTER, GAME_INSTANCE_WITH_CENTER_AND_ACTIVE_RENTALS } from '@/types/models';
+import { AccessDeniedError, assertGameInstanceAccess, ResourceNotFoundError } from '@/lib/permissions';
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -11,86 +13,52 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
-
+    
     const { id } = params;
+
     const body = await req.json();
     const updateData = UpdateGameInstancePartialSchema.parse(body);
 
-    // Find the game instance and verify access
+    // Find the game instance and verify access, including rentals if checking for unavailable status
     const gameInstance = await prisma.gameInstance.findFirst({
-      where: {
-        id,
-        center: {
-          OR: [
-            { coordinatorId: token.id },
-            { superCoordinatorId: token.id },
-          ],
-        },
-      },
-      include: {
-        center: true,
-        game: true,
-      },
+      where: { id },
+      select: { id: true, status:true, center: { select: { coordinatorId: true } } },
     });
-
-    // Debug log to file
-    const fs = require('fs');
-    fs.appendFileSync('/tmp/api-debug.log', '\nAPI gameInstance: ' + JSON.stringify(gameInstance, null, 2));
-
-    // Debug log
-    console.log('API gameInstance:', JSON.stringify(gameInstance, null, 2));
-
-    if (!gameInstance) {
-      return apiResponse(false, null, { message: 'Game instance not found or access denied' }, 404);
-    }
+    if (!gameInstance) throw new ResourceNotFoundError('Game instance not found');
+    if (gameInstance.center.coordinatorId !== token.id) throw new AccessDeniedError();
 
     // If trying to mark as UNAVAILABLE, check for active rentals
-    if (updateData.status === 'UNAVAILABLE') {
-      const activeRentals = await prisma.rental.findMany({
-        where: {
-          gameInstanceId: id,
-          status: { in: ['PENDING', 'ACTIVE'] },
-        },
-      });
-
-      if (activeRentals.length > 0) {
-        return apiResponse(false, null, { message: 'Cannot mark as unavailable - has active rentals' }, 400);
-      }
+    if (
+      updateData.status === 'UNAVAILABLE' &&
+      gameInstance.status === 'BORROWED'
+    ) {
+      return apiResponse(
+        false,
+        null,
+        { message: 'Cannot mark as unavailable - has active rentals' },
+        400
+      );
     }
-
-    // Remove undefined values
-    const cleanUpdateData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined)
-    );
-
-    if (Object.keys(cleanUpdateData).length === 0) {
-      return apiResponse(false, null, { message: 'No valid fields to update' }, 400);
+    
+    if (updateData.expectedReturnDate && gameInstance.status != 'BORROWED') {
+      return apiResponse(
+        false,
+        null,
+        { message: 'Cannot change expected Return Date to unborrowed' },
+        400
+      );
     }
 
     // Update game instance
     const updatedGameInstance = await prisma.gameInstance.update({
       where: { id },
-      data: cleanUpdateData,
-      include: {
-        game: true,
-        center: {
-          select: {
-            id: true,
-            name: true,
-            city: true,
-          },
-        },
-      },
+      data: updateData,
+      include: GAME_INSTANCE_WITH_CENTER,
     });
 
     return apiResponse(true, updatedGameInstance);
   } catch (error) {
     console.error('Error updating game instance:', error);
-    const fs = require('fs');
-    if (error instanceof z.ZodError) {
-      fs.appendFileSync('/tmp/api-debug.log', '\nZod error details: ' + JSON.stringify(error.errors, null, 2));
-      console.error('Zod error details:', error.errors);
-    }
     
     if (error instanceof z.ZodError) {
       return apiResponse(false, null, { message: 'Invalid request data', details: error.errors }, 400);

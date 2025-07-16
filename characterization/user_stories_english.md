@@ -104,14 +104,10 @@
 - [ ] I can mark "returned" when they return
 - [ ] I can send a feedback request via WhatsApp
 
-### US-2.4: Add New Game
-**As a center coordinator**, I want to **add a new game to the center** so that **I can expand the selection**
+### US-2.4: update Game
 
 **Acceptance Criteria:**
-- [ ] I can add a new game to the general catalog
-- [ ] I fill out: name, description, categories, target audience, image
-- [ ] The game is automatically added to my center as "available"
-- [ ] I can add an existing game from the catalog to my center
+- [ ] I can update status to 'unavaliable' and notes
 
 ### US-2.5: Create Manual Rental
 **As a center coordinator**, I want to **create a rental for someone** so that **I can help those who struggle with the system**
