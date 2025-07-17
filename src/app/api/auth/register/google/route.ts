@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       select: USER_CONTACT_FIELDS,
     });
 
-    return apiResponse(true, user);
+    return apiResponse(true, user, undefined, 201);
   } catch (error) {
     console.error('Google registration error:', error);
     

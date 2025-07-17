@@ -1,0 +1,176 @@
+{
+  "/api/coordinator": {
+    "get": {
+      "tags": ["Coordinator"],
+      "summary": "Get coordinator dashboard",
+      "description": "Get coordinator dashboard with center info and rentals",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "Coordinator dashboard retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/CoordinatorDashboard"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/coordinator/rentals": {
+    "get": {
+      "tags": ["Coordinator"],
+      "summary": "View center rentals",
+      "description": "View rentals for the coordinator's center",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "Center rentals retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "../shared/components.json#/components/schemas/RentalForCoordinator"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": ["Coordinator"],
+      "summary": "Create manual rental",
+      "description": "Create a rental manually for a user",
+      "security": [{"BearerAuth": []}],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/CreateManualRentalRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Manual rental created successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/RentalForCoordinator"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/coordinator/rentals/{id}": {
+    "put": {
+      "tags": ["Coordinator"],
+      "summary": "Update rental",
+      "description": "Update rental status or details",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/UpdateRentalRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Rental updated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/RentalForCoordinator"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/coordinator/games": {
+    "get": {
+      "tags": ["Coordinator"],
+      "summary": "Get center games",
+      "description": "Get all games available at the coordinator's center",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "Center games retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "./components.json#/components/schemas/GameForCoordinator"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/coordinator/games/{id}": {
+    "put": {
+      "tags": ["Coordinator"],
+      "summary": "Update game",
+      "description": "Update game details or availability",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/UpdateGameRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Game updated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./components.json#/components/schemas/GameForCoordinator"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

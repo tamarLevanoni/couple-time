@@ -1,0 +1,64 @@
+{
+  "components": {
+    "schemas": {
+      "RegisterWithGoogleRequest": {
+        "type": "object",
+        "properties": {
+          "googleId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": ["googleId", "name", "email", "phone"]
+      },
+      "RegisterWithEmailRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": ["name", "email", "phone", "password"]
+      },
+      "LoginWithGoogleRequest": {
+        "type": "object",
+        "properties": {
+          "googleId": {
+            "type": "string"
+          }
+        },
+        "required": ["googleId"]
+      },
+      "LoginWithEmailRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password"]
+      }
+    }
+  }
+}

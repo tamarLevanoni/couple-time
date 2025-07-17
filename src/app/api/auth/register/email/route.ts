@@ -36,13 +36,12 @@ export async function POST(req: NextRequest) {
         name,
         phone,
         roles: [Role.USER],
-        managedCenterId: null,
         isActive: true,
       },
       select: USER_CONTACT_FIELDS,
     });
 
-    return apiResponse(true, user);
+    return apiResponse(true, user, undefined, 201);
   } catch (error) {
     console.error('Email registration error:', error);
     

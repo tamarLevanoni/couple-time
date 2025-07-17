@@ -8,34 +8,24 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
   try {
+
+    if (process.env.NODE_ENV !== 'development') {
+      return new Response('Not allowed in production', { status: 403 });
+    }
     const body = await req.json();
-    const { email, password } = LoginWithEmailSchema.parse(body);
+    const { email } = body;
 
     // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (!user || !user.password) {
+    if (!user) {
       return Response.json({ 
         error: 'Invalid email or password' 
       }, { status: 401 });
     }
 
-    if (!user.isActive) {
-      return Response.json({ 
-        error: 'Account is not active' 
-      }, { status: 403 });
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    
-    if (!isPasswordValid) {
-      return Response.json({ 
-        error: 'Invalid email or password' 
-      }, { status: 401 });
-    }
 
     // Generate JWT token using NextAuth's encode function
     const secret = process.env.NEXTAUTH_SECRET;

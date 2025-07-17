@@ -1,0 +1,170 @@
+{
+  "components": {
+    "schemas": {
+      "CreateManualRentalRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "centerId": {
+            "type": "string"
+          },
+          "gameInstanceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 10
+          },
+          "borrowDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": ["userId", "centerId", "gameInstanceIds"]
+      },
+      "UpdateRentalRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["approve", "cancel", "return", "extend"]
+          },
+          "borrowDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": ["action"]
+      },
+      "UpdateGameRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "minPlayers": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxPlayers": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": ["STRATEGY", "PARTY", "FAMILY", "CARD", "COOP", "ADVENTURE", "PUZZLE", "ABSTRACT", "THEMATIC", "ECONOMIC", "WARGAME", "TRIVIA", "ROLEPLAYING", "DEXTERITY", "EDUCATIONAL", "CHILDRENS", "PARTY_ADULT", "HORROR", "MYSTERY", "SCIFI", "FANTASY", "HISTORICAL", "MODERN", "ABSTRACT_STRATEGY", "AREA_CONTROL", "AUCTION", "BLUFFING", "CARD_DRAFTING", "CIVILIZATION", "COLLECTIBLE", "DICE", "DUNGEON_CRAWLER", "ENGINE_BUILDING", "EXPLORATION", "FIGHTING", "HIDDEN_ROLES", "LEGACY", "MEMORY", "NEGOTIATION", "PATTERN_BUILDING", "PRESS_YOUR_LUCK", "RACE", "REAL_TIME", "RESOURCE_MANAGEMENT", "ROLL_AND_WRITE", "SET_COLLECTION", "SOCIAL_DEDUCTION", "STORYTELLING", "TILE_PLACEMENT", "TOWER_DEFENSE", "TRADING", "TRICK_TAKING", "WORKER_PLACEMENT", "ZOMBIE"]
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["EASY", "MEDIUM", "HARD"]
+          },
+          "estimatedDuration": {
+            "type": "integer",
+            "minimum": 5
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "GameForCoordinator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "minPlayers": {
+            "type": "integer"
+          },
+          "maxPlayers": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "estimatedDuration": {
+            "type": "integer"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "centerId": {
+            "type": "string"
+          },
+          "instances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "barcode": {
+                  "type": "string"
+                },
+                "condition": {
+                  "type": "string",
+                  "enum": ["NEW", "GOOD", "FAIR", "POOR"]
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "notes": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "activeRentals": {
+            "type": "integer"
+          },
+          "totalInstances": {
+            "type": "integer"
+          },
+          "availableInstances": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Game Rental System API",
+    "description": "Complete API for managing game rentals across multiple centers",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Game Rental System",
+      "email": "support@gamerental.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.gamerental.com",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Public",
+      "description": "Public endpoints (no authentication required)"
+    },
+    {
+      "name": "Authentication",
+      "description": "User registration and login"
+    },
+    {
+      "name": "User",
+      "description": "User profile and rental management"
+    },
+    {
+      "name": "Coordinator",
+      "description": "Center coordinator operations"
+    },
+    {
+      "name": "Super Coordinator",
+      "description": "Multi-center oversight"
+    },
+    {
+      "name": "Admin",
+      "description": "System administration"
+    }
+  ],
+  "paths": {
+    "/api/public/games": {
+      "$ref": "./public/routes.json#/~1games"
+    },
+    "/api/public/centers": {
+      "$ref": "./public/routes.json#/~1centers"
+    },
+    "/api/auth/register/google": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1register~1google"
+    },
+    "/api/auth/register/email": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1register~1email"
+    },
+    "/api/auth/login/google": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1login~1google"
+    },
+    "/api/auth/login/email": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1login~1email"
+    },
+    "/api/auth/test-token": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1test-token"
+    },
+    "/api/user": {
+      "$ref": "./user/routes.json#/~1api~1user"
+    },
+    "/api/user/rentals": {
+      "$ref": "./user/routes.json#/~1api~1user~1rentals"
+    },
+    "/api/coordinator": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator"
+    },
+    "/api/coordinator/rentals": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1rentals"
+    },
+    "/api/coordinator/rentals/{id}": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1rentals~1%7Bid%7D"
+    },
+    "/api/coordinator/games": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1games"
+    },
+    "/api/coordinator/games/{id}": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1games~1%7Bid%7D"
+    },
+    "/api/super/centers": {
+      "$ref": "./super/routes.json#/~1api~1super~1centers"
+    },
+    "/api/super/rentals": {
+      "$ref": "./super/routes.json#/~1api~1super~1rentals"
+    }
+  },
+  "components": {
+    "$ref": "./shared/components.json#/components"
+  }
+}
