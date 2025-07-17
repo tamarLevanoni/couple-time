@@ -58,6 +58,36 @@
           }
         },
         "required": ["email", "password"]
+      },
+      "LinkGoogleToExistingUserRequest": {
+        "type": "object",
+        "properties": {
+          "googleId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": ["googleId", "email"]
+      },
+      "CompleteGoogleProfileRequest": {
+        "type": "object",
+        "properties": {
+          "googleId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": ["googleId", "name", "email", "phone"]
       }
     }
   }

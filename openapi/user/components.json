@@ -1,0 +1,46 @@
+{
+  "components": {
+    "schemas": {
+      "UpdateUserProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateRentalRequest": {
+        "type": "object",
+        "properties": {
+          "centerId": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+$",
+            "description": "ID of the center where games will be borrowed from"
+          },
+          "gameInstanceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+$"
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "uniqueItems": true,
+            "description": "Array of unique game instance IDs to rent (all must belong to the specified center)"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Optional notes for the rental request"
+          }
+        },
+        "required": ["centerId", "gameInstanceIds"],
+        "additionalProperties": false,
+        "description": "Request to create a new rental. All game instances must belong to the specified center."
+      }
+    }
+  }
+}

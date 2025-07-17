@@ -1,0 +1,101 @@
+{
+  "/api/user": {
+    "get": {
+      "tags": ["User"],
+      "summary": "Get user profile",
+      "description": "Get current user profile with active rentals",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "User profile retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/UserProfileWithRentals"
+              }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": ["User"],
+      "summary": "Update user profile",
+      "description": "Update user profile information",
+      "security": [{"BearerAuth": []}],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/UpdateUserProfileRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "User profile updated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/UserContactInfo"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/user/rentals": {
+    "get": {
+      "tags": ["User"],
+      "summary": "Get user rentals",
+      "description": "View rental history with filtering options",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "User rentals retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "../shared/components.json#/components/schemas/RentalForUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": ["User"],
+      "summary": "Create new rental",
+      "description": "Submit a new rental request",
+      "security": [{"BearerAuth": []}],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/CreateRentalRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Rental created successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/RentalForUser"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

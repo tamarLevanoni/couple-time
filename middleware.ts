@@ -35,7 +35,6 @@ export async function middleware(req: NextRequest) {
     { path: '/api/admin', requiredRole: Role.ADMIN },
     { path: '/api/coordinator', requiredRole: Role.CENTER_COORDINATOR },
     { path: '/api/super', requiredRole: Role.SUPER_COORDINATOR },
-    { path: '/api/user', requiredRole: Role.USER },
   ];
 
   const matchedRoute = protectedRoutes.find(route => pathname.startsWith(route.path));

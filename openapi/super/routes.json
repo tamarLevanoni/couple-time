@@ -1,0 +1,48 @@
+{
+  "/api/super/centers": {
+    "get": {
+      "tags": ["Super Coordinator"],
+      "summary": "View supervised centers",
+      "description": "View all centers supervised by this super coordinator",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "Supervised centers retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "../shared/components.json#/components/schemas/CenterForPublic"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/super/rentals": {
+    "get": {
+      "tags": ["Super Coordinator"],
+      "summary": "View cross-center rentals",
+      "description": "View rentals across all supervised centers",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "Cross-center rentals retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "../shared/components.json#/components/schemas/RentalForCoordinator"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

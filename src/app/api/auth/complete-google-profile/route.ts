@@ -1,10 +1,16 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { apiResponse } from '@/lib/api-response';
-import { Role } from '@prisma/client';
 import { z } from 'zod';
-import { RegisterWithGoogleSchema } from '@/lib/validations';
+import { Role } from '@prisma/client';
 import { USER_CONTACT_FIELDS } from '@/types';
+
+const CompleteGoogleProfileSchema = z.object({
+  googleId: z.string().min(1, 'Google ID is required'),
+  name: z.string().min(1, 'Name is required').max(100),
+  email: z.string().email('Invalid email format'),
+  phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
+});
 
 export async function OPTIONS() {
   return apiResponse(true, null);
@@ -13,7 +19,7 @@ export async function OPTIONS() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { googleId, name, email, phone } = RegisterWithGoogleSchema.parse(body);
+    const { googleId, name, email, phone } = CompleteGoogleProfileSchema.parse(body);
 
     // Check if user already exists by email
     const existingUserByEmail = await prisma.user.findUnique({
@@ -40,7 +46,6 @@ export async function POST(req: NextRequest) {
         email,
         name,
         phone,
-        roles: [Role.USER],
         managedCenterId: null,
         isActive: true,
       },
@@ -49,12 +54,12 @@ export async function POST(req: NextRequest) {
 
     return apiResponse(true, user, undefined, 201);
   } catch (error) {
-    console.error('Google registration error:', error);
+    console.error('Complete Google profile error:', error);
     
     if (error instanceof z.ZodError) {
       return apiResponse(false, null, { message: 'נתונים לא תקינים', details: error.errors }, 400);
     }
     
-    return apiResponse(false, null, { message: 'שגיאה בהרשמה עם Google. נסה שוב מאוחר יותר' }, 500);
+    return apiResponse(false, null, { message: 'שגיאה בהשלמת הפרופיל. נסה שוב מאוחר יותר' }, 500);
   }
 }

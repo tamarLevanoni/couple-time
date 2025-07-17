@@ -1,0 +1,415 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Game Rental System API - Shared Components",
+    "description": "Shared components and schemas for the Game Rental System API",
+    "version": "1.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": ["success"]
+      },
+      "GameForPublic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["COMMUNICATION", "INTIMACY", "FUN", "THERAPY", "PERSONAL_DEVELOPMENT"]
+            }
+          },
+          "targetAudiences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["SINGLES", "MARRIED", "GENERAL"]
+            }
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name", "categories", "targetAudiences"]
+      },
+      "UserContactInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name", "email", "phone"]
+      },
+      "CenterForPublic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              }
+            }
+          },
+          "coordinator": {
+            "$ref": "#/components/schemas/UserContactInfo"
+          },
+          "gameInstances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "gameId": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["AVAILABLE", "BORROWED", "UNAVAILABLE"]
+                }
+              },
+              "required": ["id", "gameId", "status"]
+            }
+          }
+        },
+        "required": ["id", "name", "city", "area", "coordinator", "gameInstances"]
+      },
+      "UserProfileWithRentals": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["USER", "CENTER_COORDINATOR", "SUPER_COORDINATOR", "ADMIN"]
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "currentRentals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RentalForUser"
+            }
+          }
+        },
+        "required": ["id", "name", "email", "phone", "roles", "isActive", "currentRentals"]
+      },
+      "RentalForUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "ACTIVE", "RETURNED", "CANCELLED"]
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "borrowDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "returnDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "gameInstances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "gameId": {
+                  "type": "string"
+                },
+                "centerId": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "gameId", "centerId"]
+            }
+          },
+          "center": {
+            "$ref": "#/components/schemas/CenterForPublic"
+          },
+          "canCancel": {
+            "type": "boolean"
+          }
+        },
+        "required": ["id", "status", "gameInstances", "center", "canCancel"],
+        "description": "Rental information for user view with computed properties"
+      },
+      "RentalWithDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RentalForUser"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "isOverdue": {
+                "type": "boolean",
+                "description": "Computed: true if rental is past expected return date"
+              },
+              "daysOverdue": {
+                "type": "integer",
+                "description": "Computed: number of days past expected return date"
+              },
+              "canReturn": {
+                "type": "boolean",
+                "description": "Computed: true if rental can be returned by user"
+              }
+            },
+            "required": ["isOverdue", "daysOverdue", "canReturn"]
+          }
+        ],
+        "description": "Extended rental information with additional computed fields"
+      },
+      "RentalForCoordinator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "centerId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "ACTIVE", "RETURNED", "CANCELLED"]
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "borrowDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "returnDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserContactInfo"
+          },
+          "gameInstanceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Computed from gameInstances relation"
+          },
+          "isOverdue": {
+            "type": "boolean",
+            "description": "Computed: true if rental is overdue"
+          },
+          "daysOverdue": {
+            "type": "integer",
+            "description": "Computed: days past expected return"
+          },
+          "canApprove": {
+            "type": "boolean",
+            "description": "Computed: true if coordinator can approve this rental"
+          },
+          "canCancel": {
+            "type": "boolean",
+            "description": "Computed: true if coordinator can cancel this rental"
+          },
+          "canReturn": {
+            "type": "boolean",
+            "description": "Computed: true if coordinator can mark as returned"
+          }
+        },
+        "required": ["id", "centerId", "status", "user", "gameInstanceIds", "isOverdue", "daysOverdue", "canApprove", "canCancel", "canReturn"]
+      },
+      "GameInstanceForCoordinator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "gameId": {
+            "type": "string"
+          },
+          "centerId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["AVAILABLE", "BORROWED", "UNAVAILABLE"]
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "rentalsIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Computed from rentals relation"
+          }
+        },
+        "required": ["id", "gameId", "centerId", "status", "rentalsIds"]
+      },
+      "CoordinatorDashboard": {
+        "type": "object",
+        "properties": {
+          "center": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"},
+              "city": {"type": "string"},
+              "area": {"type": "string", "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]}
+            },
+            "required": ["id", "name", "city", "area"]
+          },
+          "superCoordinator": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "phone": {"type": "string"},
+              "email": {"type": "string"}
+            },
+            "nullable": true
+          },
+          "pendingRentals": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/RentalForCoordinator"}
+          },
+          "activeRentals": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/RentalForCoordinator"}
+          },
+          "availableGames": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/GameInstanceForCoordinator"}
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "totalRentals": {"type": "integer"},
+              "activeRentals": {"type": "integer"},
+              "overdueRentals": {"type": "integer"},
+              "totalGames": {"type": "integer"}
+            },
+            "required": ["totalRentals", "activeRentals", "overdueRentals", "totalGames"]
+          }
+        },
+        "required": ["center", "pendingRentals", "activeRentals", "availableGames", "stats"]
+      }
+    }
+  }
+}

@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         name,
         phone,
-        roles: [Role.USER],
         isActive: true,
       },
       select: USER_CONTACT_FIELDS,

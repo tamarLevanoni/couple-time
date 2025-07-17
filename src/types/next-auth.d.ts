@@ -2,12 +2,7 @@ import { Role } from '@prisma/client';
 
 declare module 'next-auth' {
   interface Session {
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      roles: Role[];
-    };
+    user: User;
   }
 
   interface User {
@@ -15,6 +10,10 @@ declare module 'next-auth' {
     email: string;
     name: string;
     roles: Role[];
+    phone?: string;
+    isActive?: boolean;
+    needsProfileCompletion?: boolean;
+    googleId?: string;
   }
 }
 
@@ -24,5 +23,9 @@ declare module 'next-auth/jwt' {
     email: string;
     name: string;
     roles: Role[];
+    phone?: string;
+    isActive?: boolean;
+    needsProfileCompletion?: boolean;
+    googleId?: string;
   }
 }

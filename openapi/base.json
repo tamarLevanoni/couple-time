@@ -52,17 +52,8 @@
     "/api/public/centers": {
       "$ref": "./public/routes.json#/~1centers"
     },
-    "/api/auth/register/google": {
-      "$ref": "./auth/routes.json#/~1api~1auth~1register~1google"
-    },
     "/api/auth/register/email": {
       "$ref": "./auth/routes.json#/~1api~1auth~1register~1email"
-    },
-    "/api/auth/login/google": {
-      "$ref": "./auth/routes.json#/~1api~1auth~1login~1google"
-    },
-    "/api/auth/login/email": {
-      "$ref": "./auth/routes.json#/~1api~1auth~1login~1email"
     },
     "/api/auth/test-token": {
       "$ref": "./auth/routes.json#/~1api~1auth~1test-token"
