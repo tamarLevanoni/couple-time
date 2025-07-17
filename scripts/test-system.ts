@@ -28,14 +28,10 @@ async function testSystem() {
     const coordinator = await db.user.findFirst({
       where: { roles: { has: Role.CENTER_COORDINATOR } }
     });
-    const regularUser = await db.user.findFirst({
-      where: { roles: { has: Role.USER } }
-    });
 
     console.log(`✅ User roles working:`)
     console.log(`   - Admin found: ${admin ? '✅' : '❌'} ${admin?.email || 'N/A'}`);
     console.log(`   - Coordinator found: ${coordinator ? '✅' : '❌'} ${coordinator?.email || 'N/A'}`);
-    console.log(`   - Regular user found: ${regularUser ? '✅' : '❌'} ${regularUser?.email || 'N/A'}\n`);
 
     // Test logging system
     console.log('📝 Testing logging system...');
@@ -55,7 +51,7 @@ async function testSystem() {
     });
 
     testUsers.forEach(user => {
-      const role = user.roles[0] || Role.USER;
+      const role = user.roles[0];
       const roleDisplay = {
         ADMIN: '🔧 Admin',
         CENTER_COORDINATOR: '📋 Coordinator',

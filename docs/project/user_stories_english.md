@@ -65,8 +65,9 @@
 - [ ] I can register with email and password (traditional method)
 - [ ] Both methods require: name, email, phone number
 - [ ] Password registration requires minimum 8 characters
+- [ ] Google registration always requires manual entry of name and phone (Google's data is not trusted)
+- [ ] If I try to login with Google but already have an account with that email, I can link my Google account to the existing account
 - [ ] After registration, I can immediately request rentals
-- [ ] I can later link/unlink authentication methods in my profile
 
 ---
 

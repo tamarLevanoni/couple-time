@@ -276,7 +276,7 @@ async function main() {
         name: 'John Doe',
         email: 'john.doe@email.com',
         phone: '050-1234567',
-        roles: ['USER'],
+        roles: [],
         password: await bcrypt.hash('User123!', 10),
         isActive: true
       }
@@ -286,7 +286,7 @@ async function main() {
         name: 'Jane Smith',
         email: 'jane.smith@email.com',
         phone: '050-2345678',
-        roles: ['USER'],
+        roles: [],
         password: await bcrypt.hash('User123!', 10),
         isActive: true
       }
@@ -296,7 +296,7 @@ async function main() {
         name: 'Michael Brown',
         email: 'michael.brown@email.com',
         phone: '050-3456789',
-        roles: ['USER'],
+        roles: [],
         password: await bcrypt.hash('User123!', 10),
         isActive: true
       }
@@ -306,7 +306,7 @@ async function main() {
         name: 'Emily Davis',
         email: 'emily.davis@email.com',
         phone: '050-4567890',
-        roles: ['USER'],
+        roles: [],
         password: await bcrypt.hash('User123!', 10),
         isActive: true
       }
@@ -316,7 +316,7 @@ async function main() {
         name: 'David Wilson',
         email: 'david.wilson@email.com',
         phone: '050-5678901',
-        roles: ['USER'],
+        roles: [],
         googleId: 'google_oauth_123456',
         isActive: true
       }
@@ -326,7 +326,7 @@ async function main() {
         name: 'Sarah Johnson',
         email: 'sarah.johnson@email.com',
         phone: '050-6789012',
-        roles: ['USER'],
+        roles: [],
         googleId: 'google_oauth_234567',
         isActive: true
       }
@@ -336,7 +336,7 @@ async function main() {
         name: 'Test User (Inactive)',
         email: 'inactive@email.com',
         phone: '050-0000000',
-        roles: ['USER'],
+        roles: [],
         password: await bcrypt.hash('User123!', 10),
         isActive: false
       }

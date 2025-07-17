@@ -1,44 +1,9 @@
-## 1. Standard Workflow
-
-### ✅ Before You Code
-
-1. **Understand the problem.** Read the relevant codebase and understand the goal.
-2. **Write a plan** in `projectplan.md` that outlines the changes you intend to make.
-3. **Include a TODO checklist** so that each task can be marked as complete.
-
-### 🛑 Before You Start Coding
-
-4. **Submit the plan for approval.** Do not begin work before I approve it.
-
-### 🧩 While Coding
-
-5. **Mark TODOs as complete** as you implement each part.
-6. **Explain every step.** For each change, give a high-level summary of what you did and why.
-7. **Keep it simple.** Each code/task change must be:
-   - Minimal and focused
-   - Intuitive and easy to debug
-   - Avoid large or complex refactors
-8. **Import interfaces** in all files, include tests and api, import formal interface of relevant schema from /types as much as possible, avoid duplication, and always maintain compatibility.
-
-### ✅ After Coding
-
-8. **Update the review section** in `projectplan.md` with a clear summary of the work done.
-
-## 2. Project Structure & File Rules
-
-### ✅ Allowed
-- Group logic by feature and permissions
-- Use `utils.ts` and `factories.ts` for reusable logic and test data
-- One export per file (unless strongly justified)
-
-### ❌ Not Allowed
-- Placeholder files, dead code, or unused mocks
-- General-purpose helpers unless reused multiple times
-- New folders without justification in `projectplan.md`
+## 📖 Getting Started
+**ALWAYS** read `docs/HOW-TO-USE.md` first to understand the project documentation system and current status.
 
 ---
 
-## 3. Authentication & Authorization (App Router)
+## 1. Authentication & Authorization (App Router)
 
 - Use centralized `middleware.ts` for all protected routes
 - **Do not** use `withAuth` wrappers
@@ -46,7 +11,7 @@
 - Avoid permission logic inside individual route handlers
 
 
-## 4. API Route Standards
+## 2. API Route Standards
 - Use consistent URL patterns for all API routes
 - All protected routes should use centralized permission middleware
 - Combine related operations into single files when possible
@@ -84,7 +49,7 @@ For each API endpoint:
 
 ---
 
-## 5. Testing Standards
+## 3. Testing Standards
 
 - Use **`vitest` only** for all unit/integration tests
 - Shared utilities → `src/test/utils.ts`
@@ -94,7 +59,7 @@ For each API endpoint:
 - Use `*.test.ts` suffix
 - Place close to the tested logic when practical
 
-## 6. UI & Data Handling
+## 4. UI & Data Handling
 
 ---
 
@@ -108,7 +73,7 @@ For each API endpoint:
 
 ---
 
-## 7. DX & Maintainability
+## 5. Code Quality & Maintainability
 
 - Keep code readable without extra context
 - Don’t abstract core logic away into hidden files
@@ -117,17 +82,13 @@ For each API endpoint:
 
 ---
 
-## 8. Cleanup Policy
+## 6. Cleanup Policy
 
 - Regularly remove unused code, mocks, or placeholder files
 - Don’t leave commented-out code in the repo
 - All files must have a clear reason to exist, or be deleted
 
----
-
----
-
-## 9. Types Architecture
+## 7. Types Architecture
 
 ### 📁 Type File Structure
 Our types follow a practical, business-focused approach organized in layers:
@@ -207,11 +168,11 @@ const enhancedRental: RentalWithDetails = {
 
 ---
 
-## Claude Agent Summary
+## Development Standards Summary
 
-- ✅ Plan before coding  
-- ✅ Keep things minimal and clean  
-- ❌ No unnecessary files  
-- ✅ Explain every step  
-- ✅ Delete what's not needed
-- ✅ Follow practical type architecture
+- ✅ Follow documentation workflow in `docs/HOW-TO-USE.md`
+- ✅ Keep code minimal and focused
+- ✅ Import types from `/types` architecture
+- ✅ Write comprehensive tests for all endpoints
+- ✅ Use standardized response format
+- ✅ Clean up unused code regularly

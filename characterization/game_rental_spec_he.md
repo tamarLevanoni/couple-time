@@ -30,7 +30,7 @@
 ```
 User (משתמש)
 ├── id, name, email, phone
-├── roles: ['USER', 'CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN']
+├── roles: ['CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN']
 ├── managedCenterIds[] (מוקדים שהוא מנהל כרכז)
 ├── supervisedCenterIds[] (מוקדים שהוא מפקח עליהם כרכז-על)
 └── isActive: boolean

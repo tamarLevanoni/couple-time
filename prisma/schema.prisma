@@ -118,7 +118,6 @@ model Rental {
 
 // ===== ENUMS =====
 enum Role {
-  USER
   CENTER_COORDINATOR
   SUPER_COORDINATOR
   ADMIN

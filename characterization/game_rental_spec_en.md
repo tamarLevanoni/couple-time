@@ -30,7 +30,7 @@ Game rental management system for a network of community centers, focusing on:
 ```
 User (User)
 ├── id, name, email, phone
-├── roles: ['USER', 'CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN']
+├── roles: ['CENTER_COORDINATOR', 'SUPER_COORDINATOR', 'ADMIN']
 ├── managedCenterIds[] (centers they manage as coordinator)
 ├── supervisedCenterIds[] (centers they supervise as super coordinator)
 └── isActive: boolean
