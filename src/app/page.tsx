@@ -6,7 +6,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Shield } from '@/components/icons';
-import { Role } from '@/types/database';
+import { Role } from '@/types/schema';
 
 export default function Home() {
   const { data: session, status } = useSession();
