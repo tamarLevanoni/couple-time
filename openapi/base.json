@@ -103,10 +103,22 @@
       "$ref": "./coordinator/routes.json#/~1api~1coordinator~1games~1%7Bid%7D"
     },
     "/api/super/centers": {
-      "$ref": "./super/routes.json#/~1api~1super~1centers"
+      "$ref": "./super/centers.json#/~1api~1super~1centers"
+    },
+    "/api/super/centers/{id}": {
+      "$ref": "./super/centers.json#/~1api~1super~1centers~1%7Bid%7D"
+    },
+    "/api/super/games": {
+      "$ref": "./super/games.json#/~1api~1super~1games"
+    },
+    "/api/super/games/{id}": {
+      "$ref": "./super/games.json#/~1api~1super~1games~1%7Bid%7D"
     },
     "/api/super/rentals": {
-      "$ref": "./super/routes.json#/~1api~1super~1rentals"
+      "$ref": "./super/rentals.json#/~1api~1super~1rentals"
+    },
+    "/api/super/rentals/{id}": {
+      "$ref": "./super/rentals.json#/~1api~1super~1rentals~1%7Bid%7D"
     },
     "/api/admin/users": {
       "$ref": "./admin/users_routes.json#/~1api~1admin~1users"
@@ -136,6 +148,9 @@
   "components": {
     "securitySchemes": {
       "$ref": "./shared/components.json#/components/securitySchemes"
+    },
+    "responses": {
+      "$ref": "./shared/components.json#/components/responses"
     },
     "schemas": {
       "$ref": "./shared/components.json#/components/schemas"
