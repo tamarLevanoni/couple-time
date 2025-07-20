@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { getToken, JWT } from 'next-auth/jwt';
 import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
+import { assertAdminRole } from '@/lib/permissions';
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,6 +10,9 @@ export async function GET(req: NextRequest) {
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
+    
+    // Verify user is an admin
+    await assertAdminRole(token);
 
     // Get system statistics
     const [
@@ -65,13 +69,22 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Get games by category
-    const gamesByCategory = await prisma.game.groupBy({
-      by: ['category'],
-      _count: {
-        id: true,
-      },
+    // Get games by category - manually aggregate since we have arrays
+    const allGames = await prisma.game.findMany({
+      select: { categories: true },
     });
+    
+    const gamesByCategory = allGames.reduce((acc: any[], game) => {
+      game.categories.forEach(category => {
+        const existing = acc.find(item => item.category === category);
+        if (existing) {
+          existing._count.id++;
+        } else {
+          acc.push({ category, _count: { id: 1 } });
+        }
+      });
+      return acc;
+    }, []);
 
     // Get recent activity (last 30 days)
     const thirtyDaysAgo = new Date();

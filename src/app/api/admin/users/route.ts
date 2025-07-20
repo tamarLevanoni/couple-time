@@ -5,15 +5,9 @@ import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { CreateUserSchema, UpdateUserSchema } from '@/lib/validations';
+import { USERS_FOR_ADMIN } from '@/types/models';
+import { assertAdminRole } from '@/lib/permissions';
 
-// Extend the base schemas for admin-specific needs
-const createUserSchema = CreateUserSchema.extend({
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-const updateUserSchema = UpdateUserSchema.omit({ id: true }).extend({
-  isActive: z.boolean().optional(),
-});
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,12 +15,16 @@ export async function GET(req: NextRequest) {
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
+    
+    // Verify user is an admin
+    await assertAdminRole(token);
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const role = searchParams.get('role');
     const search = searchParams.get('search');
+    const includeInactive = searchParams.get('includeInactive') === 'true';
     const offset = (page - 1) * limit;
 
     const where: any = {};
@@ -42,21 +40,15 @@ export async function GET(req: NextRequest) {
       ];
     }
 
+    // By default, only show active users unless explicitly requested
+    if (!includeInactive) {
+      where.isActive = true;
+    }
+
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-          roles: true,
-          managedCenterIds: true,
-          supervisedCenterIds: true,
-          isActive: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        include: USERS_FOR_ADMIN,
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset,
@@ -85,9 +77,12 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
+    
+    // Verify user is an admin
+    await assertAdminRole(token);
 
     const body = await req.json();
-    const userData = createUserSchema.parse(body);
+    const userData = CreateUserSchema.parse(body);
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -99,7 +94,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await bcrypt.hash(userData.password, 12);
 
     // Create user
     const user = await prisma.user.create({
@@ -108,21 +103,10 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         isActive: true,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        roles: true,
-        managedCenterIds: true,
-        supervisedCenterIds: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      include: USERS_FOR_ADMIN,
     });
 
-    return apiResponse(true, user);
+    return apiResponse(true, user, undefined, 201);
   } catch (error) {
     console.error('Error creating user:', error);
     
@@ -134,87 +118,17 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
-  try {
-    const token = await getToken({ req }) as JWT | null;
-    if (!token) {
-      return apiResponse(false, null, { message: 'Authentication required' }, 401);
-    }
-
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('id');
-
-    if (!userId) {
-      return apiResponse(false, null, { message: 'User ID is required' }, 400);
-    }
-
-    const body = await req.json();
-    const updateData = updateUserSchema.parse(body);
-
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!existingUser) {
-      return apiResponse(false, null, { message: 'User not found' }, 404);
-    }
-
-    // If updating email, check for conflicts
-    if (updateData.email && updateData.email !== existingUser.email) {
-      const emailExists = await prisma.user.findUnique({
-        where: { email: updateData.email },
-      });
-
-      if (emailExists) {
-        return apiResponse(false, null, { message: 'Email already exists' }, 400);
-      }
-    }
-
-    // Remove undefined values
-    const cleanUpdateData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined)
-    );
-
-    if (Object.keys(cleanUpdateData).length === 0) {
-      return apiResponse(false, null, { message: 'No valid fields to update' }, 400);
-    }
-
-    // Update user
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: cleanUpdateData,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        roles: true,
-        managedCenterIds: true,
-        supervisedCenterIds: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return apiResponse(true, updatedUser);
-  } catch (error) {
-    console.error('Error updating user:', error);
-    
-    if (error instanceof z.ZodError) {
-      return apiResponse(false, null, { message: 'Invalid request data', details: error.errors }, 400);
-    }
-    
-    return apiResponse(false, null, { message: 'Internal server error' }, 500);
-  }
-}
 
 export async function DELETE(req: NextRequest) {
   try {
     const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
+    }
+    
+    // Verify user is an admin
+    if (!token.roles?.includes('ADMIN')) {
+      return apiResponse(false, null, { message: 'Access forbidden - admin role required' }, 403);
     }
 
     const { searchParams } = new URL(req.url);

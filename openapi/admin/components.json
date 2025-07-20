@@ -1,0 +1,607 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Game Rental System API - Admin Components",
+    "description": "Admin-specific components and schemas for the Game Rental System API",
+    "version": "1.0"
+  },
+  "components": {
+    "schemas": {
+      "UserForAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["USER", "CENTER_COORDINATOR", "SUPER_COORDINATOR", "ADMIN"]
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "managedCenterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "managedCenter": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"}
+            },
+            "nullable": true
+          },
+          "supervisedCenters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {"type": "string"},
+                "name": {"type": "string"}
+              },
+              "required": ["id", "name"]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "name", "email", "phone", "roles", "isActive", "supervisedCenters", "createdAt", "updatedAt"]
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["USER", "CENTER_COORDINATOR", "SUPER_COORDINATOR", "ADMIN"]
+            }
+          }
+        },
+        "required": ["name", "email", "phone", "password", "roles"]
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["USER", "CENTER_COORDINATOR", "SUPER_COORDINATOR", "ADMIN"]
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CenterForAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              }
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "coordinatorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "superCoordinatorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "coordinator": {
+            "$ref": "../shared/components.json#/components/schemas/UserContactInfo"
+          },
+          "superCoordinator": {
+            "$ref": "../shared/components.json#/components/schemas/UserContactInfo"
+          },
+          "_count": {
+            "type": "object",
+            "properties": {
+              "gameInstances": {
+                "type": "integer"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "name", "city", "area", "address", "phone", "isActive", "_count", "createdAt", "updatedAt"]
+      },
+      "CreateCenterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              }
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "coordinatorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "superCoordinatorId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["name", "city", "area", "address", "phone"]
+      },
+      "UpdateCenterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              }
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "coordinatorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "superCoordinatorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GameForAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["COMMUNICATION", "INTIMACY", "FUN", "THERAPY", "PERSONAL_DEVELOPMENT"]
+            }
+          },
+          "targetAudiences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["SINGLES", "MARRIED", "GENERAL"]
+            }
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "_count": {
+            "type": "object",
+            "properties": {
+              "gameInstances": {
+                "type": "integer"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "name", "categories", "targetAudiences", "_count", "createdAt", "updatedAt"]
+      },
+      "CreateGameRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["COMMUNICATION", "INTIMACY", "FUN", "THERAPY", "PERSONAL_DEVELOPMENT"]
+            }
+          },
+          "targetAudiences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["SINGLES", "MARRIED", "GENERAL"]
+            }
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "categories", "targetAudiences"]
+      },
+      "UpdateGameRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["COMMUNICATION", "INTIMACY", "FUN", "THERAPY", "PERSONAL_DEVELOPMENT"]
+            }
+          },
+          "targetAudiences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["SINGLES", "MARRIED", "GENERAL"]
+            }
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "AssignRoleRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["USER", "CENTER_COORDINATOR", "SUPER_COORDINATOR", "ADMIN"]
+            }
+          },
+          "managedCenterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "supervisedCenterIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["userId", "roles"]
+      },
+      "SystemStats": {
+        "type": "object",
+        "properties": {
+          "overview": {
+            "type": "object",
+            "properties": {
+              "totalUsers": {"type": "integer"},
+              "activeUsers": {"type": "integer"},
+              "totalCenters": {"type": "integer"},
+              "activeCenters": {"type": "integer"},
+              "totalGames": {"type": "integer"},
+              "totalGameInstances": {"type": "integer"},
+              "borrowedGameInstances": {"type": "integer"},
+              "totalRentals": {"type": "integer"},
+              "activeRentals": {"type": "integer"},
+              "pendingRentals": {"type": "integer"}
+            },
+            "required": ["totalUsers", "activeUsers", "totalCenters", "activeCenters", "totalGames", "totalGameInstances", "borrowedGameInstances", "totalRentals", "activeRentals", "pendingRentals"]
+          },
+          "distributions": {
+            "type": "object",
+            "properties": {
+              "usersByRole": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "type": "array",
+                      "items": {"type": "string"}
+                    },
+                    "_count": {
+                      "type": "object",
+                      "properties": {
+                        "id": {"type": "integer"}
+                      }
+                    }
+                  }
+                }
+              },
+              "rentalsByStatus": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "status": {"type": "string"},
+                    "_count": {
+                      "type": "object",
+                      "properties": {
+                        "id": {"type": "integer"}
+                      }
+                    }
+                  }
+                }
+              },
+              "centersByArea": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "area": {"type": "string"},
+                    "_count": {
+                      "type": "object",
+                      "properties": {
+                        "id": {"type": "integer"}
+                      }
+                    }
+                  }
+                }
+              },
+              "gamesByCategory": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "category": {"type": "string"},
+                    "_count": {
+                      "type": "object",
+                      "properties": {
+                        "id": {"type": "integer"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "recentActivity": {
+            "type": "object",
+            "properties": {
+              "newUsers": {"type": "integer"},
+              "newRentals": {"type": "integer"},
+              "newCenters": {"type": "integer"}
+            },
+            "required": ["newUsers", "newRentals", "newCenters"]
+          },
+          "systemHealth": {
+            "type": "object",
+            "properties": {
+              "database": {"type": "string"},
+              "timestamp": {"type": "string", "format": "date-time"},
+              "uptime": {"type": "number"},
+              "error": {"type": "string"}
+            },
+            "required": ["database", "timestamp", "uptime"]
+          }
+        },
+        "required": ["overview", "distributions", "recentActivity", "systemHealth"]
+      },
+      "PaginatedResponse": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {"type": "integer"},
+              "limit": {"type": "integer"},
+              "total": {"type": "integer"},
+              "pages": {"type": "integer"}
+            },
+            "required": ["page", "limit", "total", "pages"]
+          }
+        },
+        "required": ["pagination"]
+      },
+      "UsersResponse": {
+        "allOf": [
+          {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {"$ref": "#/components/schemas/PaginatedResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "users": {
+                        "type": "array",
+                        "items": {"$ref": "#/components/schemas/UserForAdmin"}
+                      }
+                    },
+                    "required": ["users"]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "CentersResponse": {
+        "allOf": [
+          {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {"$ref": "#/components/schemas/PaginatedResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "centers": {
+                        "type": "array",
+                        "items": {"$ref": "#/components/schemas/CenterForAdmin"}
+                      }
+                    },
+                    "required": ["centers"]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "GamesResponse": {
+        "allOf": [
+          {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {"$ref": "#/components/schemas/PaginatedResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "games": {
+                        "type": "array",
+                        "items": {"$ref": "#/components/schemas/GameForAdmin"}
+                      }
+                    },
+                    "required": ["games"]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

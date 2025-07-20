@@ -98,6 +98,17 @@ export const RentalSchema = z.object({
 // ===== API REQUEST VALIDATIONS =====
 
 // User API validations
+export const CreateUserSchema = UserSchema.pick({
+  name: true,
+  email: true,
+  phone: true,
+  roles: true,
+}).extend({
+  password: z.string().min(8, 'Password must be at least 8 characters').max(100),
+  managedCenterId: UserSchema.shape.managedCenterId,
+  supervisedCenterIds: z.array(z.string().cuid()).optional(),
+});
+
 export const RegisterWithGoogleSchema = z.object({
   googleId: z.string().min(1, 'Google ID is required'),
   name: UserSchema.shape.name,
@@ -114,6 +125,11 @@ export const RegisterWithEmailSchema = z.object({
 
 export const LoginWithGoogleSchema = z.object({
   googleId: z.string().min(1, 'Google ID is required'),
+});
+
+export const LinkGoogleToExistingUserSchema = z.object({
+  googleId: z.string().min(1, 'Google ID is required'),
+  email: UserSchema.shape.email,
 });
 
 export const LoginWithEmailSchema = z.object({
@@ -136,6 +152,13 @@ export const CreateGameSchema = GameSchema.pick({
   imageUrl: GameSchema.shape.imageUrl,
 });
 
+export const UpdateGameSchema = GameSchema.pick({
+  name: true,
+  categories: true,
+  targetAudiences: true,
+  description: true,
+  imageUrl: true
+}).partial();
 
 // Center API validations
 export const CreateCenterSchema = CenterSchema.pick({
@@ -196,17 +219,23 @@ export const CreateManualRentalSchema = z.object({
     .refine((ids) => new Set(ids).size === ids.length, {
       message: "Duplicate game instance IDs are not allowed"
     }),
-  borrowDate: RentalSchema.shape.borrowDate,
-  expectedReturnDate: RentalSchema.shape.expectedReturnDate,
+  borrowDate: z
+    .string()
+    .datetime()
+    .transform((val) => new Date(val)),
+  expectedReturnDate: z
+    .string()
+    .datetime()
+    .transform((val) => new Date(val)),
   notes: RentalSchema.shape.notes,
 });
 
 // Note: Same validation logic applies for manual rentals
 
 export const UpdateRentalSchema = z.object({
-  borrowDate: RentalSchema.shape.borrowDate,
-  returnDate: RentalSchema.shape.returnDate,
-  expectedReturnDate: RentalSchema.shape.expectedReturnDate,
+  borrowDate: z.string().datetime().optional(),
+  returnDate: z.string().datetime().optional(),
+  expectedReturnDate: z.string().datetime().optional(),
   notes: RentalSchema.shape.notes,
   gameInstanceIds: z.array(z.string().cuid()).min(1).max(10).optional(),
   status: z.enum([RentalStatus.CANCELLED]).optional(), // Users can only cancel rentals
@@ -217,6 +246,15 @@ export const UpdateByUserRentalSchema = z.object({
   action: z.enum(['cancel']).optional(), // Users can only cancel rentals
 });
 
+export const UpdateRentalByCoordinatorSchema = z.object({
+  borrowDate: z.string().datetime().optional(),
+  returnDate: z.string().datetime().optional(),
+  expectedReturnDate: z.string().datetime().optional(),
+  notes: RentalSchema.shape.notes,
+  gameInstanceIds: z.array(z.string().cuid()).min(1).max(10).optional(),
+  status: z.enum([RentalStatus.PENDING, RentalStatus.ACTIVE, RentalStatus.RETURNED, RentalStatus.CANCELLED]).optional(),
+});
+
 
 // Admin API validations
 export const UpdateUserSchema = UserSchema.pick({
@@ -225,7 +263,8 @@ export const UpdateUserSchema = UserSchema.pick({
   roles: true,
   isActive: true,
   managedCenterId: true,
-  supervisedCenterIds: true,
+}).extend({
+  supervisedCenterIds: z.array(z.string().cuid()).optional(),
 }).partial();
 
 export const UserListRequestSchema = z.object({
@@ -243,6 +282,21 @@ export const AssignRoleSchema = z.object({
   managedCenterId: z.string().cuid().optional(),
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
 });
+
+// Game Instance API validations  
+export const CreateGameInstanceSchema = GameInstanceSchema.pick({
+  gameId: true,
+  centerId: true,
+  status: true,
+}).extend({
+  notes: GameInstanceSchema.shape.notes,
+});
+
+export const UpdateGameInstancePartialSchema = GameInstanceSchema.pick({
+  status: true,
+  notes: true,
+  expectedReturnDate: true,
+}).partial();
 
 // Coordinator API validations
 export const AddGameToCenterSchema = z.object({
@@ -271,6 +325,10 @@ export const ReportRequestSchema = z.object({
 // ===== UTILITY VALIDATIONS =====
 
 // Common validations
+export const IdSchema = z.object({
+  id: z.string().cuid(),
+});
+
 export const IdParamSchema = z.object({
   id: z.string().cuid(),
 });
@@ -287,18 +345,25 @@ export const PaginationSchema = z.object({
 export type RegisterWithGoogleInput = z.infer<typeof RegisterWithGoogleSchema>;
 export type RegisterWithEmailInput = z.infer<typeof RegisterWithEmailSchema>;
 export type LoginWithGoogleInput = z.infer<typeof LoginWithGoogleSchema>;
+export type LinkGoogleToExistingUserInput = z.infer<typeof LinkGoogleToExistingUserSchema>;
 export type LoginWithEmailInput = z.infer<typeof LoginWithEmailSchema>;
 export type UpdateUserProfileInput = z.infer<typeof UpdateUserProfileSchema>;
 export type CreateGameInput = z.infer<typeof CreateGameSchema>;
+export type UpdateGameInput = z.infer<typeof UpdateGameSchema>;
 export type CreateCenterInput = z.infer<typeof CreateCenterSchema>;
 export type UpdateCenterInput = z.infer<typeof UpdateCenterSchema>;
 export type CreateRentalInput = z.infer<typeof CreateRentalSchema>;
 export type CreateManualRentalInput = z.infer<typeof CreateManualRentalSchema>;
 export type UpdateRentalInput = z.infer<typeof UpdateRentalSchema>;
+export type UpdateRentalByCoordinatorInput = z.infer<typeof UpdateRentalByCoordinatorSchema>;
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
 export type AddGameToCenterInput = z.infer<typeof AddGameToCenterSchema>;
 export type ReportRequestInput = z.infer<typeof ReportRequestSchema>;
+export type CreateUserInput = z.infer<typeof CreateUserSchema>;
+export type CreateGameInstanceInput = z.infer<typeof CreateGameInstanceSchema>;
+export type UpdateGameInstancePartialInput = z.infer<typeof UpdateGameInstancePartialSchema>;
 export type IdParam = z.infer<typeof IdParamSchema>;
+export type IdInput = z.infer<typeof IdSchema>;
 export type AssignRoleInput = z.infer<typeof AssignRoleSchema>;
 export type UserListRequestInput = z.infer<typeof UserListRequestSchema>;
 

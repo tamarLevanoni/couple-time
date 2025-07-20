@@ -4,6 +4,7 @@ import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { AssignRoleSchema } from '@/lib/validations';
+import { assertAdminRole } from '@/lib/permissions';
 
 export async function PUT(req: NextRequest) {
   try {
@@ -11,6 +12,9 @@ export async function PUT(req: NextRequest) {
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
+    
+    // Verify user is an admin
+    await assertAdminRole(token);
 
     const body = await req.json();
     const roleData = AssignRoleSchema.parse(body);
@@ -24,30 +28,45 @@ export async function PUT(req: NextRequest) {
       return apiResponse(false, null, { message: 'User not found' }, 404);
     }
 
-    // Validate center IDs if provided
-    if (roleData.managedCenterIds && roleData.managedCenterIds.length > 0) {
-      const centerCount = await prisma.center.count({
+    // Validate managed center ID if provided
+    if (roleData.managedCenterId) {
+      const center = await prisma.center.findFirst({
         where: {
-          id: { in: roleData.managedCenterIds },
+          id: roleData.managedCenterId,
           isActive: true,
         },
       });
 
-      if (centerCount !== roleData.managedCenterIds.length) {
-        return apiResponse(false, null, { message: 'One or more managed center IDs are invalid' }, 400);
+      if (!center) {
+        return apiResponse(false, null, { message: 'Managed center not found' }, 404);
       }
     }
 
-    if (roleData.supervisedCenterIds && roleData.supervisedCenterIds.length > 0) {
-      const centerCount = await prisma.center.count({
-        where: {
-          id: { in: roleData.supervisedCenterIds },
-          isActive: true,
-        },
+    // Handle supervised centers assignment
+    if (roleData.supervisedCenterIds) {
+      // First, remove this user as supervisor from all centers
+      await prisma.center.updateMany({
+        where: { superCoordinatorId: roleData.userId },
+        data: { superCoordinatorId: null },
       });
 
-      if (centerCount !== roleData.supervisedCenterIds.length) {
-        return apiResponse(false, null, { message: 'One or more supervised center IDs are invalid' }, 400);
+      // Then assign this user as supervisor to the specified centers
+      if (roleData.supervisedCenterIds.length > 0) {
+        const centerCount = await prisma.center.count({
+          where: {
+            id: { in: roleData.supervisedCenterIds },
+            isActive: true,
+          },
+        });
+
+        if (centerCount !== roleData.supervisedCenterIds.length) {
+          return apiResponse(false, null, { message: 'One or more supervised center IDs are invalid' }, 400);
+        }
+
+        await prisma.center.updateMany({
+          where: { id: { in: roleData.supervisedCenterIds } },
+          data: { superCoordinatorId: roleData.userId },
+        });
       }
     }
 
@@ -56,8 +75,7 @@ export async function PUT(req: NextRequest) {
       where: { id: roleData.userId },
       data: {
         roles: roleData.roles,
-        managedCenterIds: roleData.managedCenterIds || [],
-        supervisedCenterIds: roleData.supervisedCenterIds || [],
+        managedCenterId: roleData.managedCenterId,
       },
       select: {
         id: true,
@@ -65,8 +83,8 @@ export async function PUT(req: NextRequest) {
         email: true,
         phone: true,
         roles: true,
-        managedCenterIds: true,
-        supervisedCenterIds: true,
+        managedCenterId: true,
+        supervisedCenters: { select: { id: true, name: true } },
         isActive: true,
         createdAt: true,
         updatedAt: true,

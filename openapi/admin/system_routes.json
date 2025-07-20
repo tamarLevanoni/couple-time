@@ -1,0 +1,84 @@
+{
+  "/api/admin/system": {
+    "get": {
+      "tags": ["Admin-System"],
+      "summary": "Get system statistics",
+      "description": "Retrieve comprehensive system statistics and health information",
+      "operationId": "getSystemStats",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "System statistics retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "$ref": "./components.json#/components/schemas/SystemStats"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden - admin role required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Error fetching system statistics",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "systemHealth": {
+                            "type": "object",
+                            "properties": {
+                              "database": {"type": "string"},
+                              "timestamp": {"type": "string", "format": "date-time"},
+                              "uptime": {"type": "number"},
+                              "error": {"type": "string"}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

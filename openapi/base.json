@@ -41,7 +41,23 @@
       "description": "Multi-center oversight"
     },
     {
-      "name": "Admin",
+      "name": "Admin-Users",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-Games",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-Centers",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-Roles",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-System",
       "description": "System administration"
     }
   ],
@@ -84,6 +100,30 @@
     },
     "/api/super/rentals": {
       "$ref": "./super/routes.json#/~1api~1super~1rentals"
+    },
+    "/api/admin/users": {
+      "$ref": "./admin/users_routes.json#/~1api~1admin~1users"
+    },
+    "/api/admin/users/{id}": {
+      "$ref": "./admin/users_routes.json#/~1api~1admin~1users~1%7Bid%7D"
+    },
+    "/api/admin/centers": {
+      "$ref": "./admin/centers_routes.json#/~1api~1admin~1centers"
+    },
+    "/api/admin/centers/{id}": {
+      "$ref": "./admin/centers_routes.json#/~1api~1admin~1centers~1%7Bid%7D"
+    },
+    "/api/admin/games": {
+      "$ref": "./admin/games_routes.json#/~1api~1admin~1games"
+    },
+    "/api/admin/games/{id}": {
+      "$ref": "./admin/games_routes.json#/~1api~1admin~1games~1%7Bid%7D"
+    },
+    "/api/admin/roles": {
+      "$ref": "./admin/roles_routes.json#/~1api~1admin~1roles"
+    },
+    "/api/admin/system": {
+      "$ref": "./admin/system_routes.json#/~1api~1admin~1system"
     }
   },
   "components": {

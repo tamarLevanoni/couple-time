@@ -105,6 +105,15 @@ export const GAME_INSTANCE_WITH_CENTER = {
   },
 } as const satisfies Prisma.GameInstanceInclude;
 
+export const GAME_INSTANCE_WITH_CENTER_AND_ACTIVE_RENTALS = {
+  ...GAME_INSTANCE_WITH_CENTER,
+  rentals: {
+    where: {
+      status: { in: ['PENDING', 'ACTIVE'] },
+    },
+  },
+} as const satisfies Prisma.GameInstanceInclude;
+
 // ===== RENTAL INCLUDES =====
 //check
 export const RENTAL_FOR_USER = {
@@ -118,9 +127,13 @@ export const RENTAL_FOR_COORDINATOR = {
     select: USER_CONTACT_FIELDS,
   },
   gameInstances: {
-    select: {
-      id: true,
-      gameId: true,
+    include: {
+      center: {
+        select: {
+          id: true,
+          coordinatorId: true,
+        },
+      },
     },
   },
 } as const satisfies Prisma.RentalInclude;
