@@ -1,7 +1,7 @@
 {
   "/api/user": {
     "get": {
-      "tags": ["User"],
+      "tags": ["User Profile"],
       "summary": "Get user profile",
       "description": "Get current user profile with active rentals",
       "security": [{"BearerAuth": []}],
@@ -15,11 +15,41 @@
               }
             }
           }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "User not found",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ErrorResponse"
+              }
+            }
+          }
         }
       }
     },
     "put": {
-      "tags": ["User"],
+      "tags": ["User Profile"],
       "summary": "Update user profile",
       "description": "Update user profile information",
       "security": [{"BearerAuth": []}],
@@ -43,54 +73,33 @@
               }
             }
           }
-        }
-      }
-    }
-  },
-  "/api/user/rentals": {
-    "get": {
-      "tags": ["User"],
-      "summary": "Get user rentals",
-      "description": "View rental history with filtering options",
-      "security": [{"BearerAuth": []}],
-      "responses": {
-        "200": {
-          "description": "User rentals retrieved successfully",
+        },
+        "400": {
+          "description": "Invalid request data",
           "content": {
             "application/json": {
               "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "../shared/components.json#/components/schemas/RentalForUser"
-                }
+                "$ref": "../shared/components.json#/components/schemas/ValidationErrorResponse"
               }
             }
           }
-        }
-      }
-    },
-    "post": {
-      "tags": ["User"],
-      "summary": "Create new rental",
-      "description": "Submit a new rental request",
-      "security": [{"BearerAuth": []}],
-      "requestBody": {
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "./components.json#/components/schemas/CreateRentalRequest"
-            }
-          }
-        }
-      },
-      "responses": {
-        "201": {
-          "description": "Rental created successfully",
+        },
+        "401": {
+          "description": "Authentication required",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../shared/components.json#/components/schemas/RentalForUser"
+                "$ref": "../shared/components.json#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ErrorResponse"
               }
             }
           }

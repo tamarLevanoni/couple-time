@@ -4,7 +4,7 @@ import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { UpdateUserProfileSchema } from '@/lib/validations';
-import { USER_CONTACT_FIELDS, RENTAL_FOR_USER } from '@/types';
+import { USER_CONTACT_FIELDS, RENTAL_FOR_USER, USER_WITH_ACTIVE_RENTALS } from '@/types';
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,28 +14,7 @@ export async function GET(req: NextRequest) {
     }
     const user = await prisma.user.findUnique({
       where: { id: token.id },
-      select: {
-        ...USER_CONTACT_FIELDS,
-        roles: true,
-        isActive: true,
-        managedCenterId: true,
-        rentals: {
-          where: {
-            status: { in: ['PENDING', 'ACTIVE'] }
-          },
-          include: RENTAL_FOR_USER,
-          orderBy: { createdAt: 'desc' },
-        },
-        supervisedCenters: {
-          select: {
-            id: true,
-            name: true,
-            city: true,
-            area: true,
-            isActive: true,
-          },
-        },
-      },
+      include: USER_WITH_ACTIVE_RENTALS,
     });
 
     if (!user) {

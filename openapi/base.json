@@ -29,8 +29,12 @@
       "description": "User registration and login"
     },
     {
-      "name": "User",
-      "description": "User profile and rental management"
+      "name": "User Profile",
+      "description": "User profile management"
+    },
+    {
+      "name": "User Rentals",
+      "description": "User rental operations"
     },
     {
       "name": "Coordinator",
@@ -75,10 +79,13 @@
       "$ref": "./auth/routes.json#/~1api~1auth~1test-token"
     },
     "/api/user": {
-      "$ref": "./user/routes.json#/~1api~1user"
+      "$ref": "./user/general.json#/~1api~1user"
     },
     "/api/user/rentals": {
-      "$ref": "./user/routes.json#/~1api~1user~1rentals"
+      "$ref": "./user/rentals.json#/~1api~1user~1rentals"
+    },
+    "/api/user/rentals/{id}": {
+      "$ref": "./user/rentals.json#/~1api~1user~1rentals~1%7Bid%7D"
     },
     "/api/coordinator": {
       "$ref": "./coordinator/routes.json#/~1api~1coordinator"
@@ -127,6 +134,11 @@
     }
   },
   "components": {
-    "$ref": "./shared/components.json#/components"
+    "securitySchemes": {
+      "$ref": "./shared/components.json#/components/securitySchemes"
+    },
+    "schemas": {
+      "$ref": "./shared/components.json#/components/schemas"
+    }
   }
 }

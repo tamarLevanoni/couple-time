@@ -24,7 +24,7 @@ Removed the USER role from the system to simplify permission management. Regular
 - 5 Centers across different areas
 - 8 Games with various categories
 - 23 Game instances distributed across centers
-- 6 Rental scenarios (active, pending, overdue, returned, cancelled)
+- 6 Rental scenarios (active, pending, returned, cancelled)
 
 ## Test Credentials
 - Admin: admin@gamerental.co.il / Admin123!

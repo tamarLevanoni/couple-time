@@ -1,10 +1,4 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Game Rental System API - Shared Components",
-    "description": "Shared components and schemas for the Game Rental System API",
-    "version": "1.0"
-  },
   "components": {
     "securitySchemes": {
       "BearerAuth": {
@@ -33,6 +27,110 @@
           }
         },
         "required": ["success"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "data": {
+            "nullable": true,
+            "example": null
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["message"]
+          }
+        },
+        "required": ["success", "data", "error"]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "data": {
+            "nullable": true,
+            "example": null
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "Invalid request data"
+              },
+              "details": {
+                "type": "array",
+                "description": "Zod validation error details",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Zod error code",
+                      "example": "invalid_type"
+                    },
+                    "expected": {
+                      "type": "string",
+                      "description": "Expected type/value",
+                      "example": "string"
+                    },
+                    "received": {
+                      "type": "string",
+                      "description": "Received type/value",
+                      "example": "number"
+                    },
+                    "path": {
+                      "type": "array",
+                      "description": "Path to the invalid field",
+                      "items": {
+                        "oneOf": [
+                          {"type": "string"},
+                          {"type": "number"}
+                        ]
+                      },
+                      "example": ["gameInstanceIds", 0]
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable error message",
+                      "example": "Expected string, received number"
+                    }
+                  },
+                  "required": ["code", "path", "message"]
+                }
+              }
+            },
+            "required": ["message"]
+          }
+        },
+        "required": ["success", "data", "error"],
+        "example": {
+          "success": false,
+          "data": null,
+          "error": {
+            "message": "Invalid request data",
+            "details": [
+              {
+                "code": "invalid_type",
+                "expected": "string",
+                "received": "number",
+                "path": ["gameInstanceIds", 0],
+                "message": "Expected string, received number"
+              }
+            ]
+          }
+        }
       },
       "GameForPublic": {
         "type": "object",
