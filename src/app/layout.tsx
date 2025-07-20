@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Heebo, Assistant } from "next/font/google";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { DataProvider } from "@/components/providers/data-provider";
+import { SessionManager } from "@/components/auth/session-manager";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -19,9 +20,6 @@ const assistant = Assistant({
 export const metadata: Metadata = {
   title: "זמן זוגי - מערכת השאלת משחקי זוגיות",
   description: "מערכת ניהול השאלת משחקי זוגיות עם ממשק מלא בעברית",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
@@ -35,6 +33,7 @@ export default function RootLayout({
         className={`${heebo.variable} ${assistant.variable} font-hebrew antialiased`}
       >
         <AuthProvider>
+          <SessionManager />
           <DataProvider>
             {children}
           </DataProvider>

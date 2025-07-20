@@ -6,10 +6,12 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Shield } from '@/components/icons';
-import { Role } from '@/types/schema';
+import { useHasPrivilegedRole, useUserProfile } from '@/store';
 
 export default function Home() {
   const { data: session, status } = useSession();
+  const userProfile = useUserProfile();
+  const hasPrivilegedRole = useHasPrivilegedRole();
 
   if (status === 'loading') {
     return <LoadingPage title="טוען את המערכת..." />;
@@ -36,15 +38,13 @@ export default function Home() {
                 {session ? (
                   <div className="space-y-4 text-center">
                     <p className="text-lg text-gray-700">
-                      שלום {session.user.name}! 👋
+                      שלום {userProfile?.name || session.user.name}! 👋
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4">
                       <Button size="lg">
                         <Link href="/games">עיין במשחקים</Link>
                       </Button>
-                      {(session.user.roles?.includes(Role.CENTER_COORDINATOR) || 
-                        session.user.roles?.includes(Role.SUPER_COORDINATOR) || 
-                        session.user.roles?.includes(Role.ADMIN)) && (
+                      {hasPrivilegedRole && (
                         <Button variant="outline" size="lg">
                           <Link href="/dashboard">לוח בקרה</Link>
                         </Button>

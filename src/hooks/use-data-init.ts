@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useGamesStore } from '@/store/games-store';
-import { useCentersStore } from '@/store/centers-store';
+import { useGamesStore, useCentersStore } from '@/store';
 
 // Global flag to ensure data is only loaded once across the entire app
 let globalDataLoadInitiated = false;
@@ -17,11 +16,11 @@ export function useDataInit() {
       hasInitiated.current = true;
       globalDataLoadInitiated = true;
       
-      // Load data on app initialization
+      // Load public data on app initialization
       loadGames();
       loadCenters();
     }
-  }, []);
+  }, [loadGames, loadCenters]);
 
   // No need to return anything since this is only for initialization
 }
