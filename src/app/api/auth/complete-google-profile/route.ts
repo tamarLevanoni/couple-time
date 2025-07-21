@@ -4,6 +4,7 @@ import { apiResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { Role } from '@prisma/client';
 import { USER_CONTACT_FIELDS } from '@/types';
+import { getToken, JWT } from 'next-auth/jwt';
 
 const CompleteGoogleProfileSchema = z.object({
   googleId: z.string().min(1, 'Google ID is required'),
@@ -16,37 +17,38 @@ export async function OPTIONS() {
   return apiResponse(true, null);
 }
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
+
+    const token = await getToken({ req }) as JWT | null;
+    if (!token) {
+      return apiResponse(false, null, { message: 'Authentication required' }, 401);
+    }
+    
     const body = await req.json();
-    const { googleId, name, email, phone } = CompleteGoogleProfileSchema.parse(body);
+    const { name, phone } =body;
+    // const { googleId, name, email, phone } = CompleteGoogleProfileSchema.parse(body);
+
+    if (!name || !phone) {
+      return apiResponse( false,null,{ message:'Missing fields' }, 400);
+    }
 
     // Check if user already exists by email
-    const existingUserByEmail = await prisma.user.findUnique({
-      where: { email },
+    const dbUser = await prisma.user.findUnique({
+      where: { id:token.id },
     });
 
-    if (existingUserByEmail) {
-      return apiResponse(false, null, { message: 'משתמש עם כתובת מייל זו כבר קיים במערכת' }, 400);
+    if (!dbUser) {
+      return apiResponse(false, null, { message: 'משתמש לא נמצא' }, 400);
     }
 
-    // Check if user already exists by Google ID
-    const existingUserByGoogle = await prisma.user.findUnique({
-      where: { googleId },
-    });
-
-    if (existingUserByGoogle) {
-      return apiResponse(false, null, { message: 'חשבון Google זה כבר רשום במערכת' }, 400);
-    }
 
     // Create user with Google OAuth
-    const user = await prisma.user.create({
+    const user = await prisma.user.update({
+      where:{id:token.id},
       data: {
-        googleId,
-        email,
         name,
         phone,
-        managedCenterId: null,
         isActive: true,
       },
       select: USER_CONTACT_FIELDS,

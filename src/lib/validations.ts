@@ -109,11 +109,16 @@ export const CreateUserSchema = UserSchema.pick({
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
 });
 
-export const RegisterWithGoogleSchema = z.object({
+
+const CompleteGoogleProfileSchema = z.object({
   googleId: z.string().min(1, 'Google ID is required'),
-  name: UserSchema.shape.name,
-  email: UserSchema.shape.email,
-  phone: UserSchema.shape.phone,
+  name: z.string().min(1, 'Name is required').max(100),
+  email: z.string().email('Invalid email format'),
+  phone: z
+    .string()
+    .regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format')
+    .min(9)
+    .max(15),
 });
 
 export const RegisterWithEmailSchema = z.object({
@@ -342,7 +347,7 @@ export const PaginationSchema = z.object({
 // ===== TYPE EXPORTS =====
 
 // Export inferred types for use in components
-export type RegisterWithGoogleInput = z.infer<typeof RegisterWithGoogleSchema>;
+export type CompleteGoogleProfileInput = z.infer<typeof CompleteGoogleProfileSchema>;
 export type RegisterWithEmailInput = z.infer<typeof RegisterWithEmailSchema>;
 export type LoginWithGoogleInput = z.infer<typeof LoginWithGoogleSchema>;
 export type LinkGoogleToExistingUserInput = z.infer<typeof LinkGoogleToExistingUserSchema>;

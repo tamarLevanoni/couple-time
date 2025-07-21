@@ -52,6 +52,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log("account signIn", account)
+      console.log("profile signIn", profile)
+      console.log("user signIn", user)
       if (account?.provider === 'google') {
         try {
           // Check if user exists by email
@@ -67,10 +70,25 @@ export const authOptions: NextAuthOptions = {
                 data: { googleId: account.providerAccountId },
               });
             }
+            console.log('✅ Existing Google user signed in', { userId: existingUser.id });
             return true;
           } else {
-            // New user - redirect to complete profile if missing name/phone
-            // This will be handled by checking profile completeness in JWT callback
+            // Create new user record immediately
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: profile?.name || '', // May be empty - will trigger profile completion
+                phone:'',
+                googleId: account.providerAccountId,
+                roles: [], // No roles until profile is completed
+                isActive: false,
+                // phone is not set - will trigger profile completion
+              },
+            });
+            user.needsProfileCompletion=true;
+            user.id=newUser.id;
+            user.googleId=account.providerAccountId;
+            console.log('🆕 New Google user created', { userId: newUser.id, needsProfile: !newUser.name || !newUser.phone });
             return true;
           }
         } catch (error) {
@@ -80,66 +98,56 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user }) {
       
       if (user) {
+        console.log("user 1", user)
         // User object from credentials provider
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.roles = user.roles;
+        token.id=user.id;
+        token.email=user.email;
+        token.name=user.name;
+        token.googleId=user.googleId;
+        token.roles=user.roles;
+        token.needsProfileCompletion=user.needsProfileCompletion;
       } else {
-        // Handle Google OAuth
-        if (account?.provider === 'google') {
-          // Check if user exists by email
-          const existingUser = await prisma.user.findUnique({
-            where: { email: token.email! },
-          });
-
-          if (existingUser) {
-            // Existing user - use their data
-            token.id = existingUser.id;
-            token.email = existingUser.email;
-            token.name = existingUser.name;
-            token.roles = existingUser.roles;
-          } else {
-            // New Google user - always needs to complete profile (name and phone)
-            token.needsProfileCompletion = true;
-            token.googleId = account.providerAccountId;
-            token.email = token.email;
-            // Don't trust Google's name - user must provide their own
-            token.name = profile?.name || "";
-          }
-        } else {
-          // For OAuth or subsequent requests, ensure we have all required fields
-          if (!token.id) token.id = token.sub!;
-          if (!token.email) token.email = token.email!;
-          if (!token.name) token.name = token.name!;
+        // For all non-initial requests, fetch user data from database
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email! },
+          select: { 
+            id: true,
+            email: true, 
+            name: true,
+            phone: true,
+            roles: true,
+            isActive: true,
+            googleId: true
+          },
+        });
+        
+        if (dbUser) {
+          console.log('🔄 Fetched user data for token', { userId: dbUser.id });
+          token.id = dbUser.id;
+          token.email = dbUser.email;
+          token.name = dbUser.name;
+          token.roles = dbUser.roles;
+          token.googleId = dbUser.googleId ? dbUser.googleId : undefined;
           
-          // Fetch user data for OAuth or if roles missing
-          if (account || !token.roles) {
-            const dbUser = await prisma.user.findUnique({
-              where: { id: token.id || token.sub },
-              select: { 
-                id: true,
-                email: true, 
-                name: true,
-                phone: true,
-                roles: true,
-                isActive: true
-              },
-            });
-            if (dbUser) {
-              token.id = dbUser.id;
-              token.email = dbUser.email;
-              token.name = dbUser.name;
-              token.phone = dbUser.phone;
-              token.roles = dbUser.roles;
-              token.isActive = dbUser.isActive;
-            }
-          }
+          // Determine if profile completion is needed based on actual data
+          token.needsProfileCompletion = !!dbUser.googleId && !dbUser.isActive;
+        } else {
+          console.log('⚠️ No user found for token email', { email: token.email });
+          // Fallback - keep existing token data
+          if (!token.id) token.id = token.sub!;
         }
       }
+      
+      console.log('🎯 JWT token result', { 
+        id: token.id, 
+        email: token.email, 
+        googleId: token.googleId, 
+        needsProfileCompletion: token.needsProfileCompletion,
+        hasRoles: !!token.roles?.length 
+      });
       
       return token;
     },
@@ -148,15 +156,13 @@ export const authOptions: NextAuthOptions = {
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.name = token.name;
-      session.user.phone = token.phone;
       session.user.roles = token.roles;
-      session.user.isActive = token.isActive;
       session.user.needsProfileCompletion = token.needsProfileCompletion;
       session.user.googleId = token.googleId;
       return session;
     },
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/',
   },
 };

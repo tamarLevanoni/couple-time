@@ -23,21 +23,10 @@ export { useCentersStore, useFilteredCenters, useAvailableCities } from './cente
 export { useAuthStore } from './auth-store';
 
 // ===== USER STORE =====
-// For complete user data (profile, roles, rentals) - now using SWR
+// For complete user data (profile, roles, rentals) - now using Zustand
 
 export { 
   useUserStore,
-} from './user-store';
-
-// SWR-based user data hooks
-export { 
-  useUserData,
-  useUpdateUserProfile,
-  clearUserData
-} from '@/hooks/use-user-data';
-
-// Computed selectors using SWR data
-export { 
   useUserProfile,
   useUserRoles,
   useUserManagedCenter, 
@@ -48,7 +37,7 @@ export {
   useHasPrivilegedRole,
   useUserRentalsByStatus,
   useUserRentalCounts
-} from '@/hooks/use-user-selectors';
+} from './user-store';
 export { 
   useRentalsStore, 
   useFilteredUserRentals,

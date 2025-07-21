@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Heebo, Assistant } from "next/font/google";
-import { AuthProvider } from "@/components/auth/auth-provider";
+import { ClientProviders } from "@/components/providers/client-providers";
 import { DataProvider } from "@/components/providers/data-provider";
-import { SessionManager } from "@/components/auth/session-manager";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -32,12 +31,11 @@ export default function RootLayout({
       <body
         className={`${heebo.variable} ${assistant.variable} font-hebrew antialiased`}
       >
-        <AuthProvider>
-          <SessionManager />
+        <ClientProviders>
           <DataProvider>
             {children}
           </DataProvider>
-        </AuthProvider>
+        </ClientProviders>
       </body>
     </html>
   );

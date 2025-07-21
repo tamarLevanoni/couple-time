@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { useHasPrivilegedRole, useUserProfile } from '@/store';
+import { useAuthStore } from '@/store/auth-store';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -69,11 +70,18 @@ export function MainLayout({ children, className = '' }: MainLayoutProps) {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2 space-x-reverse">
-                  <Button variant="outline" size="sm">
-                    <Link href="/auth/signin">התחברות</Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => useAuthStore.getState().openAuthPopup('login')}
+                  >
+                    התחברות
                   </Button>
-                  <Button size="sm">
-                    <Link href="/auth/signup">הרשמה</Link>
+                  <Button 
+                    size="sm"
+                    onClick={() => useAuthStore.getState().openAuthPopup('signup')}
+                  >
+                    הרשמה
                   </Button>
                 </div>
               )}
