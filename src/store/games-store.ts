@@ -63,9 +63,37 @@ export const useGamesStore = create<GamesStore>((set) => ({
   }),
 }));
 
-// פונקציה חיצונית טהורה
-const selectFilteredGames = (state: GamesState) => {
-  const { games, searchTerm, selectedCategories, selectedAudiences, selectedIds } = state;
+// Atomic selectors - more efficient than useShallow
+export const useGames = () => useGamesStore(state => state.games);
+export const useSearchTerm = () => useGamesStore(state => state.searchTerm);
+export const useSelectedCategories = () => useGamesStore(state => state.selectedCategories);
+export const useSelectedAudiences = () => useGamesStore(state => state.selectedAudiences);
+export const useSelectedIds = () => useGamesStore(state => state.selectedIds);
+export const useGamesLoading = () => useGamesStore(state => state.isLoading);
+export const useGamesError = () => useGamesStore(state => state.error);
+
+// Game store actions - useShallow for multiple actions
+export const useGamesActions = () => useGamesStore(useShallow(state => ({
+  loadGames: state.loadGames,
+  setCategories: state.setCategories,
+  setAudiences: state.setAudiences,
+  setIds: state.setIds,
+  setSearch: state.setSearch,
+  clearFilters: state.clearFilters,
+})));
+
+// Filter state - useShallow for multiple filter values
+export const useGamesFilters = () => useGamesStore(useShallow(state => ({
+  searchTerm: state.searchTerm,
+  selectedCategories: state.selectedCategories,
+  selectedAudiences: state.selectedAudiences,
+  selectedIds: state.selectedIds,
+})));
+
+// Computed hook - simple function, no memoization needed for fast filtering
+export const useFilteredGames = () => {
+  const games = useGames();
+  const { searchTerm, selectedCategories, selectedAudiences, selectedIds } = useGamesFilters();
 
   let filtered = games;
 
@@ -98,27 +126,24 @@ const selectFilteredGames = (state: GamesState) => {
   return filtered;
 };
 
-export const useFilteredGames = () => {
-  return useGamesStore(useShallow(selectFilteredGames));
-};
 
-
+// Simple computations - no memoization needed unless games array is huge
 export const useAvailableCategories = () => {
-  return useGamesStore(useShallow((state) => {
-    const categories = new Set<GameCategory>();
-    state.games.forEach(game => {
-      game.categories.forEach(cat => categories.add(cat));
-    });
-    return Array.from(categories);
-  }));
+  const games = useGames();
+  
+  const categories = new Set<GameCategory>();
+  games.forEach(game => {
+    game.categories.forEach(cat => categories.add(cat));
+  });
+  return Array.from(categories);
 };
 
 export const useAvailableAudiences = () => {
-  return useGamesStore(useShallow((state) => {
-    const audiences = new Set<TargetAudience>();
-    state.games.forEach(game => {
-      game.targetAudiences.forEach(aud => audiences.add(aud));
-    });
-    return Array.from(audiences);
-  }));
+  const games = useGames();
+  
+  const audiences = new Set<TargetAudience>();
+  games.forEach(game => {
+    game.targetAudiences.forEach(aud => audiences.add(aud));
+  });
+  return Array.from(audiences);
 };

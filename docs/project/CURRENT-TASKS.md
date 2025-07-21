@@ -1,11 +1,25 @@
 # Current Tasks - Couple-Time Project
 
-## Active Task: UI Implementation - Phase 5
+## Active Task: Store Optimization - Phase 5.1
 
 ### Task Summary
-Implement UI components and pages using the completed Zustand store architecture. Building user interfaces for all user stories with role-based navigation and functionality.
+Refactor all Zustand stores to follow Zustand best practices by using atomic selectors instead of useShallow for computed values, preventing infinite loops and improving performance.
 
-### Current Status: PLANNING
+### Current Status: IN PROGRESS
+
+### Priority Issues to Fix
+- **Games Store**: Using useShallow for computed filtering - should use atomic selectors
+- **All Stores**: Need to follow Zustand best practices for multiple state selections
+- **Performance**: Prevent unnecessary re-renders caused by useShallow with complex computations
+
+---
+
+## Next Task: UI Implementation - Phase 5.2
+
+### Task Summary  
+Implement UI components and pages using the optimized Zustand store architecture. Building user interfaces for all user stories with role-based navigation and functionality.
+
+### Current Status: PENDING
 
 ### Implementation Plan
 
