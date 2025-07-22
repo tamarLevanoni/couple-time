@@ -41,18 +41,21 @@ export async function assertRentalAccess(rentalId: string, token: JWT, accessLev
   }
   
   if (accessLevel === 'coordinator') {
-    if (token.role !== Role.CENTER_COORDINATOR) throw new AccessDeniedError();
+    console.log("role",token)
+    if (!token.roles.includes(Role.CENTER_COORDINATOR)) throw new AccessDeniedError();
     const rental = await prisma.rental.findFirst({
       where: { id: rentalId },
       select: { id: true, center: { select: { coordinatorId: true } } },
     });
+    console.log("rental",rental)
+    console.log("token",token)
     if (!rental) throw new ResourceNotFoundError('Rental not found');
     if (rental.center.coordinatorId !== token.id) throw new AccessDeniedError();
     return;
   }
   
   if (accessLevel === 'super') {
-    if (token.role !== Role.SUPER_COORDINATOR) throw new AccessDeniedError();
+    if (!token.roles.includes(Role.SUPER_COORDINATOR)) throw new AccessDeniedError();
     const rental = await prisma.rental.findFirst({
       where: { id: rentalId },
       select: { id: true, center: { select: { superCoordinatorId: true } } },
@@ -69,7 +72,7 @@ export async function assertRentalAccess(rentalId: string, token: JWT, accessLev
 export async function assertGameInstanceAccess(gameInstanceId: string, token: JWT, accessLevel: 'coordinator' | 'super') {
   
   if (accessLevel === 'coordinator') {
-    if (token.role !== Role.CENTER_COORDINATOR) throw new AccessDeniedError();
+    if (!token.roles.includes(Role.CENTER_COORDINATOR)) throw new AccessDeniedError();
     const gameInstance = await prisma.gameInstance.findFirst({
       where: { id: gameInstanceId },
       select: { id: true, center: { select: { coordinatorId: true } } },
@@ -80,7 +83,7 @@ export async function assertGameInstanceAccess(gameInstanceId: string, token: JW
   }
   
   if (accessLevel === 'super') {
-    if (token.role !== Role.SUPER_COORDINATOR) throw new AccessDeniedError();
+    if (!token.roles.includes(Role.SUPER_COORDINATOR)) throw new AccessDeniedError();
     const gameInstance = await prisma.gameInstance.findFirst({
       where: { id: gameInstanceId },
       select: { id: true, center: { select: { superCoordinatorId: true } } },
@@ -97,7 +100,7 @@ export async function assertGameInstanceAccess(gameInstanceId: string, token: JW
 export async function assertCenterAccess(centerId: string, token: JWT, accessLevel: 'super') {
   
   if (accessLevel === 'super') {
-    if (token.role !== Role.SUPER_COORDINATOR) throw new AccessDeniedError();
+    if (!token.roles.includes(Role.SUPER_COORDINATOR)) throw new AccessDeniedError();
     const center = await prisma.center.findFirst({
       where: { id: centerId },
       select: { id: true, superCoordinatorId: true },
@@ -121,7 +124,7 @@ export async function assertUserAccess(targetUserId: string, token: JWT, accessL
   }
   
   if (accessLevel === 'coordinator') {
-    if (token.role !== Role.CENTER_COORDINATOR) throw new AccessDeniedError();
+    if (!token.roles.includes(Role.CENTER_COORDINATOR)) throw new AccessDeniedError();
     const user = await prisma.user.findFirst({
       where: { id: targetUserId },
       select: { id: true },
@@ -139,7 +142,7 @@ export async function assertUserAccess(targetUserId: string, token: JWT, accessL
   }
   
   if (accessLevel === 'super') {
-    if (token.role !== Role.SUPER_COORDINATOR) throw new AccessDeniedError();
+    if (!token.roles.includes(Role.SUPER_COORDINATOR)) throw new AccessDeniedError();
     const user = await prisma.user.findFirst({
       where: { id: targetUserId },
       select: { id: true },

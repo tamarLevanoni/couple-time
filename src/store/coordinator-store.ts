@@ -116,6 +116,7 @@ export const useCoordinatorStore = create<CoordinatorStore>()(
           if (!result.success) {
             throw new Error(result.error?.message || 'Failed to load rentals');
           }
+          console.log('rentals', result.data.length)
 
           set({ 
             rentals: result.data,
@@ -134,13 +135,14 @@ export const useCoordinatorStore = create<CoordinatorStore>()(
         set({ isSubmitting: true, error: null }, false, 'approveRental/start');
 
         try {
+          const data:UpdateRentalByCoordinatorInput={
+            borrowDate: new Date().toISOString(),
+            expectedReturnDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          }
           const response = await fetch(`/api/coordinator/rentals/${rentalId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              status: 'ACTIVE',
-              borrowDate: new Date().toISOString()
-            }),
+            body: JSON.stringify(data),
           });
 
           const result = await response.json();
@@ -211,7 +213,6 @@ export const useCoordinatorStore = create<CoordinatorStore>()(
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-              status: 'RETURNED',
               returnDate: new Date().toISOString()
             }),
           });

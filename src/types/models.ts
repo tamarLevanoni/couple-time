@@ -137,6 +137,9 @@ export const RENTAL_FOR_COORDINATOR = {
           coordinatorId: true,
         },
       },
+      game: {
+        select: GAME_BASIC_FIELDS,
+      },
     },
   },
 } as const satisfies Prisma.RentalInclude;

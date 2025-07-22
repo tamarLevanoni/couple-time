@@ -82,19 +82,19 @@ NEW FLOW:
 
 ## Revised Implementation Plan
 
-### Phase 1: Core User Experience (US-1.1, US-1.2, US-1.3, US-1.4)
+### Phase 1: Core User Experience (US-1.1, US-1.2, US-1.3, US-1.4) ✅ DONE
 
 #### **Public Components**
-- [ ] **Game Catalog Page**
+- [x] **Game Catalog Page**
   - Browse games with filtering/search
   - NO availability display initially
   - Show availability ONLY when center selected
 
-- [ ] **Center Finder Page**
+- [x] **Center Finder Page**
   - Find centers with area/city filtering
   - Integration with game availability
 
-- [ ] **Add Rental Request Page** 
+- [x] **Add Rental Request Page** 
   - PUBLIC access but requires auth
   - Center + Game selection dropdowns
   - NO guest form - immediate auth popup if not logged in
@@ -105,23 +105,23 @@ NEW FLOW:
   - WhatsApp integration with pre-filled message
 
 #### **Protected Components**
-- [ ] **My Rentals Page**
+- [x] **My Rentals Page**
   - View/manage user rentals
   - Filter by status (pending/active/history)
   - Cancel pending rentals
 
-- [ ] **User Profile Page**
+- [x] **User Profile Page**
   - View/edit profile details
 
-### Phase 2: Authentication & User Management (US-1.6, US-1.7)
+### Phase 2: Authentication & User Management (US-1.6, US-1.7) ✅ DONE
 
 #### **Authentication Flow**
-- [ ] **Login/Register Auth Popup**
+- [x] **Login/Register Auth Popup**
   - Modal-based authentication
   - Email and Google OAuth options
   - Integrated with rental request flow
 
-- [ ] **Auth Integration**
+- [x] **Auth Integration**
   - Seamless rental request → auth → rental completion
   - Rental data preservation across auth flow
 
