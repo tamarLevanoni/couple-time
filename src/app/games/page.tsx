@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { ErrorPage } from '@/components/ui/error';
@@ -8,49 +10,104 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { useGamesStore, useFilteredGames, useCentersStore } from '@/store';
-import { CenterBasic, GameBasic } from '@/types';
+import { 
+  useGamesStore, 
+  useFilteredGames, 
+  useCentersStore, 
+  useGamesActions,
+  useGames,
+  useAvailableCategories,
+  useAvailableAudiences 
+} from '@/store';
+import { GameBasic, GameCategory, TargetAudience, CenterPublicInfo, GameInstanceStatus } from '@/types';
 
 export default function GamesPage() {
-  const { 
-    games,
-    isLoading, 
-    error,
-    searchTerm,
-    selectedCategories,
-    setIds,
-    loadGames,
-    setSearch,
-    setCategories,
-    clearFilters
-  } = useGamesStore();
-  const {centers}=useCentersStore();
-
+  const searchParams = useSearchParams();
+  
+  // Store hooks
+  const games = useGames();
+  const { isLoading: gamesLoading, error: gamesError } = useGamesStore();
+  const { loadGames, setIds, setSearch, setCategories, clearFilters } = useGamesActions();
+  const { centers, loadCenters, isLoading: centersLoading } = useCentersStore();
   const filteredGames = useFilteredGames();
+  const availableCategories = useAvailableCategories();
+  
+  // Local state
+  const [selectedCenter, setSelectedCenter] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<GameCategory | ''>('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAvailability, setShowAvailability] = useState(false);
 
-  const [selectedCenter, setSelectedCenter] = useState<string|null>();
+  // Handle URL parameters after centers are loaded
+  useEffect(() => {
+    const centerId = searchParams.get('centerId');
+    console.log('🔗 Games page URL params:', { centerId, centersCount: centers.length });
+    if (centerId && centers.length > 0) {
+      console.log('✅ Setting selected center:', centerId);
+      setSelectedCenter(centerId);
+    }
+  }, [searchParams, centers.length]);
 
-  useEffect(()=>{
-    const center=centers.find(center=>center.id==selectedCenter);
-    const gameIds=center?.gameInstances.map(gi=>gi.gameId);
-    if(gameIds?.length) setIds(gameIds);
+  // Data is loaded globally by DataProvider - no need to load here
+  // Only check once on mount
+  useEffect(() => {
+    if (games.length === 0) loadGames();
+    if (centers.length === 0) loadCenters();
+  }, []); // Empty dependency array - only run once
+
+  // Handle center selection - this triggers availability display
+  useEffect(() => {
+    if (selectedCenter) {
+      const center = centers.find(c => c.id === selectedCenter);
+      const gameIds = center?.gameInstances?.map(gi => gi.gameId) || [];
+      setIds(gameIds);
+      setShowAvailability(true);
+    } else {
+      setIds([]);
+      setShowAvailability(false);
+    }
+  }, [selectedCenter]); // Remove centers and setIds from deps
+
+  // Handle search - debounced
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setSearch(searchTerm);
+    }, 300); // 300ms debounce
+    
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  // Handle category filter
+  useEffect(() => {
+    setCategories(selectedCategory ? [selectedCategory] : []);
+  }, [selectedCategory]);
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSelectedCenter('');
+    setSelectedCategory('');
+    setSearchTerm('');
+    setShowAvailability(false);
+    clearFilters();
+  };
 
 
-  },[selectedCenter])
-
-
-  if (isLoading) {
+  // Only show loading if we have no data at all (first load)
+  if ((gamesLoading && games.length === 0) || (centersLoading && centers.length === 0)) {
     return <LoadingPage title="טוען משחקים..." />;
   }
 
-  if (error) {
+  if (gamesError) {
     return (
       <MainLayout>
         <ErrorPage 
-          message={error} 
+          message={gamesError} 
           action={{
             label: 'נסה שוב',
-            onClick: loadGames
+            onClick: () => {
+              loadGames();
+              loadCenters();
+            }
           }}
         />
       </MainLayout>
@@ -74,27 +131,27 @@ export default function GamesPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                חיפוש
+                חיפוש משחק
               </label>
               <Input
-                placeholder="חפש משחק..."
-                value={searchTerm || ''}
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="שם משחק או תיאור..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                מוקד
+                מוקד <span className="text-xs text-gray-500">(לבדיקת זמינות)</span>
               </label>
               <Select
-                value={selectedCenter || ''}
-                onChange={(e) => setSelectedCenter(e.target.value || null)}
+                value={selectedCenter}
+                onChange={(e) => setSelectedCenter(e.target.value)}
                 options={[
-                  { value: '', label: 'כל המוקדים' },
+                  { value: '', label: 'בחר מוקד לצפייה בזמינות' },
                   ...centers.map(center => ({
                     value: center.id,
-                    label: center.name
+                    label: `${center.name} - ${center.city}`
                   }))
                 ]}
               />
@@ -105,15 +162,14 @@ export default function GamesPage() {
                 קטגוריה
               </label>
               <Select
-                value={selectedCategories[0] || ''}
-                onChange={(e) => setCategories(e.target.value ? [e.target.value as any] : [])}
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value as GameCategory | '')}
                 options={[
                   { value: '', label: 'כל הקטגוריות' },
-                  { value: 'COMMUNICATION', label: 'תקשורת' },
-                  { value: 'INTIMACY', label: 'אינטימיות' },
-                  { value: 'FUN', label: 'כיף ובידור' },
-                  { value: 'THERAPY', label: 'טיפול' },
-                  { value: 'PERSONAL_DEVELOPMENT', label: 'פיתוח אישי' }
+                  ...availableCategories.map(cat => ({
+                    value: cat,
+                    label: getCategoryLabel(cat)
+                  }))
                 ]}
               />
             </div>
@@ -121,13 +177,21 @@ export default function GamesPage() {
             <div className="flex items-end space-x-2 space-x-reverse">
               <Button 
                 variant="outline" 
-                onClick={clearFilters}
+                onClick={handleClearFilters}
                 className="w-full"
               >
                 נקה סינונים
               </Button>
             </div>
           </div>
+          
+          {selectedCenter && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                מציג רק משחקים זמינים במוקד: <strong>{centers.find(c => c.id === selectedCenter)?.name}</strong>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Games Grid */}
@@ -162,13 +226,23 @@ export default function GamesPage() {
 
                   <div className="border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-500">
-                        זמין במוקדים שונים
-                      </div>
+                      {showAvailability ? (
+                        <GameAvailabilityDisplay 
+                          gameId={game.id} 
+                          selectedCenterId={selectedCenter} 
+                          centers={centers}
+                        />
+                      ) : (
+                        <div className="text-sm text-gray-500">
+                          בחר מוקד לבדיקת זמינות
+                        </div>
+                      )}
                       
-                      <Button size="sm">
-                        צפה בפרטים
-                      </Button>
+                      <Link href={`/rent?gameId=${game.id}${selectedCenter ? `&centerId=${selectedCenter}` : ''}`}>
+                        <Button size="sm">
+                          השאל משחק
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -186,8 +260,8 @@ export default function GamesPage() {
   );
 }
 
-function getCategoryLabel(category: string): string {
-  const labels: Record<string, string> = {
+function getCategoryLabel(category: GameCategory): string {
+  const labels: Record<GameCategory, string> = {
     COMMUNICATION: 'תקשורת',
     INTIMACY: 'אינטימיות',
     FUN: 'כיף ובידור',
@@ -197,11 +271,81 @@ function getCategoryLabel(category: string): string {
   return labels[category] || category;
 }
 
-function getAudienceLabel(audience: string): string {
-  const labels: Record<string, string> = {
+function getAudienceLabel(audience: TargetAudience): string {
+  const labels: Record<TargetAudience, string> = {
     SINGLES: 'רווקים',
     MARRIED: 'נשואים',
     GENERAL: 'כלל הציבור'
   };
   return labels[audience] || audience;
+}
+
+// Game Availability Display Component
+function GameAvailabilityDisplay({ 
+  gameId, 
+  selectedCenterId, 
+  centers 
+}: { 
+  gameId: string;
+  selectedCenterId: string;
+  centers: CenterPublicInfo[];
+}) {
+  const selectedCenter = centers.find(c => c.id === selectedCenterId);
+  const gameInstances = selectedCenter?.gameInstances?.filter(gi => gi.gameId === gameId) || [];
+  
+  if (gameInstances.length === 0) {
+    return (
+      <div className="flex items-center space-x-2 space-x-reverse">
+        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+        <span className="text-sm text-red-700 font-medium">
+          לא זמין במוקד הנבחר
+        </span>
+      </div>
+    );
+  }
+  
+  // Group instances by status
+  const statusCounts = gameInstances.reduce((acc, instance) => {
+    acc[instance.status] = (acc[instance.status] || 0) + 1;
+    return acc;
+  }, {} as Record<GameInstanceStatus, number>);
+  
+  const availableCount = statusCounts.AVAILABLE || 0;
+  const borrowedCount = statusCounts.BORROWED || 0;
+  const unavailableCount = statusCounts.UNAVAILABLE || 0;
+  
+  return (
+    <div className="space-y-1">
+      {availableCount > 0 && (
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          <span className="text-sm text-green-700 font-medium">
+            {availableCount} זמין{availableCount > 1 ? 'ים' : ''}
+          </span>
+        </div>
+      )}
+      
+      {borrowedCount > 0 && (
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+          <span className="text-sm text-orange-700">
+            {borrowedCount} מושאל{borrowedCount > 1 ? 'ים' : ''}
+          </span>
+        </div>
+      )}
+      
+      {unavailableCount > 0 && (
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+          <span className="text-sm text-gray-700">
+            {unavailableCount} לא זמינים
+          </span>
+        </div>
+      )}
+      
+      <div className="text-xs text-gray-500">
+        סה"כ {gameInstances.length} עותק{gameInstances.length > 1 ? 'ים' : ''} במוקד
+      </div>
+    </div>
+  );
 }

@@ -7,8 +7,8 @@ import { useGamesStore, useCentersStore } from '@/store';
 let globalDataLoadInitiated = false;
 
 export function useDataInit() {
-  const loadGames = useGamesStore((state) => state.loadGames);
-  const loadCenters = useCentersStore((state) => state.loadCenters);
+  const { loadGames, hasLoaded: gamesLoaded } = useGamesStore();
+  const { loadCenters, hasLoaded: centersLoaded } = useCentersStore();
   const hasInitiated = useRef(false);
 
   useEffect(() => {
@@ -16,11 +16,17 @@ export function useDataInit() {
       hasInitiated.current = true;
       globalDataLoadInitiated = true;
       
-      // Load public data on app initialization
-      loadGames();
-      loadCenters();
+      // Only load if not already loaded
+      if (!gamesLoaded) {
+        console.log('🎮 Loading games data...');
+        loadGames();
+      }
+      if (!centersLoaded) {
+        console.log('🏢 Loading centers data...');
+        loadCenters();
+      }
     }
-  }, [loadGames, loadCenters]);
+  }, []); // Remove all dependencies to prevent re-runs
 
   // No need to return anything since this is only for initialization
 }

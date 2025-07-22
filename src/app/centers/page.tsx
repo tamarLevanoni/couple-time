@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { ErrorPage } from '@/components/ui/error';
@@ -8,27 +9,67 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { MapPin } from '@/components/icons';
+import { MapPin, Phone, GameController } from '@/components/icons';
 import { useCentersStore, useFilteredCenters, useAvailableCities } from '@/store';
+import { Area } from '@/types';
 
 export default function CentersPage() {
   const { 
     centers,
     isLoading, 
     error,
-    searchTerm,
-    selectedCity,
     loadCenters,
-    setSearch,
+    setArea,
     setCity,
+    setSearch,
     clearFilters
   } = useCentersStore();
 
   const filteredCenters = useFilteredCenters();
   const availableCities = useAvailableCities();
+  
+  // Local state for filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedArea, setSelectedArea] = useState<Area | ''>('');
+  const [selectedCity, setSelectedCity] = useState('');
+  
+  // Data is loaded globally by DataProvider - no need to load here
+  // Only check once on mount
+  useEffect(() => {
+    if (centers.length === 0) loadCenters();
+  }, []); // Empty dependency array - only run once
+  
+  // Handle filter changes - debounced search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setSearch(searchTerm);
+    }, 300); // 300ms debounce
+    
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+  
+  useEffect(() => {
+    setArea(selectedArea || null);
+  }, [selectedArea]);
+  
+  useEffect(() => {
+    setCity(selectedCity || null);
+  }, [selectedCity]);
+  
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setSelectedArea('');
+    setSelectedCity('');
+    clearFilters();
+  };
+  
+  // Get unique areas from centers
+  const availableAreas = Array.from(new Set(centers.map(c => c.area)));
 
 
-  if (isLoading) {
+  // Only show loading if we have no data at all (first load)
+  if (isLoading && centers.length === 0) {
     return <LoadingPage title="טוען מוקדים..." />;
   }
 
@@ -60,15 +101,32 @@ export default function CentersPage() {
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                חיפוש
+                חיפוש מוקד
               </label>
               <Input
-                placeholder="חפש מוקד..."
-                value={searchTerm || ''}
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="שם מוקד או עיר..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                אזור
+              </label>
+              <Select
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value as Area | '')}
+                options={[
+                  { value: '', label: 'כל האזורים' },
+                  ...availableAreas.map(area => ({
+                    value: area,
+                    label: getAreaLabel(area)
+                  }))
+                ]}
               />
             </div>
 
@@ -77,14 +135,16 @@ export default function CentersPage() {
                 עיר
               </label>
               <Select
-                value={selectedCity || ''}
-                onChange={(e) => setCity(e.target.value || null)}
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
                 options={[
                   { value: '', label: 'כל הערים' },
-                  ...availableCities.map(city => ({
-                    value: city,
-                    label: city
-                  }))
+                  ...availableCities
+                    .filter(city => !selectedArea || centers.some(c => c.city === city && c.area === selectedArea))
+                    .map(city => ({
+                      value: city,
+                      label: city
+                    }))
                 ]}
               />
             </div>
@@ -92,7 +152,7 @@ export default function CentersPage() {
             <div className="flex items-end">
               <Button 
                 variant="outline" 
-                onClick={clearFilters}
+                onClick={handleClearFilters}
                 className="w-full"
               >
                 נקה סינונים
@@ -123,42 +183,66 @@ export default function CentersPage() {
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-600">
-                      <span className="font-medium ml-2">עיר:</span>
+                      <MapPin className="h-4 w-4 ml-2" />
+                      <span className="font-medium ml-2">אזור:</span>
+                      <span>{getAreaLabel(center.area)}</span>
+                      <span className="mx-2">•</span>
                       <span>{center.city}</span>
                     </div>
                     
-                    {center.coordinator?.phone && (
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="font-medium ml-2">טלפון:</span>
-                        <span>{center.coordinator.phone}</span>
-                      </div>
-                    )}
+                    
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium ml-2">רכז:</span>
+                      <span>{center.coordinator?.name || 'לא צוין'}</span>
+                      {center.coordinator?.phone && (
+                        <>
+                          <span className="mx-2">•</span>
+                          <Phone className="h-3 w-3 ml-1" />
+                          <span>{center.coordinator.phone}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   <div className="border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-500">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <GameController className="h-4 w-4 ml-2" />
                         {center.gameInstances && center.gameInstances.length > 0 ? (
-                          `${center.gameInstances.length} משחקים זמינים`
+                          <span className="text-green-600 font-medium">
+                            {center.gameInstances.length} משחקים זמינים
+                          </span>
                         ) : (
-                          'אין משחקים זמינים כרגע'
+                          <span className="text-gray-500">
+                            אין משחקים זמינים כרגע
+                          </span>
                         )}
                       </div>
                       
                       <div className="flex items-center space-x-2 space-x-reverse">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                        >
-                          ראה משחקים
-                        </Button>
+                        <Link href={`/games?centerId=${center.id}`}>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            disabled={!center.gameInstances?.length}
+                          >
+                            ראה משחקים
+                          </Button>
+                        </Link>
                         
-                        {center.coordinator?.phone && (
+                        {center.coordinator?.phone ? (
                           <Button 
                             size="sm"
-                            onClick={() => window.open(`tel:${center.coordinator?.phone}`)}
+                            onClick={() => {
+                              const message = encodeURIComponent(`שלום! אני מעוניין להשאיל משחק מהמוקד ${center.name}`);
+                              window.open(`https://wa.me/972${center.coordinator?.phone?.replace(/^0/, '')}?text=${message}`);
+                            }}
                           >
-                            התקשר
+                            שלח וואצאפ
+                          </Button>
+                        ) : (
+                          <Button size="sm" disabled>
+                            אין פרטי קשר
                           </Button>
                         )}
                       </div>
@@ -175,16 +259,41 @@ export default function CentersPage() {
           מציג {filteredCenters.length} מתוך {centers.length} מוקדים
         </div>
 
-        {/* Map Placeholder */}
-        <div className="mt-12 bg-gray-100 rounded-lg p-8 text-center">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            מפת מוקדים
-          </h3>
-          <p className="text-gray-600">
-            בקרוב: מפה אינטראקטיבית עם מיקום כל המוקדים
-          </p>
-        </div>
+        {/* Call to Action */}
+        {filteredCenters.length > 0 && (
+          <div className="mt-12 bg-primary/5 border border-primary/20 rounded-lg p-8 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              מצאתם מוקד מתאים?
+            </h3>
+            <p className="text-gray-700 mb-4">
+              עיינו במשחקים הזמינים או צרו קשר ישירות עם הרכז
+            </p>
+            <div className="flex justify-center space-x-4 space-x-reverse">
+              <Link href="/games">
+                <Button variant="outline">
+                  ראה כל המשחקים
+                </Button>
+              </Link>
+              <Link href="/rent">
+                <Button>
+                  השאל משחק עכשיו
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
+}
+
+function getAreaLabel(area: Area): string {
+  const labels: Record<Area, string> = {
+    NORTH: 'צפון',
+    CENTER: 'מרכז',
+    SOUTH: 'דרום',
+    JERUSALEM: 'ירושלים והסביבה',
+    JUDEA_SAMARIA: 'יו״שׁ'
+  };
+  return labels[area] || area;
 }

@@ -14,7 +14,14 @@
 // ===== PUBLIC STORES =====
 // Available to all users for browsing
 
-export { useGamesStore, useFilteredGames, useAvailableCategories, useAvailableAudiences } from './games-store';
+export { 
+  useGamesStore, 
+  useFilteredGames, 
+  useAvailableCategories, 
+  useAvailableAudiences,
+  useGamesActions,
+  useGames
+} from './games-store';
 export { useCentersStore, useFilteredCenters, useAvailableCities } from './centers-store';
 
 // ===== AUTH STORE =====

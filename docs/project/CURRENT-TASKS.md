@@ -1,243 +1,214 @@
 # Current Tasks - Couple-Time Project
 
-## Active Task: Store Optimization - Phase 5.1
+## Active Task: UI Implementation Planning & Corrections
 
 ### Task Summary
-Refactor all Zustand stores to follow Zustand best practices by using atomic selectors instead of useShallow for computed values, preventing infinite loops and improving performance.
+Finalize UI implementation plan with corrections to rental process flow, authentication integration, coordinator dashboard functionality, and data flow patterns validation.
 
-### Current Status: IN PROGRESS
-
-### Priority Issues to Fix
-- **Games Store**: Using useShallow for computed filtering - should use atomic selectors
-- **All Stores**: Need to follow Zustand best practices for multiple state selections
-- **Performance**: Prevent unnecessary re-renders caused by useShallow with complex computations
+### Current Status: PLANNING
 
 ---
 
-## Next Task: UI Implementation - Phase 5.2
+## ⚠️ BEFORE EXECUTION - MANDATORY VERIFICATION
 
-### Task Summary  
-Implement UI components and pages using the optimized Zustand store architecture. Building user interfaces for all user stories with role-based navigation and functionality.
+**Before implementing any changes, thoroughly check:**
 
-### Current Status: PENDING
+1. **API Route Analysis**
+   - Review all `/api` relevant operations 
+   - Check `/api` for complete flow
 
-### Implementation Plan
+2. **Type System Review**
+   - Check all types in `/types` and `lib/validations.ts` for operations
+   - Verify data structures
 
-#### Phase 1: Public UI Components (US-1.1, US-1.2)
-- [ ] **Game Catalog Page** - Browse games with filtering/search
-- [ ] **Center Finder Page** - Find nearby centers with map/filters
-- [ ] **Navigation Header** - Public navigation with auth buttons
-- [ ] **Game Card Component** - Display game details
-- [ ] **Center Card Component** - Display center details  
-- [ ] **Filter Components** - Category, audience, area filters
+3. **Store Implementation Check**
+   - Analyze CoordinatorStore for missing operations
+   - Check RentalsStore for complete user flow
+   - Verify data flow between stores
 
-#### Phase 2: User Authentication & Rental UI (US-1.3, US-1.4, US-1.6, US-1.7)
+4. **Current Component Analysis**
+   - Understand current navigation and routing patterns
 
-**Authentication Flow Implementation:**
-- [ ] **Auth Provider Setup** - Wrap app with NextAuth + Zustand + SWR providers
-- [ ] **Session Management** - Check session on app load, sync with stores
-- [ ] **SWR User Data Integration** - Replace manual user store API calls with SWR hooks
-- [ ] **Profile Completion Flow** - Handle `needsProfileCompletion` for Google OAuth
-- [ ] **Route Protection** - Middleware-based access control for protected pages
-- [ ] **Hybrid Store Architecture** - SWR for data fetching, Zustand for computed state
+**Only proceed with implementation after confirming all current capabilities and limitations.**
 
-**UI Components:**
-- [ ] **Login/Register Pages** - Email and Google OAuth options  
-- [ ] **Profile Completion Modal** - Name/phone for new Google users
-- [ ] **User Profile Page** - View/edit profile details
-- [ ] **Rental Request Form** - Create new rental requests
-- [ ] **My Rentals Page** - View/manage user rentals
-- [ ] **Rental Details Modal** - Full rental information
-- [ ] **Protected Route Wrapper** - Role-based access control
+---
 
-**Authentication Flow Architecture:**
+## Priority Corrections to Implement
 
-**Entry Points & Pages:**
-- `/auth/signin` - Email/password + Google OAuth login
-- `/auth/signup` - User registration with profile completion  
-- `/auth/error` - Centralized error handling with Hebrew messages
-
-**Core Authentication Flows:**
+### 1. **Game Availability Display Logic**
+**Issue**: Shows availability always  
+**Fix**: Only show when center is selected
 ```
-Email/Password: User Input → LoginForm → NextAuth credentials → JWT → Session → Zustand stores
-Google OAuth: Google Sign-in → Check existing user → Profile completion (if needed) → JWT → Session → Zustand stores
+- Hide availability status by default
+- Show availability only after center selection
+- Filter games by selected center for availability
+- Clear availability when center changes
 ```
 
-**Profile Completion Logic (`needsProfileCompletion`):**
-- **Trigger:** New Google OAuth users (no existing account with email)
-- **Set in JWT callback:** `token.needsProfileCompletion = true`
-- **Process:** User redirected → Complete name + phone → `/api/auth/complete-google-profile` → User record created → Flag cleared
-
-**Hybrid SWR + Zustand Integration Pattern:**
+### 2. **Rental Request Flow Simplification**
+**Issue**: Complex guest form handling  
+**Fix**: Auto-redirect to auth popup
 ```
-App Load → Session Check → SWR fetches /api/user → Zustand computed selectors → UI Hydration
-Login → NextAuth → JWT → Session → SWR auto-fetches user data → Stores sync
-Logout → NextAuth signOut → SWR cache cleared → Zustand state reset
-Profile Update → SWR mutate() with optimistic updates → Auto-revalidation
+OLD FLOW:
+- Guest fills form → Submit → Redirect to auth → Complete
+
+NEW FLOW: 
+- Select center/game → Auth popup if not logged in → Submit rental after auth
+- No guest form - direct auth integration
+- Rental data preserved during auth flow
 ```
 
-**SWR Integration Benefits:**
-- **Automatic caching & revalidation** - Fresh data without manual calls
-- **Built-in loading/error states** - Less boilerplate in stores
-- **Background refetching** - Data stays current when user returns to tab
-- **Optimistic updates** - Better UX for profile updates with automatic rollback
-- **Request deduplication** - Multiple components use same data efficiently
+### 3. **CoordinatorDashboard Enhancement**
+**Issue**: Limited rental management  
+**Fix**: Complete rental lifecycle management
+```
+- Show ALL rentals (pending/active/returned/history)
+- Add return rental functionality
+- Handle rental status transitions
+- Manage complete rental lifecycle
+```
 
-**Hybrid Architecture:**
-- **SWR**: Data fetching, caching, loading/error states, revalidation
-- **Zustand**: Computed selectors (`useIsCoordinator`), business logic, derived state
-- **NextAuth**: Session management, authentication state
+### 4. **Data Flow Pattern Validation**
+**Issue**: Patterns may not match actual API capabilities  
+**Fix**: Verify against real API routes and types
+```
+- Check each pattern against actual API endpoints
+- Verify type usage matches implemented schemas
+- Confirm store operations align with API capabilities
+- Update patterns to reflect real implementation
+```
 
-**API Integration Points:**
-- **`/api/user`** - GET (profile + rentals), PUT (update profile)  
-- **`/api/auth/complete-google-profile`** - POST (complete Google profile)
-- **Auto-triggered:** Auth store login() → User store loadUserData() → Populate UI
+---
 
-**SWR + Zustand Usage Patterns:**
+## Revised Implementation Plan
+
+### Phase 1: Core User Experience (US-1.1, US-1.2, US-1.3, US-1.4)
+
+#### **Public Components**
+- [ ] **Game Catalog Page**
+  - Browse games with filtering/search
+  - NO availability display initially
+  - Show availability ONLY when center selected
+
+- [ ] **Center Finder Page**
+  - Find centers with area/city filtering
+  - Integration with game availability
+
+- [ ] **Add Rental Request Page** 
+  - PUBLIC access but requires auth
+  - Center + Game selection dropdowns
+  - NO guest form - immediate auth popup if not logged in
+  - Rental data preserved during auth flow
+
+- [ ] **Rental Confirmation Page**
+  - Success page with coordinator contact
+  - WhatsApp integration with pre-filled message
+
+#### **Protected Components**
+- [ ] **My Rentals Page**
+  - View/manage user rentals
+  - Filter by status (pending/active/history)
+  - Cancel pending rentals
+
+- [ ] **User Profile Page**
+  - View/edit profile details
+
+### Phase 2: Authentication & User Management (US-1.6, US-1.7)
+
+#### **Authentication Flow**
+- [ ] **Login/Register Auth Popup**
+  - Modal-based authentication
+  - Email and Google OAuth options
+  - Integrated with rental request flow
+
+- [ ] **Auth Integration**
+  - Seamless rental request → auth → rental completion
+  - Rental data preservation across auth flow
+
+### Phase 3: Management Dashboards (US-2.x, US-4.x)
+
+#### **Enhanced Coordinator Dashboard**
+- [ ] **Complete Rental Management**
+  - ALL rentals view (pending/active/returned/history)
+  - Approve/reject pending rentals
+  - Mark rentals as returned/completed
+  - Handle full rental lifecycle
+
+- [ ] **Game Instance Management**
+  - Update game status and notes
+  - Handle game availability
+
+- [ ] **Manual Rental Creation**
+  - Create rentals for walk-in users
+
+#### **Admin Dashboard**
+- [ ] **System Administration**
+  - User, center, and game management
+  - Role assignments and system reports
+
+---
+
+## Corrected Data Flow Patterns
+
+### **Pattern 1: Rental Request Flow (Revised)**
 ```typescript
-// SWR for data fetching + caching
-const { data: userData, error, mutate } = useSWR('/api/user', fetcher);
+// NEW SIMPLIFIED FLOW:
+User selects game/center → 
+Check if authenticated → 
+If not: Auth popup → 
+Complete auth → 
+Submit rental with authenticated user → 
+Rental confirmation page
 
-// Zustand for computed state + business logic  
-const userStore = useUserStore();
-const isCoordinator = userStore.isCoordinator(userData?.roles);
-const rentalCounts = userStore.computeRentalCounts(userData?.rentals);
-
-// Profile updates with optimistic UI
-const updateProfile = (data) => mutate('/api/user', updateUserAPI(data), {
-  optimisticData: { ...userData, ...data },
-  rollbackOnError: true
-});
+// NO guest form, NO complex data preservation
+// Auth popup handles user registration/login
+// Rental submitted immediately after successful auth
 ```
 
-**Migration Strategy:**
-1. **Phase 2A**: Replace user store API calls with SWR hooks
-2. **Phase 2B**: Remove loading/error states from stores (use SWR's)  
-3. **Phase 2C**: Convert stores to pure computed state managers
-4. **Future**: Apply SWR pattern to games/centers/rentals stores
+### **Pattern 2: Coordinator Rental Management (Enhanced)**
+```typescript
+// ALL RENTAL STATES:
+CoordinatorDashboard → 
+Load ALL rentals (not just pending/active) → 
+Tabs: Pending | Active | Returned | History → 
+Actions: Approve/Reject/Return/View → 
+Handle complete rental lifecycle
+```
 
-#### Phase 3: Coordinator Dashboard (US-2.x)
-- [ ] **Coordinator Dashboard** - Overview with pending/active rentals
-- [ ] **Rental Management Table** - Approve/manage rentals
-- [ ] **Game Instance Management** - Update game status/notes
-- [ ] **Manual Rental Creation** - Create rentals for users
-- [ ] **Center Statistics** - Basic metrics and data
-
-#### Phase 4: Admin Interface (US-4.x)
-- [ ] **Admin Dashboard** - System overview and navigation
-- [ ] **User Management** - CRUD operations for users
-- [ ] **Center Management** - CRUD operations for centers  
-- [ ] **Game Management** - CRUD operations for games
-- [ ] **Role Assignment** - Assign roles to users
-- [ ] **System Reports** - Statistics and analytics
-
-#### Phase 5: Polish & Integration
-- [ ] **Responsive Design** - Mobile-first optimization
-- [ ] **Error Boundaries** - Graceful error handling
-- [ ] **Loading States** - Proper UX for async operations
-- [ ] **Toast Notifications** - User feedback system
-- [ ] **Route Guards** - Complete permission system
+### **Pattern 3: Game Availability (Conditional)**
+```typescript
+// CONDITIONAL DISPLAY:
+GameCatalogPage → 
+Default: Show games WITHOUT availability → 
+User selects center → 
+Filter games by center → 
+NOW show availability status → 
+User can see which games available at selected center
+```
 
 ---
 
----
+## Implementation Notes
 
-## Previous Task: Completed - Zustand Store Implementation ✅
+### Technical Requirements
+- ✅ **API Routes**: All endpoints implemented and tested
+- ✅ **Zustand Stores**: All 6 stores completed with data loading optimization
+- ✅ **Authentication**: NextAuth configured with Google OAuth
+- ✅ **Database**: Prisma schema and relationships established
 
-**Auth Store (COMPLETED)** ✅
-- [x] User session state (UserContact | null)
-- [x] Authentication status tracking  
-- [x] Profile loading from `/api/user`
-- [x] Profile updates via PUT `/api/user`
-- [x] Login/logout state management
-- [x] Loading and error states
+### Success Metrics
+- Users can browse games and centers with instant loading
+- Rental request flow is simple and intuitive (no guest forms)  
+- Coordinators can manage complete rental lifecycle
+- Game availability shows only when relevant (center selected)
 
-**Games Store (COMPLETED)** ✅
-Based on user stories US-1.1 (Browse Game Catalog):
-- [x] Public games listing from `/api/public/games` (GameBasic[])
-- [x] Game filtering by categories/audiences 
-- [x] Game availability by center
-- [x] Search functionality
-- [x] Clear filters functionality
-
-**Centers Store (COMPLETED)** ✅
-Based on user stories US-1.2 (Find Nearby Center) - PUBLIC ONLY:
-- [x] Public centers listing from `/api/public/centers` (CenterPublicInfo[])
-- [x] Center filtering by area/city
-- [x] Search centers functionality
-- [x] Clear filters functionality
-
-**Rentals Store (COMPLETED)** ✅
-Based on user stories US-1.3, US-1.4 (Request/Manage Rentals) - USER ONLY:
-- [x] User rental listing from `/api/user/rentals` (RentalForUser[])
-- [x] Create rental via POST `/api/user/rentals` (CreateRentalInput)
-- [x] Cancel rental via PUT `/api/user/rentals/[id]` (action: 'cancel')
-- [x] Rental status filtering (pending/active/history)
-- [x] Rental counts for tabs (pending/active/history totals)
-- [x] Can cancel rental validation
-
-**Coordinator Store (COMPLETED)** ✅
-Based on user stories US-2.x - ALL COORDINATOR OPERATIONS:
-- [x] Dashboard data from `/api/coordinator` (CoordinatorDashboardData)
-- [x] **Rental management via `/api/coordinator/rentals`** (approve/manage/manual create)
-- [x] **Game instance management via `/api/coordinator/games`** (status/notes updates)
-- [x] Center statistics (included in dashboard)
-- [x] Active/pending rental filtering with overdue detection
-- [x] Rental counts for dashboard metrics
-
-**Admin Store (COMPLETED)** ✅
-Based on user stories US-4.x - ALL ADMIN OPERATIONS:
-- [x] User management via `/api/admin/users` (create/update/roles/block)
-- [x] **Center management via `/api/admin/centers`** (create/update/delete/assign coordinators)
-- [x] **Game management via `/api/admin/games`** (create/update/delete)
-- [x] Role assignments via `/api/admin/roles`
-- [x] System statistics via `/api/admin/system`
-
-**Store Exports (COMPLETED)** ✅
-- [x] Central index file for clean imports
-- [x] Role-based organization of exports
-- [x] Computed selectors exported
-
-#### Phase 2: Store Integration (COMPLETED) ✅
-- [x] Update existing `use-data-init.ts` hook to work with new stores
-- [x] Stores leverage existing types from `/types` architecture
-- [x] Proper error handling and loading states implemented
-- [x] Store persistence not needed for current requirements
-
-#### Phase 3: Testing & Validation (DEFERRED) 
-- [ ] Write store unit tests (will be done during UI development)
-- [ ] Integration testing with existing API endpoints (will happen naturally with UI)
-- [ ] Performance validation and optimization (as needed during UI work)
-
-### Technical Requirements ✅
-- [x] Use existing types from `/types` (schema → models → computed)
-- [x] Follow standardized API response format `{ success: boolean, data?, error? }`
-- [x] Implement proper loading states and error handling
-- [x] Leverage existing API endpoints without modification
-
-### Deliverables Completed ✅
-- **6 Complete Stores**: Auth, Games, Centers, Rentals, Coordinator, Admin
-- **Role-Based Architecture**: Clear separation by user permissions
-- **API Integration**: All stores use existing API endpoints
-- **Type Safety**: Proper TypeScript with existing type system
-- **Error Handling**: Standardized error states and loading indicators
-- **Computed Selectors**: Filtered data and metrics calculations
-
-### Next Phase: UI Implementation
-**Recommendation**: Start UI development with core user flows (US-1.1 Browse Games) to validate store integration in real usage.
+### Development Guidelines
+- Follow existing `/types` and `lib/validations.ts` architecture for all type definitions
+- Use optimized store patterns (atomic selectors, data loading strategy)
+- Implement proper error handling and loading states
+- Ensure mobile-responsive design
+- Add comprehensive testing for all flows
 
 ---
 
-## Previous Task: Completed - API Route Testing Overhaul ✅
-
-Complete recreation of all API route tests with 19 test files covering 26 API routes, standardized patterns, and comprehensive coverage.
-
-## Notes
-- Follow `CLAUDE.md` workflow: plan → approve → implement → test
-- Update `PROJECT-OVERVIEW.md` when this task completes
-- Archive completed work in `docs/phases/`
-- **CRITICAL**: Use existing types from `/lib/validations.ts` exports (CreateGameInput, etc.) not from `/types`
-- **TYPE ERROR FIX NEEDED**: Games store imports non-existent types - fix imports to use validations.ts
-
----
 *Last Updated: January 2025*

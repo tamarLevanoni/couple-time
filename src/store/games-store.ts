@@ -12,10 +12,12 @@ interface GamesState {
   searchTerm: string;
   isLoading: boolean;
   error: string | null;
+  hasLoaded: boolean;
 }
 
 interface GamesActions {
   loadGames: () => Promise<void>;
+  forceReloadGames: () => Promise<void>;
   setCategories: (categories: GameCategory[]) => void;
   setAudiences: (audiences: TargetAudience[]) => void;
   setIds: (ids: string[]) => void;
@@ -25,7 +27,7 @@ interface GamesActions {
 
 type GamesStore = GamesState & GamesActions;
 
-export const useGamesStore = create<GamesStore>((set) => ({
+export const useGamesStore = create<GamesStore>((set, get) => ({
   games: [],
   selectedCategories: [],
   selectedAudiences: [],
@@ -33,8 +35,14 @@ export const useGamesStore = create<GamesStore>((set) => ({
   searchTerm: '',
   isLoading: false,
   error: null,
+  hasLoaded: false,
 
   loadGames: async () => {
+    // Only load if not already loaded
+    if (get().hasLoaded) {
+      return;
+    }
+    
     set({ isLoading: true, error: null });
     try {
       const response = await fetch('/api/public/games');
@@ -44,7 +52,24 @@ export const useGamesStore = create<GamesStore>((set) => ({
         throw new Error(result.error?.message || 'Failed to load games');
       }
       
-      set({ games: result.data, isLoading: false });
+      set({ games: result.data, isLoading: false, hasLoaded: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load games';
+      set({ error: message, isLoading: false });
+    }
+  },
+
+  forceReloadGames: async () => {
+    set({ isLoading: true, error: null, hasLoaded: false });
+    try {
+      const response = await fetch('/api/public/games');
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Failed to load games');
+      }
+      
+      set({ games: result.data, isLoading: false, hasLoaded: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load games';
       set({ error: message, isLoading: false });
@@ -65,16 +90,18 @@ export const useGamesStore = create<GamesStore>((set) => ({
 
 // Atomic selectors - more efficient than useShallow
 export const useGames = () => useGamesStore(state => state.games);
-export const useSearchTerm = () => useGamesStore(state => state.searchTerm);
+export const useGamesSearchTerm = () => useGamesStore(state => state.searchTerm);
 export const useSelectedCategories = () => useGamesStore(state => state.selectedCategories);
 export const useSelectedAudiences = () => useGamesStore(state => state.selectedAudiences);
 export const useSelectedIds = () => useGamesStore(state => state.selectedIds);
 export const useGamesLoading = () => useGamesStore(state => state.isLoading);
 export const useGamesError = () => useGamesStore(state => state.error);
+export const useGamesHasLoaded = () => useGamesStore(state => state.hasLoaded);
 
 // Game store actions - useShallow for multiple actions
 export const useGamesActions = () => useGamesStore(useShallow(state => ({
   loadGames: state.loadGames,
+  forceReloadGames: state.forceReloadGames,
   setCategories: state.setCategories,
   setAudiences: state.setAudiences,
   setIds: state.setIds,

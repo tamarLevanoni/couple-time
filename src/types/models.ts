@@ -41,7 +41,7 @@ export const CENTER_WITH_COORDINATOR = {
   coordinator: {
     select: USER_CONTACT_FIELDS,
   },
-} as const satisfies Prisma.CenterInclude;
+} as const satisfies Prisma.CenterSelect;
 
 export const CENTER_PUBLIC_INFO = {
     ...CENTER_BASIC_FIELDS,
@@ -120,6 +120,9 @@ export const RENTAL_FOR_USER = {
   gameInstances: {
     include: GAME_INSTANCE_WITH_CENTER,
   },
+  center: {
+    select: CENTER_WITH_COORDINATOR
+  }
 } as const satisfies Prisma.RentalInclude;
 
 export const RENTAL_FOR_COORDINATOR = {
