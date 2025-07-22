@@ -32,7 +32,7 @@ export default function RentPage() {
   const { openAuthPopup } = useAuthStore();
   
   // Form state
-  const [selectedGameId, setSelectedGameId] = useState<string>('');
+  const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
   const [selectedCenterId, setSelectedCenterId] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
@@ -47,7 +47,7 @@ export default function RentPage() {
       centerId, 
       gamesCount: games.length, 
       centersCount: centers.length,
-      currentSelectedGame: selectedGameId,
+      currentSelectedGames: selectedGameIds,
       currentSelectedCenter: selectedCenterId
     });
     
@@ -56,7 +56,7 @@ export default function RentPage() {
       console.log('🎮 Game lookup:', { gameId, gameExists: !!gameExists, gameName: gameExists?.name });
       if (gameExists) {
         console.log('✅ Setting selected game:', gameId);
-        setSelectedGameId(gameId);
+        setSelectedGameIds([gameId]);
       } else {
         console.log('❌ Game not found in available games');
       }
@@ -83,7 +83,7 @@ export default function RentPage() {
       centerId, 
       gamesCount: games.length, 
       centersCount: centers.length,
-      currentSelectedGame: selectedGameId,
+      currentSelectedGames: selectedGameIds,
       currentSelectedCenter: selectedCenterId
     });
     
@@ -92,7 +92,7 @@ export default function RentPage() {
       console.log('🎮 Game lookup:', { gameId, gameExists: !!gameExists, gameName: gameExists?.name });
       if (gameExists) {
         console.log('✅ Setting selected game:', gameId);
-        setSelectedGameId(gameId);
+        setSelectedGameIds([gameId]);
       } else {
         console.log('❌ Game not found in available games');
       }
@@ -118,9 +118,9 @@ export default function RentPage() {
   }, []); // Empty dependency array - only run once
   
   // Get selected objects - use useMemo to ensure proper updates
-  const selectedGame = useMemo(() => {
-    return games.find(g => g.id === selectedGameId);
-  }, [games, selectedGameId]);
+  const selectedGames = useMemo(() => {
+    return games.filter(g => selectedGameIds.includes(g.id));
+  }, [games, selectedGameIds]);
   
   const selectedCenter = useMemo(() => {
     return centers.find(c => c.id === selectedCenterId);
@@ -131,9 +131,11 @@ export default function RentPage() {
   // const urlGameId = searchParams.get('gameId');
   // const urlCenterId = searchParams.get('centerId');
   
-  const filteredCenters = selectedGameId
+  const filteredCenters = selectedGameIds.length > 0
     ? centers.filter(center => 
-        center.gameInstances?.some(gi => gi.gameId === selectedGameId)
+        selectedGameIds.every(gameId => 
+          center.gameInstances?.some(gi => gi.gameId === gameId)
+        )
       )
     : centers;
   
@@ -166,8 +168,8 @@ export default function RentPage() {
     setFormError('');
     
     // Validate required fields
-    if (!selectedGameId || !selectedCenterId) {
-      setFormError('אנא בחר משחק ומוקד');
+    if (selectedGameIds.length === 0 || !selectedCenterId) {
+      setFormError('אנא בחר לפחות משחק אחד ומוקד');
       return;
     }
     
@@ -183,30 +185,44 @@ export default function RentPage() {
     }
     
     try {
-      // Find any game instance at selected center (regardless of availability status)
+      // Find all game instances at selected center for selected games
       const selectedCenterData = centers.find(c => c.id === selectedCenterId);
-      const gameInstance = selectedCenterData?.gameInstances?.find(
-        gi => gi.gameId === selectedGameId
-      );
+      const gameInstances = selectedGameIds.map(gameId => {
+        return selectedCenterData?.gameInstances?.find(gi => gi.gameId === gameId);
+      }).filter(Boolean);
       
-      if (!gameInstance) {
-        setFormError('המשחק לא קיים במוקד הנבחר');
+      if (gameInstances.length !== selectedGameIds.length) {
+        const missingGames = selectedGameIds.filter(gameId => 
+          !selectedCenterData?.gameInstances?.some(gi => gi.gameId === gameId)
+        );
+        const missingGameNames = missingGames.map(gameId => 
+          games.find(g => g.id === gameId)?.name || gameId
+        ).join(', ');
+        setFormError(`המשחקים הבאים לא קיימים במוקד הנבחר: ${missingGameNames}`);
         return;
       }
       
-      // Add note about current status if not available
+      // Add notes about current status for unavailable games
       let finalNotes = notes.trim();
-      if (gameInstance.status === 'BORROWED') {
-        const statusNote = 'המשחק כרגע מושאל - בקשה לרשימת המתנה';
-        finalNotes = finalNotes ? `${finalNotes}\n\n${statusNote}` : statusNote;
-      } else if (gameInstance.status === 'UNAVAILABLE') {
-        const statusNote = 'המשחק כרגע לא זמין - בקשה לרשימת המתנה';
-        finalNotes = finalNotes ? `${finalNotes}\n\n${statusNote}` : statusNote;
+      const statusNotes: string[] = [];
+      
+      gameInstances.forEach(instance => {
+        const gameName = games.find(g => g.id === instance?.gameId)?.name || 'משחק';
+        if (instance?.status === 'BORROWED') {
+          statusNotes.push(`${gameName} כרגע מושאל - בקשה לרשימת המתנה`);
+        } else if (instance?.status === 'UNAVAILABLE') {
+          statusNotes.push(`${gameName} כרגע לא זמין - בקשה לרשימת המתנה`);
+        }
+      });
+      
+      if (statusNotes.length > 0) {
+        const statusText = statusNotes.join('\n');
+        finalNotes = finalNotes ? `${finalNotes}\n\n${statusText}` : statusText;
       }
       
       await createRental({
         centerId: selectedCenterId,
-        gameInstanceIds: [gameInstance.id],
+        gameInstanceIds: gameInstances.map(gi => gi!.id),
         notes: finalNotes || undefined
       });
       
@@ -263,23 +279,63 @@ export default function RentPage() {
                 {/* Game Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    בחר משחק <span className="text-red-500">*</span>
+                    בחר משחקים <span className="text-red-500">*</span>
                   </label>
-                  <Select
-                    value={selectedGameId}
-                    onChange={(e) => setSelectedGameId(e.target.value)}
-                    options={[
-                      { 
-                        value: '', 
-                        label: 'בחר משחק...' 
-                      },
-                      ...availableGames.map(game => ({
-                        value: game.id,
-                        label: game.name
-                      }))
-                    ]}
-                    required
-                  />
+                  <div className="border border-gray-300 rounded-md p-3 max-h-60 overflow-y-auto">
+                    {availableGames.length === 0 ? (
+                      <p className="text-gray-500 text-sm">אין משחקים זמינים</p>
+                    ) : (
+                      <>
+                        {/* Select All / Clear All */}
+                        {availableGames.length > 1 && (
+                          <div className="border-b border-gray-200 pb-2 mb-2">
+                            <label className="flex items-center space-x-3 space-x-reverse cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedGameIds.length === availableGames.length}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedGameIds(availableGames.map(g => g.id));
+                                  } else {
+                                    setSelectedGameIds([]);
+                                  }
+                                }}
+                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                              />
+                              <span className="text-sm font-medium text-gray-900">
+                                {selectedGameIds.length === availableGames.length ? 'בטל בחירת הכל' : 'בחר הכל'}
+                              </span>
+                            </label>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2">
+                          {availableGames.map(game => (
+                            <label key={game.id} className="flex items-center space-x-3 space-x-reverse cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedGameIds.includes(game.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedGameIds([...selectedGameIds, game.id]);
+                                  } else {
+                                    setSelectedGameIds(selectedGameIds.filter(id => id !== game.id));
+                                  }
+                                }}
+                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                              />
+                              <span className="text-sm text-gray-700">{game.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {selectedGameIds.length > 0 && (
+                    <p className="mt-2 text-sm text-green-600">
+                      נבחרו {selectedGameIds.length} משחקים
+                    </p>
+                  )}
                 </div>
 
                 {/* Center Selection */}
@@ -332,7 +388,7 @@ export default function RentPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isSubmitting || !selectedGameId || !selectedCenterId}
+                  disabled={isSubmitting || selectedGameIds.length === 0 || !selectedCenterId}
                   className="w-full"
                 >
                   {isSubmitting ? 'שולח בקשה...' : 
@@ -350,23 +406,26 @@ export default function RentPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Selected Game Info */}
-            {selectedGame && (
+            {/* Selected Games Info */}
+            {selectedGames.length > 0 && (
               <Card className="p-4">
                 <div className="flex items-center mb-3">
                   <GameController className="h-5 w-5 text-primary ml-2" />
-                  <h3 className="font-semibold text-gray-900">משחק נבחר</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    משחקים נבחרים ({selectedGames.length})
+                  </h3>
                 </div>
-                <div className="space-y-2 text-sm">
-                  <p className="font-medium">{selectedGame.name}</p>
-                  {selectedGame.description && (
-                    <p className="text-gray-600 text-xs line-clamp-3">
-                      {selectedGame.description}
-                    </p>
-                  )}
-                  <div className="text-xs text-gray-500">
-                    {selectedGame.categories.map(cat => getCategoryLabel(cat)).join(' • ')}
-                  </div>
+                <div className="space-y-3">
+                  {selectedGames.map(game => (
+                    <div key={game.id} className="border-b border-gray-100 last:border-b-0 pb-2 last:pb-0">
+                      <div className="space-y-1 text-sm">
+                        <p className="font-medium">{game.name}</p>
+                        <div className="text-xs text-gray-500">
+                          {game.categories.map(cat => getCategoryLabel(cat)).join(' • ')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </Card>
             )}
