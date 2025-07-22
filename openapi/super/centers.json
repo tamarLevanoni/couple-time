@@ -1,0 +1,126 @@
+{
+  "/api/super/centers": {
+    "get": {
+      "tags": ["Super Coordinator"],
+      "summary": "View supervised centers",
+      "description": "View all centers supervised by this super coordinator with statistics",
+      "security": [{"BearerAuth": []}],
+      "responses": {
+        "200": {
+          "description": "Supervised centers retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {"type": "boolean"},
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "../shared/components.json#/components/schemas/CenterForPublic"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "401": {"$ref": "../shared/components.json#/components/responses/Unauthorized"},
+        "403": {"$ref": "../shared/components.json#/components/responses/Forbidden"},
+        "500": {"$ref": "../shared/components.json#/components/responses/InternalServerError"}
+      }
+    }
+  },
+  "/api/super/centers/{id}": {
+    "get": {
+      "tags": ["Super Coordinator"],
+      "summary": "View specific supervised center",
+      "description": "View detailed information about a specific center supervised by this super coordinator",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "Center ID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Center details retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {"type": "boolean"},
+                  "data": {
+                    "$ref": "../shared/components.json#/components/schemas/CenterForPublic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "403": {"$ref": "../shared/components.json#/components/responses/Forbidden"},
+        "404": {"$ref": "../shared/components.json#/components/responses/NotFound"},
+        "500": {"$ref": "../shared/components.json#/components/responses/InternalServerError"}
+      }
+    },
+    "put": {
+      "tags": ["Super Coordinator"],
+      "summary": "Update supervised center",
+      "description": "Update information for a center supervised by this super coordinator",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "Center ID"
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {"type": "string"},
+                "city": {"type": "string"},
+                "area": {"type": "string"},
+                "coordinatorId": {"type": "string"}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Center updated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {"type": "boolean"},
+                  "data": {
+                    "$ref": "../shared/components.json#/components/schemas/CenterForPublic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {"$ref": "../shared/components.json#/components/responses/BadRequest"},
+        "401": {"$ref": "../shared/components.json#/components/responses/Unauthorized"},
+        "403": {"$ref": "../shared/components.json#/components/responses/Forbidden"},
+        "404": {"$ref": "../shared/components.json#/components/responses/NotFound"},
+        "500": {"$ref": "../shared/components.json#/components/responses/InternalServerError"}
+      }
+    }
+  }
+}

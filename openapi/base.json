@@ -1,0 +1,159 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Game Rental System API",
+    "description": "Complete API for managing game rentals across multiple centers",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Game Rental System",
+      "email": "support@gamerental.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.gamerental.com",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Public",
+      "description": "Public endpoints (no authentication required)"
+    },
+    {
+      "name": "Authentication",
+      "description": "User registration and login"
+    },
+    {
+      "name": "User Profile",
+      "description": "User profile management"
+    },
+    {
+      "name": "User Rentals",
+      "description": "User rental operations"
+    },
+    {
+      "name": "Coordinator",
+      "description": "Center coordinator operations"
+    },
+    {
+      "name": "Super Coordinator",
+      "description": "Multi-center oversight"
+    },
+    {
+      "name": "Admin-Users",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-Games",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-Centers",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-Roles",
+      "description": "System administration"
+    },
+    {
+      "name": "Admin-System",
+      "description": "System administration"
+    }
+  ],
+  "paths": {
+    "/api/public/games": {
+      "$ref": "./public/routes.json#/~1games"
+    },
+    "/api/public/centers": {
+      "$ref": "./public/routes.json#/~1centers"
+    },
+    "/api/auth/register/email": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1register~1email"
+    },
+    "/api/auth/test-token": {
+      "$ref": "./auth/routes.json#/~1api~1auth~1test-token"
+    },
+    "/api/user": {
+      "$ref": "./user/general.json#/~1api~1user"
+    },
+    "/api/user/rentals": {
+      "$ref": "./user/rentals.json#/~1api~1user~1rentals"
+    },
+    "/api/user/rentals/{id}": {
+      "$ref": "./user/rentals.json#/~1api~1user~1rentals~1%7Bid%7D"
+    },
+    "/api/coordinator": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator"
+    },
+    "/api/coordinator/rentals": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1rentals"
+    },
+    "/api/coordinator/rentals/{id}": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1rentals~1%7Bid%7D"
+    },
+    "/api/coordinator/games": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1games"
+    },
+    "/api/coordinator/games/{id}": {
+      "$ref": "./coordinator/routes.json#/~1api~1coordinator~1games~1%7Bid%7D"
+    },
+    "/api/super/centers": {
+      "$ref": "./super/centers.json#/~1api~1super~1centers"
+    },
+    "/api/super/centers/{id}": {
+      "$ref": "./super/centers.json#/~1api~1super~1centers~1%7Bid%7D"
+    },
+    "/api/super/games": {
+      "$ref": "./super/games.json#/~1api~1super~1games"
+    },
+    "/api/super/games/{id}": {
+      "$ref": "./super/games.json#/~1api~1super~1games~1%7Bid%7D"
+    },
+    "/api/super/rentals": {
+      "$ref": "./super/rentals.json#/~1api~1super~1rentals"
+    },
+    "/api/super/rentals/{id}": {
+      "$ref": "./super/rentals.json#/~1api~1super~1rentals~1%7Bid%7D"
+    },
+    "/api/admin/users": {
+      "$ref": "./admin/users_routes.json#/~1api~1admin~1users"
+    },
+    "/api/admin/users/{id}": {
+      "$ref": "./admin/users_routes.json#/~1api~1admin~1users~1%7Bid%7D"
+    },
+    "/api/admin/centers": {
+      "$ref": "./admin/centers_routes.json#/~1api~1admin~1centers"
+    },
+    "/api/admin/centers/{id}": {
+      "$ref": "./admin/centers_routes.json#/~1api~1admin~1centers~1%7Bid%7D"
+    },
+    "/api/admin/games": {
+      "$ref": "./admin/games_routes.json#/~1api~1admin~1games"
+    },
+    "/api/admin/games/{id}": {
+      "$ref": "./admin/games_routes.json#/~1api~1admin~1games~1%7Bid%7D"
+    },
+    "/api/admin/roles": {
+      "$ref": "./admin/roles_routes.json#/~1api~1admin~1roles"
+    },
+    "/api/admin/system": {
+      "$ref": "./admin/system_routes.json#/~1api~1admin~1system"
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "$ref": "./shared/components.json#/components/securitySchemes"
+    },
+    "responses": {
+      "$ref": "./shared/components.json#/components/responses"
+    },
+    "schemas": {
+      "$ref": "./shared/components.json#/components/schemas"
+    }
+  }
+}

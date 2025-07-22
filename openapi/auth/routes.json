@@ -1,0 +1,106 @@
+{
+  "/api/auth/register/email": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Register with email/password",
+      "description": "Create new user account using email and password (US-1.3)",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/RegisterWithEmailRequest"
+            },
+            "example": {
+              "name": "John Doe",
+              "email": "john@example.com",
+              "phone": "050-1234567",
+              "password": "SecurePassword123!"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "User registered successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/UserContactInfo"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/auth/complete-google-profile": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Complete Google profile with name and phone",
+      "description": "Complete Google OAuth registration by providing required name and phone number (US-1.7)",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/CompleteGoogleProfileRequest"
+            },
+            "example": {
+              "googleId": "google_oauth_id_123",
+              "name": "John Doe",
+              "email": "john@example.com",
+              "phone": "050-1234567"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Profile completed successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/UserContactInfo"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/auth/test-token": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Generate test JWT token",
+      "description": "Generate a JWT token for API testing purposes",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "example": {
+              "email": "john@example.com"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Token generated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

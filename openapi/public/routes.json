@@ -1,0 +1,46 @@
+{
+  "/games": {
+    "get": {
+      "tags": ["Public"],
+      "summary": "Browse game catalog",
+      "description": "View all available games in the system (US-1.1)",
+      "responses": {
+        "200": {
+          "description": "List of games",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "../shared/components.json#/components/schemas/GameForPublic"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/centers": {
+    "get": {
+      "tags": ["Public"],
+      "summary": "Find nearby centers",
+      "description": "View all active centers with available games (US-1.2)",
+      "responses": {
+        "200": {
+          "description": "List of centers",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "../shared/components.json#/components/schemas/CenterForPublic"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

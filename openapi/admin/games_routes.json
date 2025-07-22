@@ -1,0 +1,383 @@
+{
+  "/api/admin/games": {
+    "get": {
+      "tags": ["Admin-Games"],
+      "summary": "Get all games",
+      "description": "Retrieve a paginated list of all games in the system",
+      "operationId": "getGames",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "description": "Page number",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "description": "Number of items per page",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        },
+        {
+          "name": "category",
+          "in": "query",
+          "description": "Filter by category",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["COMMUNICATION", "INTIMACY", "FUN", "THERAPY", "PERSONAL_DEVELOPMENT"]
+          }
+        },
+        {
+          "name": "targetAudience",
+          "in": "query",
+          "description": "Filter by target audience",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["SINGLES", "MARRIED", "GENERAL"]
+          }
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "description": "Search by name or description",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Games retrieved successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./components.json#/components/schemas/GamesResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden - admin role required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "post": {
+      "tags": ["Admin-Games"],
+      "summary": "Create a new game",
+      "description": "Create a new game in the system",
+      "operationId": "createGame",
+      "security": [{"BearerAuth": []}],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/CreateGameRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Game created successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "$ref": "./components.json#/components/schemas/GameForAdmin"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid request data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden - admin role required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/admin/games/{id}": {
+    "put": {
+      "tags": ["Admin-Games"],
+      "summary": "Update a game by ID",
+      "description": "Update an existing game by ID (passed as path parameter)",
+      "operationId": "updateGameById",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Game ID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/UpdateGameRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Game updated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "$ref": "./components.json#/components/schemas/GameForAdmin"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid request data or no valid fields to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden - admin role required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Game not found",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": ["Admin-Games"],
+      "summary": "Delete a game by ID",
+      "description": "Delete a game from the system (passed as path parameter)",
+      "operationId": "deleteGameById",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Game ID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Game deleted successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Cannot delete game with borrowed instances",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden - admin role required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Game not found",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

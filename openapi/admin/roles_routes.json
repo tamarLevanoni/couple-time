@@ -1,0 +1,93 @@
+{
+  "/api/admin/roles": {
+    "put": {
+      "tags": ["Admin-Roles"],
+      "summary": "Assign roles to user",
+      "description": "Assign or update roles for a user, including center management assignments",
+      "operationId": "assignRoles",
+      "security": [{"BearerAuth": []}],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "./components.json#/components/schemas/AssignRoleRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Roles assigned successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {"$ref": "../shared/components.json#/components/schemas/ApiResponse"},
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "$ref": "./components.json#/components/schemas/UserForAdmin"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid request data or invalid center IDs",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Access forbidden - admin role required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "User not found or managed center not found",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../shared/components.json#/components/schemas/ApiResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "/api/super/games": {
+    "post": {
+      "tags": ["Super Coordinator"],
+      "summary": "Create game instance",
+      "description": "Create a new game instance at a supervised center",
+      "security": [{"BearerAuth": []}],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["gameId", "centerId"],
+              "properties": {
+                "gameId": {"type": "string"},
+                "centerId": {"type": "string"},
+                "notes": {"type": "string"}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Game instance created successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {"type": "boolean"},
+                  "data": {
+                    "$ref": "../shared/components.json#/components/schemas/GameInstanceForCoordinator"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {"$ref": "../shared/components.json#/components/responses/BadRequest"},
+        "401": {"$ref": "../shared/components.json#/components/responses/Unauthorized"},
+        "403": {"$ref": "../shared/components.json#/components/responses/Forbidden"},
+        "404": {"$ref": "../shared/components.json#/components/responses/NotFound"},
+        "500": {"$ref": "../shared/components.json#/components/responses/InternalServerError"}
+      }
+    }
+  },
+  "/api/super/games/{id}": {
+    "put": {
+      "tags": ["Super Coordinator"],
+      "summary": "Update game instance",
+      "description": "Update a game instance at a supervised center (status, notes)",
+      "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "Game instance ID"
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["AVAILABLE", "BORROWED", "UNAVAILABLE"]
+                },
+                "notes": {"type": "string"}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Game instance updated successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {"type": "boolean"},
+                  "data": {
+                    "$ref": "../shared/components.json#/components/schemas/GameInstanceForCoordinator"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {"$ref": "../shared/components.json#/components/responses/BadRequest"},
+        "401": {"$ref": "../shared/components.json#/components/responses/Unauthorized"},
+        "403": {"$ref": "../shared/components.json#/components/responses/Forbidden"},
+        "404": {"$ref": "../shared/components.json#/components/responses/NotFound"},
+        "500": {"$ref": "../shared/components.json#/components/responses/InternalServerError"}
+      }
+    }
+  }
+}

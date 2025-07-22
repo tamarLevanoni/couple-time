@@ -1,0 +1,31 @@
+{
+  "components": {
+    "schemas": {
+      "UpdateRentalRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["approve", "cancel", "return", "extend"]
+          },
+          "borrowDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expectedReturnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": ["action"]
+      }
+    }
+  }
+}

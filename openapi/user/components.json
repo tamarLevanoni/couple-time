@@ -1,0 +1,88 @@
+{
+  "components": {
+    "schemas": {
+      "UpdateUserProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateRentalRequest": {
+        "type": "object",
+        "properties": {
+          "centerId": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+$",
+            "description": "ID of the center where games will be borrowed from"
+          },
+          "gameInstanceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+$"
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "uniqueItems": true,
+            "description": "Array of unique game instance IDs to rent (all must belong to the specified center)"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Optional notes for the rental request"
+          }
+        },
+        "required": ["centerId", "gameInstanceIds"],
+        "additionalProperties": false,
+        "description": "Request to create a new rental. All game instances must belong to the specified center."
+      },
+      "UpdateRentalRequest": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["cancel"],
+            "description": "Action to perform on the rental. Currently only 'cancel' is supported."
+          },
+          "gameInstanceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+$"
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "uniqueItems": true,
+            "description": "Array of unique game instance IDs to update the rental with (all must belong to the same center as original rental)"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Optional notes for the rental update"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request to update a pending rental. Can cancel rental, change games, or update notes. Only pending rentals can be updated.",
+        "anyOf": [
+          {
+            "required": ["action"],
+            "properties": {
+              "action": {"const": "cancel"}
+            }
+          },
+          {
+            "required": ["gameInstanceIds"]
+          },
+          {
+            "required": ["notes"]
+          }
+        ]
+      }
+    }
+  }
+}
