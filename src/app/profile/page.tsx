@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,8 +63,6 @@ export default function ProfilePage() {
   const router = useRouter();
   const { isLoading, updateProfile, error } = useUserStore();
   const { loadUserRentals } = useRentalsStore();
-  const { loadGames } = useGamesStore();
-  const { loadCenters } = useCentersStore();
   
   // User data hooks
   const userProfile = useUserProfile();
@@ -91,10 +88,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (session) {
       loadUserRentals();
-      loadGames();
-      loadCenters();
     }
-  }, [session, loadUserRentals, loadGames, loadCenters]);
+  }, [session, loadUserRentals]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -155,7 +150,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <MainLayout>
+    
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -424,6 +419,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </MainLayout>
+    
   );
 }

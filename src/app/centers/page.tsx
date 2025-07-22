@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { ErrorPage } from '@/components/ui/error';
 import { Button } from '@/components/ui/button';
@@ -33,11 +32,6 @@ export default function CentersPage() {
   const [selectedArea, setSelectedArea] = useState<Area | ''>('');
   const [selectedCity, setSelectedCity] = useState('');
   
-  // Data is loaded globally by DataProvider - no need to load here
-  // Only check once on mount
-  useEffect(() => {
-    if (centers.length === 0) loadCenters();
-  }, []); // Empty dependency array - only run once
   
   // Handle filter changes - debounced search
   useEffect(() => {
@@ -75,7 +69,7 @@ export default function CentersPage() {
 
   if (error) {
     return (
-      <MainLayout>
+      
         <ErrorPage 
           message={error} 
           action={{
@@ -83,12 +77,12 @@ export default function CentersPage() {
             onClick: loadCenters
           }}
         />
-      </MainLayout>
+      
     );
   }
 
   return (
-    <MainLayout>
+    
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -283,7 +277,7 @@ export default function CentersPage() {
           </div>
         )}
       </div>
-    </MainLayout>
+    
   );
 }
 

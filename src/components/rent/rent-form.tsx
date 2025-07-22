@@ -22,8 +22,8 @@ export function RentForm() {
   const { data: session, status } = useSession();
   
   // Store hooks
-  const { games, loadGames, isLoading: gamesLoading, error: gamesError } = useGamesStore();
-  const { centers, loadCenters, isLoading: centersLoading, error: centersError } = useCentersStore();
+  const { games, isLoading: gamesLoading, error: gamesError } = useGamesStore();
+  const { centers, isLoading: centersLoading, error: centersError } = useCentersStore();
   const { createRental, isSubmitting, error: rentalError } = useRentalsStore();
   const { openAuthPopup } = useAuthStore();
   
@@ -70,12 +70,6 @@ export function RentForm() {
     }
   }, [searchParams, games.length, centers.length]);
   
-  // Data is loaded globally by DataProvider - no need to load here
-  // Only check once on mount
-  useEffect(() => {
-    if (games.length === 0) loadGames();
-    if (centers.length === 0) loadCenters();
-  }, []); // Empty dependency array - only run once
   
   // Get selected objects - use useMemo to ensure proper updates
   const selectedGames = useMemo(() => {

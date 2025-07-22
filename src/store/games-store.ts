@@ -1,6 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 import type { GameBasic, GameCategory, TargetAudience } from '@/types';
 
@@ -27,18 +28,21 @@ interface GamesActions {
 
 type GamesStore = GamesState & GamesActions;
 
-export const useGamesStore = create<GamesStore>((set, get) => ({
-  games: [],
-  selectedCategories: [],
-  selectedAudiences: [],
-  selectedIds: [],
-  searchTerm: '',
-  isLoading: false,
-  error: null,
-  hasLoaded: false,
+export const useGamesStore = create<GamesStore>()(
+  persist(
+    (set, get) => ({
+      games: [],
+      selectedCategories: [],
+      selectedAudiences: [],
+      selectedIds: [],
+      searchTerm: '',
+      isLoading: false,
+      error: null,
+      hasLoaded: false,
 
   loadGames: async () => {
     // Only load if not already loaded
+    console.log("hasLoaded", get().hasLoaded)
     if (get().hasLoaded) {
       return;
     }
@@ -86,7 +90,16 @@ export const useGamesStore = create<GamesStore>((set, get) => ({
     selectedIds: [], 
     searchTerm: '' 
   }),
-}));
+}),
+{
+  name: 'games-store',
+  partialize: (state) => ({ 
+    games: state.games, 
+    hasLoaded: state.hasLoaded 
+  }),
+}
+)
+);
 
 // Atomic selectors - more efficient than useShallow
 export const useGames = () => useGamesStore(state => state.games);

@@ -2,7 +2,6 @@
 
 import { Suspense } from 'react';
 import { useSession } from 'next-auth/react';
-import { MainLayout } from '@/components/layout/main-layout';
 import { LoadingPage } from '@/components/ui/loading';
 import { ErrorPage } from '@/components/ui/error';
 import { Card } from '@/components/ui/card';
@@ -30,7 +29,7 @@ function MyRentalsPageContent() {
   // Redirect to login if not authenticated
   if (status === 'unauthenticated' || !session) {
     return (
-      <MainLayout>
+      
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <Card className="p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -58,13 +57,13 @@ function MyRentalsPageContent() {
             </div>
           </Card>
         </div>
-      </MainLayout>
+      
     );
   }
 
   if (error) {
     return (
-      <MainLayout>
+      
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ErrorPage 
             message={error} 
@@ -74,12 +73,12 @@ function MyRentalsPageContent() {
             }}
           />
         </div>
-      </MainLayout>
+      
     );
   }
 
   return (
-    <MainLayout>
+    
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -94,7 +93,7 @@ function MyRentalsPageContent() {
           <MyRentalsContent />
         </Suspense>
       </div>
-    </MainLayout>
+    
   );
 }
 

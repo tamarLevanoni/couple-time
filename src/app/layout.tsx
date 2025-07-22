@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Heebo, Assistant } from "next/font/google";
 import { ClientProviders } from "@/components/providers/client-providers";
 import { DataProvider } from "@/components/providers/data-provider";
+import { Header } from "@/components/layout/header";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -29,11 +30,14 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body
-        className={`${heebo.variable} ${assistant.variable} font-hebrew antialiased`}
+        className={`${heebo.variable} ${assistant.variable} font-hebrew antialiased min-h-screen flex flex-col`}
       >
         <ClientProviders>
           <DataProvider>
-            {children}
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
           </DataProvider>
         </ClientProviders>
       </body>

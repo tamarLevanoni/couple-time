@@ -23,8 +23,8 @@ export function GamesContent() {
   // Store hooks
   const games = useGames();
   const { isLoading: gamesLoading, error: gamesError } = useGamesStore();
-  const { loadGames, setIds, setSearch, setCategories, clearFilters } = useGamesActions();
-  const { centers, loadCenters, isLoading: centersLoading } = useCentersStore();
+  const { setIds, setSearch, setCategories, clearFilters } = useGamesActions();
+  const { centers, isLoading: centersLoading } = useCentersStore();
   const filteredGames = useFilteredGames();
   const availableCategories = useAvailableCategories();
   
@@ -44,13 +44,6 @@ export function GamesContent() {
     }
   }, [searchParams, centers.length]);
 
-  // Data is loaded globally by DataProvider - no need to load here
-  // Only check once on mount
-  useEffect(() => {
-    if (games.length === 0) loadGames();
-    if (centers.length === 0) loadCenters();
-  }, []); // Empty dependency array - only run once
-  
   // Update filters when local state changes
   useEffect(() => {
     setSearch(searchTerm);
