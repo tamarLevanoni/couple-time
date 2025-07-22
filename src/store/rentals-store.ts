@@ -24,11 +24,15 @@ interface RentalsState {
   
   // Error states
   error: string | null;
+  
+  // Caching
+  hasLoaded: boolean;
 }
 
 interface RentalsActions {
   // User rental actions (US-1.3: Request Rental, US-1.4: Manage My Rentals)
   loadUserRentals: () => Promise<void>;
+  forceReloadUserRentals: () => Promise<void>;
   createRental: (data: CreateRentalInput) => Promise<void>;
   cancelRental: (rentalId: string) => Promise<void>;
   filterByStatus: (status: RentalStatus | 'ALL') => void;
@@ -48,9 +52,15 @@ export const useRentalsStore = create<RentalsStore>()(
       isLoading: false,
       isSubmitting: false,
       error: null,
+      hasLoaded: false,
 
       // User rental actions
       loadUserRentals: async () => {
+        // Only load if not already loaded
+        if (get().hasLoaded) {
+          return;
+        }
+        
         set({ isLoading: true, error: null }, false, 'loadUserRentals/start');
 
         try {
@@ -63,7 +73,8 @@ export const useRentalsStore = create<RentalsStore>()(
 
           set({ 
             userRentals: result.data,
-            isLoading: false 
+            isLoading: false,
+            hasLoaded: true
           }, false, 'loadUserRentals/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to load rentals';
@@ -71,6 +82,31 @@ export const useRentalsStore = create<RentalsStore>()(
             error: message,
             isLoading: false 
           }, false, 'loadUserRentals/error');
+        }
+      },
+
+      forceReloadUserRentals: async () => {
+        set({ isLoading: true, error: null, hasLoaded: false }, false, 'forceReloadUserRentals/start');
+
+        try {
+          const response = await fetch('/api/user/rentals');
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.error?.message || 'Failed to load rentals');
+          }
+
+          set({ 
+            userRentals: result.data,
+            isLoading: false,
+            hasLoaded: true
+          }, false, 'forceReloadUserRentals/success');
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to load rentals';
+          set({ 
+            error: message,
+            isLoading: false 
+          }, false, 'forceReloadUserRentals/error');
         }
       },
 
@@ -91,7 +127,7 @@ export const useRentalsStore = create<RentalsStore>()(
           }
 
           // Reload rentals to get fresh data
-          await get().loadUserRentals();
+          await get().forceReloadUserRentals();
           
           set({ isSubmitting: false }, false, 'createRental/success');
         } catch (error) {

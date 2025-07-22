@@ -143,3 +143,11 @@ export const useAvailableCities = () => {
     return Array.from(cities).sort();
   }));
 };
+
+// Utility hook to find a center by ID
+export const useCenterById = (centerId: string | undefined) => {
+  return useCentersStore((state) => {
+    if (!centerId) return null;
+    return state.centers.find(center => center.id === centerId) || null;
+  });
+};

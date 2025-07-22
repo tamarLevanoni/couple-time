@@ -16,8 +16,7 @@ import {
   useCentersStore, 
   useGamesActions,
   useGames,
-  useAvailableCategories,
-  useAvailableAudiences 
+  useAvailableCategories
 } from '@/store';
 import { GameBasic, GameCategory, TargetAudience, CenterPublicInfo, GameInstanceStatus } from '@/types';
 
@@ -53,7 +52,7 @@ export default function GamesPage() {
   useEffect(() => {
     if (games.length === 0) loadGames();
     if (centers.length === 0) loadCenters();
-  }, []); // Empty dependency array - only run once
+  }, [games.length, centers.length, loadGames, loadCenters]);
 
   // Handle center selection - this triggers availability display
   useEffect(() => {
@@ -66,7 +65,7 @@ export default function GamesPage() {
       setIds([]);
       setShowAvailability(false);
     }
-  }, [selectedCenter]); // Remove centers and setIds from deps
+  }, [selectedCenter, centers, setIds]);
 
   // Handle search - debounced
   useEffect(() => {
@@ -75,12 +74,12 @@ export default function GamesPage() {
     }, 300); // 300ms debounce
     
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [searchTerm, setSearch]);
 
   // Handle category filter
   useEffect(() => {
     setCategories(selectedCategory ? [selectedCategory] : []);
-  }, [selectedCategory]);
+  }, [selectedCategory, setCategories]);
 
   // Clear all filters
   const handleClearFilters = () => {
@@ -344,7 +343,7 @@ function GameAvailabilityDisplay({
       )}
       
       <div className="text-xs text-gray-500">
-        סה"כ {gameInstances.length} עותק{gameInstances.length > 1 ? 'ים' : ''} במוקד
+        סה&quot;כ {gameInstances.length} עותק{gameInstances.length > 1 ? 'ים' : ''} במוקד
       </div>
     </div>
   );

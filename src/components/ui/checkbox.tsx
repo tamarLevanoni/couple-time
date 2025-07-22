@@ -5,17 +5,17 @@ interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'typ
   label?: ReactNode;
   error?: string;
   helper?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: number | undefined;
 }
 
-const sizes = {
-  sm: 'h-3 w-3',
-  md: 'h-4 w-4',
-  lg: 'h-5 w-5',
+const sizes: Record<number, string> = {
+  12: 'h-3 w-3',
+  16: 'h-4 w-4', 
+  20: 'h-5 w-5',
 };
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, error, helper, size = 'md', className, ...props }, ref) => {
+  ({ label, error, helper, size = 16, className, ...props }, ref) => {
     const hasError = !!error;
 
     return (
@@ -29,7 +29,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               'focus:border-primary focus:ring-primary focus:ring-1',
               'disabled:cursor-not-allowed disabled:bg-gray-50',
               hasError && 'border-red-300 focus:border-red-500 focus:ring-red-500',
-              sizes[size],
+              sizes[size] || `h-[${size}px] w-[${size}px]`,
               className
             )}
             {...props}

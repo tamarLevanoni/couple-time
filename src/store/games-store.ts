@@ -174,3 +174,11 @@ export const useAvailableAudiences = () => {
   });
   return Array.from(audiences);
 };
+
+// Utility hook to find a game by ID
+export const useGameById = (gameId: string | undefined) => {
+  return useGamesStore((state) => {
+    if (!gameId) return null;
+    return state.games.find(game => game.id === gameId) || null;
+  });
+};
