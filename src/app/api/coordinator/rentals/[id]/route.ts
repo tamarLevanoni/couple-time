@@ -77,7 +77,7 @@ async function updateGameInstanceStatuses(rental: any) {
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 1. Auth - Extract user from JWT token
     const token = await getToken({ req });

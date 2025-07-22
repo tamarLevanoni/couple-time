@@ -165,14 +165,14 @@ function cleanUpdateData(updateData: any) {
  * Retrieves detailed information about a specific center supervised by the super coordinator
  * Returns center details, game instances, rentals, and statistics
  */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await validateSuperCoordinatorAuth(req);
     if (authResult.error) {
       return authResult.error;
     }
 
-    const { id } = params;
+    const { id } = await params;
     const center = await fetchSupervisedCenter(id, authResult.token!.id);
 
     if (!center) {
@@ -192,14 +192,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
  * Updates a center's information (name, city, area, coordinator)
  * Only super coordinators can update centers they supervise
  */
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await validateSuperCoordinatorAuth(req);
     if (authResult.error) {
       return authResult.error;
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const updateData = updateCenterSchema.parse(body);
 

@@ -162,9 +162,9 @@ async function updateRentalNotes(rentalId: string, notes?: string) {
  * @param params - Route parameters containing the rental ID
  * @returns API response with updated rental data or error
  */
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { action, notes, gameInstanceIds } = UpdateByUserRentalSchema.parse(body);
 

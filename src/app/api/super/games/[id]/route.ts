@@ -117,14 +117,14 @@ async function updateGameInstanceData(gameInstanceId: string, updateData: any) {
  * Updates a game instance (status, notes) at a center supervised by the super coordinator
  * Validates that the game instance can be updated based on current rental status
  */
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await validateSuperCoordinatorAuth(req);
     if (authResult.error) {
       return authResult.error;
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const updateData = UpdateGameInstancePartialSchema.parse(body);
 

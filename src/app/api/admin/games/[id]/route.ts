@@ -8,7 +8,7 @@ import { assertAdminRole } from '@/lib/permissions';
 
 const updateGameSchema = UpdateGameSchema;
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = await getToken({ req }) as JWT | null;
     if (!token) {
@@ -18,7 +18,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     // Verify user is an admin
     await assertAdminRole(token);
 
-    const { id: gameId } = params;
+    const { id: gameId } = await params;
     const body = await req.json();
     const updateData = updateGameSchema.parse(body);
 
@@ -58,7 +58,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = await getToken({ req }) as JWT | null;
     if (!token) {
@@ -68,7 +68,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Verify user is an admin
     await assertAdminRole(token);
 
-    const { id: gameId } = params;
+    const { id: gameId } = await params;
 
     // Check if game exists
     const game = await prisma.game.findUnique({

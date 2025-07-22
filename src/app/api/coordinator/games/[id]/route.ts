@@ -7,14 +7,14 @@ import { UpdateGameInstancePartialSchema } from '@/lib/validations';
 import { GAME_INSTANCE_WITH_CENTER, GAME_INSTANCE_WITH_CENTER_AND_ACTIVE_RENTALS } from '@/types/models';
 import { AccessDeniedError, assertGameInstanceAccess, ResourceNotFoundError } from '@/lib/permissions';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = await getToken({ req }) as JWT | null;
     if (!token) {
       return apiResponse(false, null, { message: 'Authentication required' }, 401);
     }
     
-    const { id } = params;
+    const { id } = await params;
 
     const body = await req.json();
     const updateData = UpdateGameInstancePartialSchema.parse(body);

@@ -119,14 +119,14 @@ async function updateGameInstanceStatuses(rental: any, newStatus: string) {
  * Updates a rental's status and/or notes for rentals at supervised centers
  * Automatically updates game instance statuses and sets appropriate timestamps
  */
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await validateSuperCoordinatorAuth(req);
     if (authResult.error) {
       return authResult.error;
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { status, notes } = UpdateRentalByCoordinatorSchema.parse(body);
 

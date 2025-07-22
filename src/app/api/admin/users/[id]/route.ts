@@ -7,7 +7,7 @@ import { UpdateUserSchema } from '@/lib/validations';
 import { USERS_FOR_ADMIN } from '@/types/models';
 import { assertAdminRole } from '@/lib/permissions';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = await getToken({ req }) as JWT | null;
     if (!token) {
@@ -17,7 +17,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     // Verify user is an admin
     await assertAdminRole(token);
 
-    const { id: userId } = params;
+    const { id: userId } = await params;
     const body = await req.json();
     const updateData = UpdateUserSchema.parse(body);
 
@@ -58,7 +58,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = await getToken({ req }) as JWT | null;
     if (!token) {
@@ -68,7 +68,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Verify user is an admin
     await assertAdminRole(token);
 
-    const { id: userId } = params;
+    const { id: userId } = await params;
 
     // Check if user exists
     const user = await prisma.user.findUnique({
