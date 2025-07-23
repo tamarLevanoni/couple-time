@@ -1,17 +1,11 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { apiResponse } from '@/lib/api-response';
-import { z } from 'zod';
+import { CompleteGoogleProfileSchema } from '@/lib/validations';
 import { Role } from '@prisma/client';
 import { USER_CONTACT_FIELDS } from '@/types';
 import { getToken, JWT } from 'next-auth/jwt';
-
-const CompleteGoogleProfileSchema = z.object({
-  googleId: z.string().min(1, 'Google ID is required'),
-  name: z.string().min(1, 'Name is required').max(100),
-  email: z.string().email('Invalid email format'),
-  phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
-});
+import z from 'zod';
 
 export async function OPTIONS() {
   return apiResponse(true, null);
@@ -26,11 +20,10 @@ export async function PUT(req: NextRequest) {
     }
     
     const body = await req.json();
-    const { name, phone } =body;
-    // const { googleId, name, email, phone } = CompleteGoogleProfileSchema.parse(body);
+    const { firstName, lastName, phone } = CompleteGoogleProfileSchema.parse(body);
 
-    if (!name || !phone) {
-      return apiResponse( false,null,{ message:'Missing fields' }, 400);
+    if (!firstName || !lastName || !phone) {
+      return apiResponse(false, null, { message: 'Missing fields' }, 400);
     }
 
     // Check if user already exists by email
@@ -43,11 +36,12 @@ export async function PUT(req: NextRequest) {
     }
 
 
-    // Create user with Google OAuth
+    // Update user with Google OAuth
     const user = await prisma.user.update({
-      where:{id:token.id},
+      where: { id: token.id },
       data: {
-        name,
+        firstName,
+        lastName,
         phone,
         isActive: true,
       },

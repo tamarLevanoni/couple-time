@@ -23,7 +23,7 @@ interface UserState {
 interface UserActions {
   // User data management
   loadUserData: () => Promise<void>;
-  updateProfile: (data: { name?: string; phone?: string }) => Promise<void>;
+  updateProfile: (data: { firstName?: string; lastName?: string; phone?: string }) => Promise<void>;
   clearUser: () => void;
   setError: (error: string | null) => void;
 }
@@ -91,7 +91,8 @@ export const useUserStore = create<UserStore>()(
           set({ 
             user: { 
               ...user, 
-              name: result.data.name || user.name,
+              firstName: result.data.firstName || user.firstName,
+              lastName: result.data.lastName || user.lastName,
               phone: result.data.phone || user.phone
             },
             isLoading: false 
@@ -140,7 +141,8 @@ export const useUserProfile = () => {
     if (!state.user) return null;
     return {
       id: state.user.id,
-      name: state.user.name,
+      firstName: state.user.firstName,
+      lastName: state.user.lastName,
       email: state.user.email,
       phone: state.user.phone,
       createdAt: state.user.createdAt,

@@ -4,6 +4,7 @@ import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { CreateManualRentalInput, CreateManualRentalSchema, RentalStatusSchema } from '@/lib/validations';
+import { createUserNameSearchConditions } from '@/lib/utils';
 import { RENTAL_FOR_COORDINATOR } from '@/types/models';
 import { AccessDeniedError, ResourceNotFoundError } from '@/lib/permissions';
 
@@ -19,7 +20,9 @@ export async function GET(req: NextRequest) {
     
     // Parse filters from query parameters
     const status = searchParams.get('status');
-    const search = searchParams.get('search');
+    const firstName = searchParams.get('firstName');
+    const lastName = searchParams.get('lastName');
+    const notes = searchParams.get('notes');
     
     // Build where clause with coordinator access and filters
     const whereClause: any = {
@@ -33,24 +36,31 @@ export async function GET(req: NextRequest) {
       whereClause.status = status;
     }
 
-    // Add search filter if provided (search in user name or notes)
-    if (search) {
-      whereClause.OR = [
-        {
-          user: {
-            name: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
+    // Add search filter if provided (search in user firstName, lastName or notes)
+    if (firstName || lastName || notes) {
+      const conditions = [];
+      
+      // Add name search conditions
+      if (firstName || lastName) {
+        const userData = {
+          firstName: firstName ?? undefined,
+          lastName: lastName ?? undefined,
+        };
+        const userNameConditions = createUserNameSearchConditions(userData);
+        conditions.push(...userNameConditions.map(condition => ({ user: condition })));
+      }
+      
+      // Add notes search condition
+      if (notes) {
+        conditions.push({
           notes: {
-            contains: search,
+            contains: notes,
             mode: 'insensitive',
           },
-        },
-      ];
+        });
+      }
+      
+      whereClause.OR = conditions;
     }
 
     // Single query with embedded access control

@@ -19,3 +19,26 @@ export function formatUserName(firstName?: string | null, lastName?: string | nu
   if (!lastName) return firstName || 'Unknown User';
   return `${firstName} ${lastName}`;
 }
+
+/**
+ * Creates Prisma where conditions for searching users by firstName and/or lastName
+ * More precise than single field search - users can search by specific name parts
+ */
+export function createUserNameSearchConditions({firstName, lastName}:{firstName?: string, lastName?: string}) {
+  const conditions = [];
+  
+  if (firstName?.trim()) {
+    conditions.push({ 
+      firstName: { contains: firstName.trim(), mode: 'insensitive' as const } 
+    });
+  }
+  
+  if (lastName?.trim()) {
+    conditions.push({ 
+      lastName: { contains: lastName.trim(), mode: 'insensitive' as const } 
+    });
+  }
+  
+  return conditions;
+}
+

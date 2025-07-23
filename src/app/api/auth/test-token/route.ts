@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
 
     const tokenPayload = {
       sub: user.id,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       id: user.id,
       roles: user.roles,
@@ -52,7 +53,8 @@ export async function POST(req: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         roles: user.roles
       }
     });

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { CreateUserSchema, UpdateUserSchema } from '@/lib/validations';
+import { createUserNameSearchConditions } from '@/lib/utils';
 import { USERS_FOR_ADMIN } from '@/types/models';
 import { assertAdminRole } from '@/lib/permissions';
 
@@ -23,7 +24,9 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const role = searchParams.get('role');
-    const search = searchParams.get('search');
+    const firstName = searchParams.get('firstName');
+    const lastName = searchParams.get('lastName');
+    const email = searchParams.get('email');
     const includeInactive = searchParams.get('includeInactive') === 'true';
     const offset = (page - 1) * limit;
 
@@ -33,11 +36,26 @@ export async function GET(req: NextRequest) {
       where.roles = { has: role };
     }
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-      ];
+    // Handle specific field searches only (firstName, lastName, email)
+    if (firstName || lastName || email) {
+      const conditions = [];
+      
+      // Add name search conditions
+      if (firstName || lastName) {
+        const userData = {
+          firstName: firstName ?? undefined,
+          lastName: lastName ?? undefined,
+        };
+        const userNameConditions = createUserNameSearchConditions(userData);
+        conditions.push(...userNameConditions);
+      }
+      
+      // Add email search condition
+      if (email) {
+        conditions.push({ email: { contains: email, mode: 'insensitive' } });
+      }
+      
+      where.OR = conditions;
     }
 
     // By default, only show active users unless explicitly requested

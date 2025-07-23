@@ -4,6 +4,7 @@ import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 import { CreateManualRentalSchema } from '@/lib/validations';
+import { createUserNameSearchConditions } from '@/lib/utils';
 import { RENTALS_FOR_SUPER_COORDINATOR } from '@/types/models';
 
 /**
@@ -31,7 +32,7 @@ async function validateSuperCoordinatorAuth(req: NextRequest) {
  * @param search - Optional search term for user name or rental notes
  * @returns Prisma where clause object
  */
-function buildRentalsWhereClause(token: JWT, status?: string | null, search?: string | null) {
+function buildRentalsWhereClause(token: JWT, status?: string | null, firstName?: string | null, lastName?: string | null, notes?: string | null) {
   const whereClause: any = {
     gameInstances: {
       some: {
@@ -46,23 +47,31 @@ function buildRentalsWhereClause(token: JWT, status?: string | null, search?: st
     whereClause.status = status;
   }
 
-  if (search) {
-    whereClause.OR = [
-      {
-        user: {
-          name: {
-            contains: search,
-            mode: 'insensitive',
-          },
-        },
-      },
-      {
+  // Handle specific field searches only (firstName, lastName, notes)
+  if (firstName || lastName || notes) {
+    const conditions = [];
+    
+    // Add name search conditions
+    if (firstName || lastName) {
+      const userData = {
+        firstName: firstName ?? undefined,
+        lastName: lastName ?? undefined,
+      };
+      const userNameConditions = createUserNameSearchConditions(userData);
+      conditions.push(...userNameConditions.map(condition => ({ user: condition })));
+    }
+    
+    // Add notes search condition
+    if (notes) {
+      conditions.push({
         notes: {
-          contains: search,
+          contains: notes,
           mode: 'insensitive',
         },
-      },
-    ];
+      });
+    }
+    
+    whereClause.OR = conditions;
   }
 
   return whereClause;
@@ -202,9 +211,11 @@ export async function GET(req: NextRequest) {
     
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
-    const search = searchParams.get('search');
+    const firstName = searchParams.get('firstName');
+    const lastName = searchParams.get('lastName');
+    const notes = searchParams.get('notes');
     
-    const whereClause = buildRentalsWhereClause(authResult.token!, status, search);
+    const whereClause = buildRentalsWhereClause(authResult.token!, status, firstName, lastName, notes);
     const rentals = await fetchSupervisedRentals(whereClause);
 
     return apiResponse(true, rentals);

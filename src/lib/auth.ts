@@ -41,7 +41,8 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           roles: user.roles,
         };
       },
@@ -73,11 +74,13 @@ export const authOptions: NextAuthOptions = {
             console.log('✅ Existing Google user signed in', { userId: existingUser.id });
             return true;
           } else {
+            const name=user.name?.split(" ")||[];
             // Create new user record immediately
             const newUser = await prisma.user.create({
               data: {
                 email: user.email!,
-                name: profile?.name || '', // May be empty - will trigger profile completion
+                firstName: name[0] || '', // May be empty - will trigger profile completion
+                lastName: name[1] || '',
                 phone:'',
                 googleId: account.providerAccountId,
                 roles: [], // No roles until profile is completed
@@ -88,7 +91,7 @@ export const authOptions: NextAuthOptions = {
             user.needsProfileCompletion=true;
             user.id=newUser.id;
             user.googleId=account.providerAccountId;
-            console.log('🆕 New Google user created', { userId: newUser.id, needsProfile: !newUser.name || !newUser.phone });
+            console.log('🆕 New Google user created', { userId: newUser.id });
             return true;
           }
         } catch (error) {
@@ -105,7 +108,8 @@ export const authOptions: NextAuthOptions = {
         // User object from credentials provider
         token.id=user.id;
         token.email=user.email;
-        token.name=user.name;
+        token.firstName=user.firstName;
+        token.lastName=user.lastName;
         token.googleId=user.googleId;
         token.roles=user.roles;
         token.needsProfileCompletion=user.needsProfileCompletion;
@@ -116,7 +120,8 @@ export const authOptions: NextAuthOptions = {
           select: { 
             id: true,
             email: true, 
-            name: true,
+            firstName: true,
+            lastName: true,
             phone: true,
             roles: true,
             isActive: true,
@@ -128,7 +133,8 @@ export const authOptions: NextAuthOptions = {
           console.log('🔄 Fetched user data for token', { userId: dbUser.id });
           token.id = dbUser.id;
           token.email = dbUser.email;
-          token.name = dbUser.name;
+          token.firstName = dbUser.firstName;
+          token.lastName = dbUser.lastName;
           token.roles = dbUser.roles;
           token.googleId = dbUser.googleId ? dbUser.googleId : undefined;
           
@@ -155,7 +161,8 @@ export const authOptions: NextAuthOptions = {
       // Ensure session follows the JWT interface
       session.user.id = token.id;
       session.user.email = token.email;
-      session.user.name = token.name;
+      session.user.firstName = token.firstName;
+      session.user.lastName = token.lastName;
       session.user.roles = token.roles;
       session.user.needsProfileCompletion = token.needsProfileCompletion;
       session.user.googleId = token.googleId;

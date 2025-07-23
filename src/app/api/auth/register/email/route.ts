@@ -14,7 +14,7 @@ export async function OPTIONS() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password, name, phone } = RegisterWithEmailSchema.parse(body);
+    const { email, password, firstName, lastName, phone } = RegisterWithEmailSchema.parse(body);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         password: hashedPassword,
-        name,
+        firstName,
+        lastName,
         phone,
         isActive: true,
       },

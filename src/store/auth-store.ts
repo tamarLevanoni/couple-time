@@ -23,7 +23,7 @@ interface AuthActions {
   setError: (error: string | null) => void;
   logout: () => Promise<void>;
   setNeedsProfileCompletion: (v: boolean) => void;
-  completeProfile: (data: { name: string; phone: string }) => Promise<void>;
+  completeProfile: (data: { firstName: string; lastName: string; phone: string }) => Promise<void>;
   openAuthPopup: (mode: AuthPopupMode) => void;
   closeAuthPopup: () => void;
   setAuthPopupMode: (mode: AuthPopupMode) => void;
@@ -54,11 +54,11 @@ export const useAuthStore = create<AuthStore>()(
 
       setNeedsProfileCompletion: (v) => set({ needsProfileCompletion: v }),
 
-      completeProfile: async ({ name, phone }) => {
+      completeProfile: async ({ firstName, lastName, phone }) => {
         const res = await fetch('/api/auth/complete-google-profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, phone }),
+          body: JSON.stringify({ firstName, lastName, phone }),
         });
     
         const result = await res.json();
