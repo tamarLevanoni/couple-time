@@ -54,7 +54,8 @@ export async function GET(req: NextRequest) {
           coordinator: {
             select: {
               id: true,
-              name: true,
+              firstName: true,
+              lastName: true,
               email: true,
               phone: true,
             },
@@ -62,7 +63,8 @@ export async function GET(req: NextRequest) {
           superCoordinator: {
             select: {
               id: true,
-              name: true,
+              firstName: true,
+              lastName: true,
               email: true,
               phone: true,
             },
@@ -147,7 +149,8 @@ export async function POST(req: NextRequest) {
         coordinator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },
@@ -155,7 +158,8 @@ export async function POST(req: NextRequest) {
         superCoordinator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },

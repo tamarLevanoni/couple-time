@@ -1,0 +1,1 @@
+export { CoordinatorDashboard } from './coordinator-dashboard';

@@ -5,8 +5,8 @@ import { devtools } from 'zustand/middleware';
 import type { 
   GameWithInstances,
   CenterWithCoordinator,
-  UserContact,
-  Role
+  Role,
+  UserForAdmin
 } from '@/types';
 import type {
   CreateGameInput,
@@ -26,7 +26,7 @@ interface AdminState {
   centers: CenterWithCoordinator[];
   
   // Users management (US-4.1: Manage Users)
-  users: UserContact[];
+  users: UserForAdmin[];
   
   // System statistics (US-4.4: Reports and Statistics)
   systemStats: any | null;

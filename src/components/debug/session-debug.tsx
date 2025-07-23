@@ -1,5 +1,6 @@
 'use client';
 
+import { formatUserName } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 
 export function SessionDebug() {
@@ -17,7 +18,7 @@ export function SessionDebug() {
         <div>
           <div>ID: {session.user?.id || 'none'}</div>
           <div>Email: {session.user?.email || 'none'}</div>
-          <div>Name: {session.user?.name || 'none'}</div>
+          <div>Name: {formatUserName(session.user?.firstName,session.user?.lastName) || 'none'}</div>
           <div>Needs Profile: {session.user?.needsProfileCompletion ? 'YES' : 'NO'}</div>
           <div>Google ID: {session.user?.googleId || 'none'}</div>
           <div>Roles: {session.user?.roles?.length || 0}</div>

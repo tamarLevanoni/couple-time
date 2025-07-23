@@ -22,6 +22,7 @@ import {
   useCanCancelRental
 } from '@/store';
 import { RentalStatus, RentalForUser } from '@/types';
+import { formatUserName } from '@/lib/utils';
 
 export function MyRentalsContent() {
   const router = useRouter();
@@ -283,7 +284,7 @@ const RentalCard = memo(({
                 <div className="flex items-center space-x-2 space-x-reverse">
                   <Phone className="h-4 w-4" />
                   <span>
-                    רכז: {rental.center.coordinator.name}
+                    רכז: {formatUserName(rental.center.coordinator.firstName,rental.center.coordinator.lastName) }
                     {rental.center.coordinator.phone && 
                       ` - ${rental.center.coordinator.phone}`
                     }

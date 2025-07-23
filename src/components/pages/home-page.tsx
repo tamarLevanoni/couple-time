@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { formatUserName } from '@/lib/utils';
 import { LoadingPage } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Shield } from '@/components/icons';
@@ -36,7 +37,7 @@ export function HomePage() {
               {session ? (
                 <div className="space-y-4 text-center">
                   <p className="text-lg text-gray-700">
-                    שלום {userProfile?.name || session.user.name}! 👋
+                    שלום {userProfile ? formatUserName(userProfile.firstName, userProfile.lastName) : formatUserName(session.user.firstName, session.user.lastName)}! 👋
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button size="lg">

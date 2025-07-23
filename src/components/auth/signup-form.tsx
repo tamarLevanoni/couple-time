@@ -8,10 +8,12 @@ import { Card } from '@/components/ui/card';
 import { GoogleIcon } from '@/components/icons';
 import { useAuthStore } from '@/store/auth-store';
 import { handleGoogleOAuth } from '@/lib/google-oauth';
+import { RegisterWithEmailInput } from '@/lib/validations';
 
 export function SignupForm() {
-  const [formData, setFormData] = useState({
-    name: '',
+  const [formData, setFormData] = useState<RegisterWithEmailInput>({
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     phone: ''
@@ -88,19 +90,35 @@ export function SignupForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            שם מלא
-          </label>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            placeholder="הכניסו את השם המלא שלכם"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+              שם פרטי
+            </label>
+            <Input
+              id="firstName"
+              name="firstName"
+              type="text"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              placeholder="שם פרטי"
+            />
+          </div>
+          <div>
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+              שם משפחה
+            </label>
+            <Input
+              id="lastName"
+              name="lastName"
+              type="text"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              placeholder="שם משפחה"
+            />
+          </div>
         </div>
 
         <div>

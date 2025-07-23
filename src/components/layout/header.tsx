@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
+import { formatUserName } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useHasPrivilegedRole, useUserProfile } from '@/store';
 import { useAuthStore } from '@/store/auth-store';
@@ -38,7 +39,7 @@ export function Header() {
             {session ? (
               <div className="flex items-center space-x-4 space-x-reverse">
                 <span className="text-sm text-gray-600">
-                  שלום {userProfile?.name || session.user.name}
+                  שלום {userProfile ? formatUserName(userProfile.firstName, userProfile.lastName) : formatUserName(session.user.firstName, session.user.lastName)}
                 </span>
                 
                 {/* Dashboard Link for privileged users */}

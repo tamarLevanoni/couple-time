@@ -15,7 +15,8 @@ interface ProfileCompletionModalProps {
 }
 
 export function ProfileCompletionModal({ email, googleId }: ProfileCompletionModalProps) {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +30,7 @@ export function ProfileCompletionModal({ email, googleId }: ProfileCompletionMod
     setError('');
 
     try {
-      await completeProfile({ name, phone });
+      await completeProfile({ firstName, lastName, phone });
       await update(); // מרענן את ה־session עם ה־JWT החדש
 
       console.log('✅ Profile completion successful, reloading session');
@@ -56,19 +57,35 @@ export function ProfileCompletionModal({ email, googleId }: ProfileCompletionMod
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              שם מלא *
-            </label>
-            <Input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="הכניסו את השם המלא שלכם"
-              minLength={2}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                שם פרטי *
+              </label>
+              <Input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                placeholder="שם פרטי"
+                minLength={2}
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                שם משפחה *
+              </label>
+              <Input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                placeholder="שם משפחה"
+                minLength={2}
+              />
+            </div>
           </div>
 
           <div>
@@ -96,7 +113,7 @@ export function ProfileCompletionModal({ email, googleId }: ProfileCompletionMod
           <Button
             type="submit"
             className="w-full"
-            disabled={isLoading || !name.trim() || !phone.trim()}
+            disabled={isLoading || !firstName.trim() || !lastName.trim() || !phone.trim()}
           >
             {isLoading ? 'משלים פרטים...' : 'המשיכו'}
           </Button>

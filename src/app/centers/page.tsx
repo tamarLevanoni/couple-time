@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { MapPin, Phone, GameController } from '@/components/icons';
 import { useCentersStore, useFilteredCenters, useAvailableCities } from '@/store';
 import { Area } from '@/types';
+import { formatUserName } from '@/lib/utils';
 
 export default function CentersPage() {
   const { 
@@ -187,7 +188,7 @@ export default function CentersPage() {
                     
                     <div className="flex items-center text-sm text-gray-600">
                       <span className="font-medium ml-2">רכז:</span>
-                      <span>{center.coordinator?.name || 'לא צוין'}</span>
+                      <span>{formatUserName(center.coordinator?.firstName,center.coordinator?.lastName)}</span>
                       {center.coordinator?.phone && (
                         <>
                           <span className="mx-2">•</span>
