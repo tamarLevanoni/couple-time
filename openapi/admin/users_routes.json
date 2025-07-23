@@ -41,9 +41,27 @@
           }
         },
         {
-          "name": "search",
+          "name": "firstName",
           "in": "query",
-          "description": "Search by name or email",
+          "description": "Search by first name",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "lastName",
+          "in": "query",
+          "description": "Search by last name",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "email",
+          "in": "query",
+          "description": "Search by email",
           "required": false,
           "schema": {
             "type": "string"

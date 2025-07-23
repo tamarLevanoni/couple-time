@@ -12,7 +12,8 @@
               "$ref": "./components.json#/components/schemas/RegisterWithEmailRequest"
             },
             "example": {
-              "name": "John Doe",
+              "firstName": "John",
+              "lastName": "Doe",
               "email": "john@example.com",
               "phone": "050-1234567",
               "password": "SecurePassword123!"
@@ -48,7 +49,8 @@
             },
             "example": {
               "googleId": "google_oauth_id_123",
-              "name": "John Doe",
+              "firstName": "John",
+              "lastName": "Doe",
               "email": "john@example.com",
               "phone": "050-1234567"
             }

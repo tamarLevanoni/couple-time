@@ -7,7 +7,10 @@
           "googleId": {
             "type": "string"
           },
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -17,12 +20,15 @@
             "type": "string"
           }
         },
-        "required": ["googleId", "name", "email", "phone"]
+        "required": ["googleId", "firstName", "lastName", "email", "phone"]
       },
       "RegisterWithEmailRequest": {
         "type": "object",
         "properties": {
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -36,7 +42,7 @@
             "minLength": 8
           }
         },
-        "required": ["name", "email", "phone", "password"]
+        "required": ["firstName", "lastName", "email", "phone", "password"]
       },
       "LoginWithGoogleRequest": {
         "type": "object",
@@ -77,7 +83,10 @@
           "googleId": {
             "type": "string"
           },
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -87,7 +96,7 @@
             "type": "string"
           }
         },
-        "required": ["googleId", "name", "email", "phone"]
+        "required": ["googleId", "firstName", "lastName", "email", "phone"]
       }
     }
   }

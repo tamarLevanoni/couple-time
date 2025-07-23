@@ -1,10 +1,4 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Game Rental System API - Admin Components",
-    "description": "Admin-specific components and schemas for the Game Rental System API",
-    "version": "1.0"
-  },
   "components": {
     "schemas": {
       "UserForAdmin": {
@@ -13,7 +7,10 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -64,12 +61,15 @@
             "format": "date-time"
           }
         },
-        "required": ["id", "name", "email", "phone", "roles", "isActive", "supervisedCenters", "createdAt", "updatedAt"]
+        "required": ["id", "firstName", "lastName", "email", "phone", "roles", "isActive", "supervisedCenters", "createdAt", "updatedAt"]
       },
       "CreateUserRequest": {
         "type": "object",
         "properties": {
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -91,12 +91,15 @@
             }
           }
         },
-        "required": ["name", "email", "phone", "password", "roles"]
+        "required": ["firstName", "lastName", "email", "phone", "password", "roles"]
       },
       "UpdateUserRequest": {
         "type": "object",
         "properties": {
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {

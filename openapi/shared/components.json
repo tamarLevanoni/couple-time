@@ -212,7 +212,10 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -222,7 +225,7 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "email", "phone"]
+        "required": ["id", "firstName", "lastName", "email", "phone"]
       },
       "CenterForPublic": {
         "type": "object",
@@ -282,7 +285,10 @@
           "id": {
             "type": "string"
           },
-          "name": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "email": {
@@ -308,7 +314,7 @@
             }
           }
         },
-        "required": ["id", "name", "email", "phone", "roles", "isActive", "currentRentals"]
+        "required": ["id", "firstName", "lastName", "email", "phone", "roles", "isActive", "currentRentals"]
       },
       "RentalForUser": {
         "type": "object",
@@ -519,7 +525,8 @@
           "superCoordinator": {
             "type": "object",
             "properties": {
-              "name": {"type": "string"},
+              "firstName": {"type": "string"},
+              "lastName": {"type": "string"},
               "phone": {"type": "string"},
               "email": {"type": "string"}
             },

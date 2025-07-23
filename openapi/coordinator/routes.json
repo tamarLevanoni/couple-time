@@ -23,8 +23,41 @@
     "get": {
       "tags": ["Coordinator"],
       "summary": "View center rentals",
-      "description": "View rentals for the coordinator's center",
+      "description": "View rentals for the coordinator's center with search and filtering options",
       "security": [{"BearerAuth": []}],
+      "parameters": [
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["PENDING", "ACTIVE", "RETURNED", "CANCELLED"]
+          },
+          "description": "Filter by rental status"
+        },
+        {
+          "name": "firstName",
+          "in": "query",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Search by user first name"
+        },
+        {
+          "name": "lastName",
+          "in": "query",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Search by user last name"
+        },
+        {
+          "name": "notes",
+          "in": "query",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Search by rental notes"
+        }
+      ],
       "responses": {
         "200": {
           "description": "Center rentals retrieved successfully",

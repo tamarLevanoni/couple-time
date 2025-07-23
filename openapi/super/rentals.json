@@ -17,11 +17,25 @@
           "description": "Filter by rental status"
         },
         {
-          "name": "search",
+          "name": "firstName",
           "in": "query",
           "required": false,
           "schema": {"type": "string"},
-          "description": "Search by user name or rental notes"
+          "description": "Search by user first name"
+        },
+        {
+          "name": "lastName",
+          "in": "query",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Search by user last name"
+        },
+        {
+          "name": "notes",
+          "in": "query",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Search by rental notes"
         }
       ],
       "responses": {
