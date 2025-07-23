@@ -344,9 +344,9 @@ export function RentForm() {
             <div className="space-y-2 text-sm">
               <p className="font-medium">{selectedCenter.name}</p>
               <p className="text-gray-600">{selectedCenter.city}</p>
-              {selectedCenter.coordinator?.name && (
+              {selectedCenter.coordinator && (
                 <p className="text-gray-600">
-                  רכז: {selectedCenter.coordinator.name}
+                  רכז: {selectedCenter.coordinator.firstName}
                 </p>
               )}
               {selectedCenter.coordinator?.phone && (
