@@ -5,7 +5,8 @@ import { Prisma } from '@prisma/client';
 
 export const USER_CONTACT_FIELDS = {
   id: true,
-  name: true,
+  firstName: true,
+  lastName: true,
   email: true,
   phone: true,
 } as const satisfies Prisma.UserSelect;
@@ -177,7 +178,8 @@ export const CENTERS_FOR_SUPER_COORDINATOR = {
   coordinator: {
     select: {
       id: true,
-      name: true,
+      firstName: true,
+      lastName: true,
       phone: true,
       email: true,
     },

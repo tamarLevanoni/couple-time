@@ -25,7 +25,8 @@ export const RentalStatusSchema = z.nativeEnum(RentalStatus);
 // User validation
 export const UserSchema = z.object({
   id: z.string().cuid(),
-  name: z.string().min(1, 'Name is required').max(100),
+  firstName: z.string().min(1, 'First name is required').max(50),
+  lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email format'),
   phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
   roles: z.array(RoleSchema).min(1, 'At least one role is required'),
@@ -99,7 +100,8 @@ export const RentalSchema = z.object({
 
 // User API validations
 export const CreateUserSchema = UserSchema.pick({
-  name: true,
+  firstName: true,
+  lastName: true,
   email: true,
   phone: true,
   roles: true,
@@ -112,7 +114,8 @@ export const CreateUserSchema = UserSchema.pick({
 
 const CompleteGoogleProfileSchema = z.object({
   googleId: z.string().min(1, 'Google ID is required'),
-  name: z.string().min(1, 'Name is required').max(100),
+  firstName: z.string().min(1, 'First name is required').max(50),
+  lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email format'),
   phone: z
     .string()
@@ -122,7 +125,8 @@ const CompleteGoogleProfileSchema = z.object({
 });
 
 export const RegisterWithEmailSchema = z.object({
-  name: UserSchema.shape.name,
+  firstName: UserSchema.shape.firstName,
+  lastName: UserSchema.shape.lastName,
   email: UserSchema.shape.email,
   phone: UserSchema.shape.phone,
   password: z.string().min(8, 'Password must be at least 8 characters').max(100),
@@ -143,7 +147,8 @@ export const LoginWithEmailSchema = z.object({
 });
 
 export const UpdateUserProfileSchema = UserSchema.pick({
-  name: true,
+  firstName: true,
+  lastName: true,
   phone: true,
 }).partial();
 
@@ -263,7 +268,8 @@ export const UpdateRentalByCoordinatorSchema = z.object({
 
 // Admin API validations
 export const UpdateUserSchema = UserSchema.pick({
-  name: true,
+  firstName: true,
+  lastName: true,
   phone: true,
   roles: true,
   isActive: true,

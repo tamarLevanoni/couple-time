@@ -96,7 +96,8 @@ async function main() {
   const superCoordinators = await Promise.all([
     prisma.user.create({
       data: {
-        name: 'David Ben-David',
+        firstName: 'David',
+        lastName: 'Ben-David',
         email: 'david.manager@gamerental.co.il',
         phone: '050-1111111',
         roles: ['SUPER_COORDINATOR'],
@@ -106,7 +107,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Rachel Cohen-Levi',
+        firstName: 'Rachel',
+        lastName: 'Cohen-Levi',
         email: 'rachel.super@gamerental.co.il',
         phone: '050-2222222',
         roles: ['SUPER_COORDINATOR'],
@@ -175,7 +177,8 @@ async function main() {
   const coordinators = await Promise.all([
     prisma.user.create({
       data: {
-        name: 'Sarah Cohen',
+        firstName: 'Sarah',
+        lastName: 'Cohen',
         email: 'sarah.coord@gamerental.co.il',
         phone: '050-3333333',
         roles: ['CENTER_COORDINATOR'],
@@ -186,7 +189,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Yossi Goldberg',
+        firstName: 'Yossi',
+        lastName: 'Goldberg',
         email: 'yossi.coord@gamerental.co.il',
         phone: '050-4444444',
         roles: ['CENTER_COORDINATOR'],
@@ -197,7 +201,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Miriam Katz',
+        firstName: 'Miriam',
+        lastName: 'Katz',
         email: 'miriam.coord@gamerental.co.il',
         phone: '050-5555555',
         roles: ['CENTER_COORDINATOR'],
@@ -208,7 +213,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Avi Rosenberg',
+        firstName: 'Avi',
+        lastName: 'Rosenberg',
         email: 'avi.coord@gamerental.co.il',
         phone: '050-6666666',
         roles: ['CENTER_COORDINATOR'],
@@ -219,7 +225,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Tamar Shahar',
+        firstName: 'Tamar',
+        lastName: 'Shahar',
         email: 'tamar.coord@gamerental.co.il',
         phone: '050-7777777',
         roles: ['CENTER_COORDINATOR'],
@@ -259,7 +266,8 @@ async function main() {
   console.log('👑 Creating admin user...')
   const admin = await prisma.user.create({
     data: {
-      name: 'System Administrator',
+      firstName: 'System',
+      lastName: 'Administrator',
       email: 'admin@gamerental.co.il',
       phone: '050-9999999',
       roles: ['ADMIN'],
@@ -273,7 +281,8 @@ async function main() {
   const users = await Promise.all([
     prisma.user.create({
       data: {
-        name: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         email: 'john.doe@email.com',
         phone: '050-1234567',
         roles: [],
@@ -283,7 +292,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Jane Smith',
+        firstName: 'Jane',
+        lastName: 'Smith',
         email: 'jane.smith@email.com',
         phone: '050-2345678',
         roles: [],
@@ -293,7 +303,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Michael Brown',
+        firstName: 'Michael',
+        lastName: 'Brown',
         email: 'michael.brown@email.com',
         phone: '050-3456789',
         roles: [],
@@ -303,7 +314,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Emily Davis',
+        firstName: 'Emily',
+        lastName: 'Davis',
         email: 'emily.davis@email.com',
         phone: '050-4567890',
         roles: [],
@@ -313,7 +325,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'David Wilson',
+        firstName: 'David',
+        lastName: 'Wilson',
         email: 'david.wilson@email.com',
         phone: '050-5678901',
         roles: [],
@@ -323,7 +336,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Sarah Johnson',
+        firstName: 'Sarah',
+        lastName: 'Johnson',
         email: 'sarah.johnson@email.com',
         phone: '050-6789012',
         roles: [],
@@ -333,7 +347,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        name: 'Test User (Inactive)',
+        firstName: 'Test',
+        lastName: 'User (Inactive)',
         email: 'inactive@email.com',
         phone: '050-0000000',
         roles: [],
