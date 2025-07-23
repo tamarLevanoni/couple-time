@@ -79,7 +79,8 @@ export async function PUT(req: NextRequest) {
       },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         phone: true,
         roles: true,

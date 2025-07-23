@@ -45,7 +45,8 @@ async function testSystem() {
     const testUsers = await db.user.findMany({
       select: {
         email: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         roles: true,
       }
     });
@@ -59,7 +60,7 @@ async function testSystem() {
         USER: '👤 User'
       }[role] || '👤 User';
       
-      console.log(`   ${roleDisplay}: ${user.email} (${user.name})`);
+      console.log(`   ${roleDisplay}: ${user.email} (${user.firstName}) (${user.lastName})`);
     });
 
     console.log('\n🚀 System test completed successfully!');

@@ -43,7 +43,7 @@ If profile completion modal doesn't appear:
 ## Manual Database Check:
 
 ```sql
-SELECT id, email, name, phone, "googleId", roles 
+SELECT id, email,firstName, lastName, phone, "googleId", roles 
 FROM "User" 
 WHERE email = 'your-google-email@example.com';
 ```

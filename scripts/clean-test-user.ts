@@ -20,7 +20,7 @@ async function cleanTestUser() {
     
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { id: true, name: true, email: true, googleId: true }
+      select: { id: true, firstName: true, lastName:true, email: true, googleId: true }
     });
 
     if (user) {
@@ -31,7 +31,8 @@ async function cleanTestUser() {
       
       console.log(`✅ Deleted user:`, {
         id: user.id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         googleId: user.googleId
       });

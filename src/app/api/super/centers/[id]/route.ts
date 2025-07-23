@@ -43,7 +43,8 @@ async function fetchSupervisedCenter(centerId: string, superCoordinatorId: strin
       coordinator: {
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           email: true,
           phone: true,
         },
@@ -66,7 +67,8 @@ async function fetchSupervisedCenter(centerId: string, superCoordinatorId: strin
               user: {
                 select: {
                   id: true,
-                  name: true,
+                  firstName: true,
+                  lastName: true,
                   email: true,
                   phone: true,
                 },
@@ -234,7 +236,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         coordinator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },

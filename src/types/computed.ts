@@ -47,7 +47,8 @@ export interface SystemStats {
 
 export interface UserProfileWithRentals {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   roles: Role[];
@@ -91,7 +92,7 @@ export interface RentalForSuperCoordinator {
   returnDate?: Date;
   expectedReturnDate?: Date;
   notes?: string;
-  user: { id: string; name: string; phone: string; email: string };
+  user: { id: string; firstName: string; lastName: string; phone: string; email: string };
   center: { id: string; name: string; city: string };
   gameInstances: { id: string; gameId: string; game: { id: string; name: string } }[];
   isOverdue: boolean; // Computed
@@ -131,7 +132,7 @@ export interface RentalForAdmin {
   returnDate?: Date;
   expectedReturnDate?: Date;
   notes?: string;
-  user: { id: string; name: string; phone: string; email: string };
+  user: { id: string; firstName: string; lastName: string; phone: string; email: string };
   center: { id: string; name: string; city: string; area: Area };
   gameInstances: { id: string; game: { id: string; name: string } }[];
   isOverdue: boolean; // Computed

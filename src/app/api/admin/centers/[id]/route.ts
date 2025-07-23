@@ -78,7 +78,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         coordinator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },
@@ -86,7 +87,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         superCoordinator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },
