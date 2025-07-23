@@ -113,10 +113,8 @@ export const CreateUserSchema = UserSchema.pick({
 
 
 export const CompleteGoogleProfileSchema = z.object({
-  googleId: z.string().min(1, 'Google ID is required'),
   firstName: z.string().min(1, 'First name is required').max(50),
   lastName: z.string().min(1, 'Last name is required').max(50),
-  email: z.string().email('Invalid email format'),
   phone: z
     .string()
     .regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format')
