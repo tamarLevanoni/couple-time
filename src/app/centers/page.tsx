@@ -9,14 +9,14 @@ import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { MapPin, Phone, GameController } from '@/components/icons';
-import { useCentersStore, useFilteredCenters, useAvailableCities } from '@/store';
+import { useCentersStore, useFilteredCenters, useAvailableCities, useAuthStore } from '@/store';
 import { Area } from '@/types';
 import { formatUserName } from '@/lib/utils';
 
 export default function CentersPage() {
-  const { 
+  const {
     centers,
-    isLoading, 
+    isLoading,
     error,
     loadCenters,
     setArea,
@@ -24,6 +24,8 @@ export default function CentersPage() {
     setSearch,
     clearFilters
   } = useCentersStore();
+
+  const { isAuthenticated } = useAuthStore();
 
   const filteredCenters = useFilteredCenters();
   const availableCities = useAvailableCities();
@@ -193,7 +195,9 @@ export default function CentersPage() {
                         <>
                           <span className="mx-2">•</span>
                           <Phone className="h-3 w-3 ml-1" />
-                          <span>{center.coordinator.phone}</span>
+                          <span>
+                            {isAuthenticated ? center.coordinator.phone : 'אנא התחבר כדי לראות את מספר הטלפון'}
+                          </span>
                         </>
                       )}
                     </div>
@@ -226,14 +230,17 @@ export default function CentersPage() {
                         </Link>
                         
                         {center.coordinator?.phone ? (
-                          <Button 
+                          <Button
                             size="sm"
+                            disabled={!isAuthenticated}
                             onClick={() => {
-                              const message = encodeURIComponent(`שלום! אני מעוניין להשאיל משחק מהמוקד ${center.name}`);
-                              window.open(`https://wa.me/972${center.coordinator?.phone?.replace(/^0/, '')}?text=${message}`);
+                              if (isAuthenticated) {
+                                const message = encodeURIComponent(`שלום! אני מעוניין להשאיל משחק מהמוקד ${center.name}`);
+                                window.open(`https://wa.me/972${center.coordinator?.phone?.replace(/^0/, '')}?text=${message}`);
+                              }
                             }}
                           >
-                            שלח וואצאפ
+                            {isAuthenticated ? 'שלח וואצאפ' : 'התחבר לשליחת וואצאפ'}
                           </Button>
                         ) : (
                           <Button size="sm" disabled>

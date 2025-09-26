@@ -209,6 +209,32 @@ export function GamesContent() {
             {finalGames.map(game => (
               <Card key={game.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="space-y-4">
+                  {/* Game Image */}
+                  {game.imageUrl && (
+                    <div className="w-full h-48 relative overflow-hidden rounded-lg bg-gray-100">
+                      <img
+                        src={game.imageUrl}
+                        alt={game.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `
+                              <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                <div class="text-center">
+                                  <div class="text-4xl mb-2">🎲</div>
+                                  <div class="text-sm">תמונה לא זמינה</div>
+                                </div>
+                              </div>
+                            `;
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+
                   {/* Game Info */}
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900 mb-2">

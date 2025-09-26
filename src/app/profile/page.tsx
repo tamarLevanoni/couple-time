@@ -50,7 +50,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/signin');
       return;
     }
   }, [status, router]);

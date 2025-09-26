@@ -50,18 +50,48 @@ export function GameManagementTable({
           <div className="space-y-4">
             {games.map((game) => (
               <div key={game.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{game.name}</span>
-                    <Badge variant={getCategoryBadgeVariant(game.categories[0])}>
-                      {game.categories[0]}
-                    </Badge>
-                  </div>
-                  {game.description && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {game.description}
-                    </p>
+                <div className="flex items-center gap-4 flex-1">
+                  {/* Game Image */}
+                  {game.imageUrl ? (
+                    <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                      <img
+                        src={game.imageUrl}
+                        alt={game.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `
+                              <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                <div class="text-xl">🎲</div>
+                              </div>
+                            `;
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gray-100 text-gray-400 rounded-md">
+                      <div className="text-xl">🎲</div>
+                    </div>
                   )}
+
+                  {/* Game Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{game.name}</span>
+                      <Badge variant={getCategoryBadgeVariant(game.categories[0])}>
+                        {game.categories[0]}
+                      </Badge>
+                    </div>
+                    {game.description && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {game.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="flex gap-2">

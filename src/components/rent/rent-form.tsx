@@ -321,11 +321,41 @@ export function RentForm() {
             </div>
             <div className="space-y-3">
               {selectedGames.map(game => (
-                <div key={game.id} className="border-b border-gray-100 last:border-b-0 pb-2 last:pb-0">
-                  <div className="space-y-1 text-sm">
-                    <p className="font-medium">{game.name}</p>
-                    <div className="text-xs text-gray-500">
-                      {game.categories.map(cat => getCategoryLabel(cat)).join(' • ')}
+                <div key={game.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
+                  <div className="flex space-x-3 space-x-reverse">
+                    {/* Game Image */}
+                    {game.imageUrl ? (
+                      <div className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                        <img
+                          src={game.imageUrl}
+                          alt={game.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                  <div class="text-lg">🎲</div>
+                                </div>
+                              `;
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-100 text-gray-400 rounded-md">
+                        <div className="text-lg">🎲</div>
+                      </div>
+                    )}
+
+                    {/* Game Info */}
+                    <div className="flex-1 space-y-1 text-sm">
+                      <p className="font-medium">{game.name}</p>
+                      <div className="text-xs text-gray-500">
+                        {game.categories.map(cat => getCategoryLabel(cat)).join(' • ')}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -351,7 +381,7 @@ export function RentForm() {
               )}
               {selectedCenter.coordinator?.phone && (
                 <p className="text-gray-600">
-                  טלפון: {selectedCenter.coordinator.phone}
+                  טלפון: {session ? selectedCenter.coordinator.phone : 'אנא התחבר כדי לראות את מספר הטלפון'}
                 </p>
               )}
             </div>

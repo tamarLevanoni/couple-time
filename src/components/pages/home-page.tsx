@@ -6,7 +6,7 @@ import { formatUserName } from '@/lib/utils';
 import { LoadingPage } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Shield } from '@/components/icons';
-import { useHasPrivilegedRole, useUserProfile } from '@/store';
+import { useAuthStore, useHasPrivilegedRole, useUserProfile } from '@/store';
 
 export function HomePage() {
   const { data: session, status } = useSession();
@@ -52,11 +52,14 @@ export function HomePage() {
                 </div>
               ) : (
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg">
-                    <Link href="/auth/signup">הירשם עכשיו</Link>
+                  <Button size="lg"
+                  onClick={() => useAuthStore.getState().openAuthPopup('signup')}>
+                  הירשם עכשיו
                   </Button>
-                  <Button variant="outline" size="lg">
-                    <Link href="/auth/signin">התחבר</Link>
+                  <Button variant="outline" size="lg"                   
+                  onClick={() => useAuthStore.getState().openAuthPopup('login')}
+                  >
+                התחבר
                   </Button>
                 </div>
               )}
