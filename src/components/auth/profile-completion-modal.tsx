@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useAuthStore } from '@/store';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 
 interface ProfileCompletionModalProps {
@@ -34,11 +34,23 @@ export function ProfileCompletionModal({ email, googleId }: ProfileCompletionMod
       await update(); // מרענן את ה־session עם ה־JWT החדש
 
       console.log('✅ Profile completion successful, reloading session');
-      
+
       // Stay on current page - just reload to update session
       window.location.reload();
     } catch (err) {
       setError('שגיאה בהתחברות לשרת');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleContinueAsGuest = async () => {
+    setIsLoading(true);
+    try {
+      await signOut({ redirect: false });
+      window.location.reload();
+    } catch (err) {
+      setError('שגיאה בהתנתקות');
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +130,15 @@ export function ProfileCompletionModal({ email, googleId }: ProfileCompletionMod
             {isLoading ? 'משלים פרטים...' : 'המשיכו'}
           </Button>
         </form>
+
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleContinueAsGuest}
+          disabled={isLoading}
+        >
+          המשך כאורח
+        </Button>
 
         <div className="text-center">
           <p className="text-xs text-gray-500">

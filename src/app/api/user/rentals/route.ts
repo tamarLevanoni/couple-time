@@ -35,7 +35,6 @@ async function validateGameInstancesForUserRental(gameInstanceIds: string[], cen
       id: true,
       gameId: true,
       centerId: true,
-      status: true,
     },
   });
 
@@ -46,16 +45,10 @@ async function validateGameInstancesForUserRental(gameInstanceIds: string[], cen
 
   // Ensure all game instances belong to the same center
   const centerIds = [...new Set(gameInstances.map(gi => gi.centerId))];
-  if (centerIds.length > 1 || centerId != centerIds[0]) {
+  if (centerIds.length > 1 || centerId !== centerIds[0]) {
     return { error: apiResponse(false, null, { message: 'All games must be from the same center' }, 400) };
   }
 
-  // Check for duplicate games in the same rental
-  const gameIds = gameInstances.map(gi => gi.gameId);
-  const uniqueGameIds = [...new Set(gameIds)];
-  if (gameIds.length !== uniqueGameIds.length) {
-    return { error: apiResponse(false, null, { message: 'Cannot request duplicate games in the same rental' }, 400) };
-  }
 
   return { gameInstances };
 }
@@ -68,7 +61,7 @@ async function validateGameInstancesForUserRental(gameInstanceIds: string[], cen
  * @returns Object with either success confirmation or an error response
  */
 async function checkExistingUserRentals(userId: string, gameInstanceIds: string[]) {
-  const existingRentals = await prisma.rental.findMany({
+  const existingRental = await prisma.rental.findFirst({
     where: {
       userId,
       gameInstances: {
@@ -78,11 +71,15 @@ async function checkExistingUserRentals(userId: string, gameInstanceIds: string[
       },
       status: { in: ['PENDING', 'ACTIVE'] },
     },
+    select: { id: true },
   });
 
   // Prevent duplicate rentals for the same game instances
-  if (existingRentals.length > 0) {
-    return { error: apiResponse(false, null, { message: 'You already have a pending or active rental for one or more of these games' }, 400) };
+  if (existingRental) {
+    return { error: apiResponse(false, null, {
+      code: 'USER_ERROR',
+      message: 'כבר יש לך בקשת השאלה ממתינה או פעילה עבור אחד או יותר מהמשחקים האלה'
+    }, 400) };
   }
 
   return { success: true };
@@ -226,7 +223,7 @@ export async function POST(req: NextRequest) {
     if (error instanceof z.ZodError) {
       return apiResponse(false, null, { message: 'Invalid request data', details: error.errors }, 400);
     }
-    
+
     return apiResponse(false, null, { message: 'Internal server error' }, 500);
   }
 }

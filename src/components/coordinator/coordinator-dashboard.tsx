@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDate as utilFormatDate } from '@/lib/utils';
@@ -15,33 +15,28 @@ export function CoordinatorDashboard() {
   const [activeTab, setActiveTab] = useState<string>('overview');
 
   const {
-    dashboardData,
     rentals,
     gameInstances,
-    selectedRentalStatus,
     isLoadingDashboard,
     isSubmitting,
     error,
     loadDashboard,
     loadRentals,
     loadGameInstances,
-    filterRentalsByStatus,
     approveRental,
     markRentalReturned,
     setError,
   } = useCoordinatorStore();
-
-  const filteredRentals = useFilteredCoordinatorRentals();
   const rentalCounts = useCoordinatorRentalCounts();
 
   // Load dashboard data on mount
-  useEffect(() => {
-    const loadData = async () => {
-      await Promise.all([loadDashboard(), loadRentals(), loadGameInstances()]);
-    };
+  const loadData = useCallback(async () => {
+    await Promise.all([loadDashboard(), loadRentals(), loadGameInstances()]);
+  }, [loadDashboard, loadRentals, loadGameInstances]);
 
+  useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleApproveRental = async (rentalId: string) => {
     try {

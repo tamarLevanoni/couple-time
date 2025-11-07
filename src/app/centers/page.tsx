@@ -12,6 +12,7 @@ import { MapPin, Phone, GameController } from '@/components/icons';
 import { useCentersStore, useFilteredCenters, useAvailableCities, useAuthStore } from '@/store';
 import { Area } from '@/types';
 import { formatUserName } from '@/lib/utils';
+import { getAreaLabel } from '@/lib/game-labels';
 
 export default function CentersPage() {
   const {
@@ -285,17 +286,6 @@ export default function CentersPage() {
           </div>
         )}
       </div>
-    
-  );
-}
 
-function getAreaLabel(area: Area): string {
-  const labels: Record<Area, string> = {
-    NORTH: 'צפון',
-    CENTER: 'מרכז',
-    SOUTH: 'דרום',
-    JERUSALEM: 'ירושלים והסביבה',
-    JUDEA_SAMARIA: 'יו״שׁ'
-  };
-  return labels[area] || area;
+  );
 }

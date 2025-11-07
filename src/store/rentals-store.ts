@@ -123,19 +123,36 @@ export const useRentalsStore = create<RentalsStore>()(
           const result = await response.json();
 
           if (!result.success) {
-            throw new Error(result.error?.message || 'Failed to create rental');
+            const errorCode = result.error?.code;
+            const apiMessage = result.error?.message || 'Failed to create rental';
+
+            // Only pass user-facing errors (with error codes) to the form
+            // Developer errors are logged but return generic message
+            if (errorCode=="USER_ERROR") {
+              // User error - throw the API message
+              throw new Error(apiMessage);
+            } else {
+              // Developer error - log it and throw generic message
+              console.error('API error without code:', apiMessage);
+              throw new Error('שגיאה ביצירת הבקשה. אנא נסו שוב.');
+            }
           }
 
-          // Reload rentals to get fresh data
-          await get().forceReloadUserRentals();
-          
-          set({ isSubmitting: false }, false, 'createRental/success');
+          // Add new rental to local state (optimistic update with server response)
+          const { userRentals } = get();
+          const updatedRentals = [result.data, ...userRentals];
+
+          set({
+            userRentals: updatedRentals,
+            isSubmitting: false
+          }, false, 'createRental/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to create rental';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'createRental/error');
+          throw error; // Re-throw to allow form to handle the error
         }
       },
 
@@ -155,24 +172,23 @@ export const useRentalsStore = create<RentalsStore>()(
             throw new Error(result.error?.message || 'Failed to cancel rental');
           }
 
-          // Update local state
+          // Update local state with server response
           const { userRentals } = get();
-          const updatedRentals = userRentals.map(rental => 
-            rental.id === rentalId 
-              ? { ...rental, status: 'CANCELLED' as RentalStatus }
-              : rental
+          const updatedRentals = userRentals.map(rental =>
+            rental.id === rentalId ? result.data : rental
           );
-          
-          set({ 
+
+          set({
             userRentals: updatedRentals,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'cancelRental/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to cancel rental';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'cancelRental/error');
+          throw error; // Re-throw to allow caller to handle the error
         }
       },
 

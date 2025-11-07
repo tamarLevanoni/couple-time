@@ -109,6 +109,18 @@ export function GamesContent() {
     clearFilters();
   };
 
+  // Get rental link for a game
+  const getRentalLink = (gameId: string): string => {
+    if (!selectedCenter) return '/rent';
+
+    const center = centers.find(c => c.id === selectedCenter);
+    const gameInstance = center?.gameInstances?.find(gi => gi.gameId === gameId);
+
+    if (!gameInstance) return '/rent';
+
+    return `/rent?centerId=${selectedCenter}&gameInstanceId=${gameInstance.id}`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters */}
@@ -318,10 +330,7 @@ export function GamesContent() {
 
                   {/* Action */}
                   <div className="pt-2">
-                    <Link
-                      href={`/rent?gameId=${game.id}${selectedCenter ? `&centerId=${selectedCenter}` : ''}`}
-                      className="block"
-                    >
+                    <Link href={getRentalLink(game.id)} className="block">
                       <Button className="w-full" size="sm">
                         בקש השאלה
                       </Button>

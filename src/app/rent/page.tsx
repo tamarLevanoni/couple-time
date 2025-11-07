@@ -1,10 +1,12 @@
 'use client';
 
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { LoadingPage } from '@/components/ui/loading';
 import { ErrorPage } from '@/components/ui/error';
-import { 
-  useGamesStore, 
+import { Button } from '@/components/ui/button';
+import {
+  useGamesStore,
   useCentersStore
 } from '@/store';
 import { RentForm } from '@/components/rent/rent-form';
@@ -44,11 +46,16 @@ function RentPageContent() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            בקשת השאלת משחק
+            טופס השאלת משחק
           </h1>
-          <p className="text-lg text-gray-600">
-            בחרו משחק ומוקד וצרו איתנו קשר לתיאום איסוף
+          <p className="text-lg text-gray-600 mb-4">
+            בחרו מוקד קרוב אליכם, ואז בחרו את המשחקים שתרצו להשאיל
           </p>
+          <Link href="/games">
+            <Button variant="outline">
+              עיין בקטלוג המשחקים
+            </Button>
+          </Link>
         </div>
 
         <Suspense fallback={<LoadingPage title="טוען טופס..." />}>
