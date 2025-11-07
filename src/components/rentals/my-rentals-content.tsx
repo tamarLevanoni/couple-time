@@ -166,12 +166,6 @@ export function MyRentalsContent() {
             />
           </div>
           
-          <Button
-            onClick={() => router.push('/rent')}
-            size="sm"
-          >
-            + הזמנה חדשה
-          </Button>
         </div>
       </Card>
 

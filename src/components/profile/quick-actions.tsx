@@ -17,7 +17,7 @@ export function QuickActions({ activeRentalCount, hasPrivilegedRole }: QuickActi
         פעולות מהירות
       </h3>
       <div className="space-y-3">
-        <Link href="/my-rentals">
+        <a href="#my-rentals">
           <Button variant="outline" className="w-full justify-start">
             <GameController className="h-4 w-4 ml-2" />
             <span>ההשאלות שלי</span>
@@ -27,7 +27,7 @@ export function QuickActions({ activeRentalCount, hasPrivilegedRole }: QuickActi
               </span>
             )}
           </Button>
-        </Link>
+        </a>
         <Link href="/games">
           <Button variant="outline" className="w-full justify-start">
             <GameController className="h-4 w-4 ml-2" />

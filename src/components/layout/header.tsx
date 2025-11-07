@@ -94,7 +94,7 @@ export function Header() {
             <NavItem href="/games" label="משחקים" isActive={isActive('/games')} />
             <NavItem href="/centers" label="מוקדים" isActive={isActive('/centers')} />
             {session && (
-              <NavItem href="/my-rentals" label="ההשאלות שלי" isActive={isActive('/my-rentals')} />
+              <NavItem href="/rent" label="טופס השאלה" isActive={isActive('/rent')} />
             )}
           </nav>
 
@@ -143,27 +143,40 @@ export function Header() {
                         <p className="text-xs text-gray-600">{getUserRole()}</p>
                       </div>
 
-                      <Link
-                        href="/profile"
-                        className="flex items-center space-x-3 space-x-reverse px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-brand-500/50 rounded-md"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        <UserIcon className="w-4 h-4" />
-                        <span>הפרטים שלי</span>
-                      </Link>
-
-                      {hasPrivilegedRole && (
+                      <div className="py-1">
                         <Link
-                          href="/dashboard"
-                          className="flex items-center space-x-3 space-x-reverse px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors sm:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-brand-500/50 rounded-md"
+                          href="/profile"
+                          className="flex items-center space-x-3 space-x-reverse px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-brand-500/50 rounded-md"
                           onClick={() => setIsProfileDropdownOpen(false)}
                         >
-                          <LayoutDashboardIcon className="w-4 h-4" />
-                          <span>לוח בקרה</span>
+                          <UserIcon className="w-4 h-4" />
+                          <span>הפרטים שלי</span>
                         </Link>
+
+                        <Link
+                          href="/profile#my-rentals"
+                          className="flex items-center space-x-3 space-x-reverse px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 rounded-md"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <HeartIcon className="w-4 h-4" />
+                          <span>ההשאלות שלי</span>
+                        </Link>
+                      </div>
+
+                      {hasPrivilegedRole && (
+                        <div className="py-1">
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center space-x-3 space-x-reverse px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-brand-500/50 rounded-md"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <LayoutDashboardIcon className="w-4 h-4" />
+                            <span>לוח בקרה</span>
+                          </Link>
+                        </div>
                       )}
 
-                      <div className="pt-2">
+                      <div className="py-1">
                         <button
                           onClick={() => {
                             setIsProfileDropdownOpen(false);
@@ -223,7 +236,7 @@ export function Header() {
               <NavItem href="/games" label="משחקים" isActive={isActive('/games')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
               <NavItem href="/centers" label="מוקדים" isActive={isActive('/centers')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
               {session && (
-                <NavItem href="/my-rentals" label="ההשאלות שלי" isActive={isActive('/my-rentals')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
+                <NavItem href="/rent" label="טופס השאלה" isActive={isActive('/rent')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
               )}
             </nav>
           </div>

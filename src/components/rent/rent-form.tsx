@@ -248,8 +248,8 @@ export function RentForm() {
       // Clear saved form state after successful submission
       clearFormState();
 
-      // Redirect to confirmation (will be handled by success state)
-      router.push('/my-rentals?success=rental-created');
+      // Redirect to profile page with success message
+      router.push('/profile?success=rental-created#my-rentals');
     } catch (error) {
       // The store already handles error translation
       // Just display the error message to the user

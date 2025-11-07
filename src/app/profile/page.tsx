@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { LoadingPage } from '@/components/ui/loading';
 import { Shield } from '@/components/icons';
 import { UserProfileCard, RentalStatistics, QuickActions, UserInfo } from '@/components/profile';
-import { 
-  useUserStore, 
-  useUserProfile, 
-  useUserRoles, 
-  useHasPrivilegedRole, 
-  useUserManagedCenter, 
+import { MyRentalsContent } from '@/components/rentals/my-rentals-content';
+import {
+  useUserStore,
+  useUserProfile,
+  useUserRoles,
+  useHasPrivilegedRole,
+  useUserManagedCenter,
   useRentalsStore,
   useFilteredUserRentals,
   useRentalCounts,
@@ -93,26 +94,36 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Details */}
           <div className="lg:col-span-2 space-y-6">
-            <UserProfileCard 
+            <UserProfileCard
               userProfile={userProfile}
               onUpdateProfile={updateProfile}
               error={error}
             />
-            
-            <RentalStatistics 
+
+            <RentalStatistics
               rentalCounts={rentalCounts}
               activeRentals={activeRentals}
             />
+
+            {/* My Rentals Section */}
+            <div id="my-rentals">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                ההשאלות שלי
+              </h2>
+              <Suspense fallback={<LoadingPage title="טוען בקשות..." />}>
+                <MyRentalsContent />
+              </Suspense>
+            </div>
           </div>
 
           {/* Quick Actions */}
           <div className="space-y-6">
-            <QuickActions 
+            <QuickActions
               activeRentalCount={rentalCounts.active}
               hasPrivilegedRole={hasPrivilegedRole}
             />
 
-            <UserInfo 
+            <UserInfo
               userProfile={userProfile}
               userRoles={userRoles}
               managedCenter={managedCenter}
@@ -120,6 +131,6 @@ export default function ProfilePage() {
           </div>
         </div>
     </div>
-    
+
   );
 }

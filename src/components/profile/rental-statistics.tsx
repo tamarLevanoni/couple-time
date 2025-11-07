@@ -84,29 +84,7 @@ export function RentalStatistics({ rentalCounts, activeRentals, centerId, gameId
           <div className="text-sm text-gray-800">סה&quot;כ</div>
         </div>
       </div>
-      
-      {activeRentals.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">השאלות פעילות:</h3>
-          <div className="space-y-2">
-            {activeRentals.slice(0, 3).map((rental) => (
-              <RentalItem 
-                key={rental.id} 
-                rental={rental} 
-                centerId={centerId} 
-                gameId={gameId} 
-              />
-            ))}
-            {activeRentals.length > 3 && (
-              <Link href="/my-rentals">
-                <Button variant="ghost" size="sm" className="w-full">
-                  ראה עוד {activeRentals.length - 3} השאלות
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+    
     </Card>
   );
 }
