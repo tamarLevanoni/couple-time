@@ -93,9 +93,7 @@ export function Header() {
             <NavItem href="/" label="בית" isActive={isActive('/')} />
             <NavItem href="/games" label="משחקים" isActive={isActive('/games')} />
             <NavItem href="/centers" label="מוקדים" isActive={isActive('/centers')} />
-            {session && (
-              <NavItem href="/rent" label="טופס השאלה" isActive={isActive('/rent')} />
-            )}
+            <NavItem href="/rent" label="טופס השאלה" isActive={isActive('/rent')} />
           </nav>
 
           {/* Right Section - Auth & User Actions */}
