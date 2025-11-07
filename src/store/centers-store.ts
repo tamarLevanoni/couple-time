@@ -1,7 +1,6 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 import type { CenterPublicInfo, Area } from '@/types';
 
@@ -26,32 +25,30 @@ interface CentersActions {
 
 type CentersStore = CentersState & CentersActions;
 
-export const useCentersStore = create<CentersStore>()(
-  persist(
-    (set, get) => ({
-      centers: [],
-      selectedArea: null,
-      selectedCity: null,
-      searchTerm: '',
-      isLoading: false,
-      error: null,
-      hasLoaded: false,
+export const useCentersStore = create<CentersStore>()((set, get) => ({
+  centers: [],
+  selectedArea: null,
+  selectedCity: null,
+  searchTerm: '',
+  isLoading: false,
+  error: null,
+  hasLoaded: false,
 
   loadCenters: async () => {
     // Only load if not already loaded
     if (get().hasLoaded) {
       return;
     }
-    
+
     set({ isLoading: true, error: null });
     try {
       const response = await fetch('/api/public/centers');
       const result = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.error?.message || 'Failed to load centers');
       }
-      
+
       set({ centers: result.data, isLoading: false, hasLoaded: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load centers';
@@ -64,11 +61,11 @@ export const useCentersStore = create<CentersStore>()(
     try {
       const response = await fetch('/api/public/centers');
       const result = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.error?.message || 'Failed to load centers');
       }
-      
+
       set({ centers: result.data, isLoading: false, hasLoaded: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load centers';
@@ -79,21 +76,12 @@ export const useCentersStore = create<CentersStore>()(
   setArea: (area) => set({ selectedArea: area }),
   setCity: (city) => set({ selectedCity: city }),
   setSearch: (term) => set({ searchTerm: term }),
-  clearFilters: () => set({ 
-    selectedArea: null, 
-    selectedCity: null, 
-    searchTerm: '' 
+  clearFilters: () => set({
+    selectedArea: null,
+    selectedCity: null,
+    searchTerm: ''
   }),
-}),
-{
-  name: 'centers-store',
-  partialize: (state) => ({ 
-    centers: state.centers, 
-    hasLoaded: state.hasLoaded 
-  }),
-}
-)
-);
+}));
 
 // Atomic selectors - more efficient than useShallow
 export const useCenters = () => useCentersStore(state => state.centers);
