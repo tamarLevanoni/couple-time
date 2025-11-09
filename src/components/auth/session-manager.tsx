@@ -3,11 +3,16 @@
 import { useSession } from 'next-auth/react';
 import { useAuthStore } from '@/store/auth-store';
 import { useEffect } from 'react';
+import { setupFetchInterceptor } from '@/lib/fetch-interceptor';
 
 export function SessionManager() {
   const { data: session, status } = useSession();
   const { setAuthenticated, setLoading, openAuthPopup } = useAuthStore();
 
+  // Setup global fetch interceptor for 401 handling
+  useEffect(() => {
+    setupFetchInterceptor();
+  }, []);
 
   // Sync NextAuth session with Zustand auth store
   useEffect(() => {

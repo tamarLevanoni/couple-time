@@ -4,6 +4,7 @@ import { apiResponse } from '@/lib/api-response';
 import { prisma } from '@/lib/db';
 import { RENTAL_FOR_USER } from '@/types';
 import { UpdateByUserRentalSchema } from '@/lib/validations';
+import { z } from 'zod';
 
 /**
  * Validates user authentication and finds the rental by ID
@@ -166,7 +167,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const body = await req.json();
-    const { action, notes, gameInstanceIds } = UpdateByUserRentalSchema.parse(body);
+
+    // Parse and validate request body
+    const validatedData = UpdateByUserRentalSchema.parse(body);
+    const { action, notes, gameInstanceIds } = validatedData;
 
     // Validate authentication and find rental. return error if not found rental or its not 'PENDING'
     const authResult = await validateAuthAndFindRental(req, id);
@@ -205,6 +209,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return apiResponse(true, updatedRental);
   } catch (error) {
     console.error('Error updating rental:', error);
+
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      return apiResponse(false, null, { message: 'Invalid request data', details: error.errors }, 400);
+    }
+
     return apiResponse(false, null, { message: 'Internal server error' }, 500);
   }
 }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { User, Settings, CheckCircle, AlertCircle } from '@/components/icons';
+import { UpdateUserProfileSchema, type UpdateUserProfileInput } from '@/lib/validations';
 
 interface UserProfileCardProps {
   userProfile: {
@@ -13,48 +14,47 @@ interface UserProfileCardProps {
     email?: string;
     phone?: string;
   } | null;
-  onUpdateProfile: (data: { firstName: string; lastName: string; phone: string }) => Promise<void>;
+  onUpdateProfile: (data: UpdateUserProfileInput) => Promise<void>;
   error?: string | null;
 }
 
 export function UserProfileCard({ userProfile, onUpdateProfile, error }: UserProfileCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UpdateUserProfileInput>({
     firstName: userProfile?.firstName || '',
     lastName: userProfile?.lastName || '',
     phone: userProfile?.phone || ''
   });
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleSave = async () => {
-    setSaveError('');
+    setFieldErrors({});
     setIsSaving(true);
-    
-    if (!formData.firstName.trim()) {
-      setSaveError('שם פרטי הוא שדה חובה');
-      setIsSaving(false);
-      return;
-    }
-    
-    if (!formData.lastName.trim()) {
-      setSaveError('שם משפחה הוא שדה חובה');
-      setIsSaving(false);
-      return;
-    }
-    
-    if (!formData.phone.trim()) {
-      setSaveError('מספר טלפון הוא שדה חובה');
-      setIsSaving(false);
-      return;
-    }
-    
+
     try {
-      await onUpdateProfile(formData);
+      // Validate using Zod schema
+      const validatedData = UpdateUserProfileSchema.parse(formData);
+
+      await onUpdateProfile(validatedData);
       setIsEditing(false);
     } catch (error) {
+      if (error instanceof Error && error.name === 'ZodError') {
+        // Map Zod errors to field-specific errors
+        const zodError = error as any;
+        const errors: Record<string, string> = {};
+
+        zodError.errors?.forEach((err: any) => {
+          const field = err.path[0];
+          errors[field] = err.message;
+        });
+
+        setFieldErrors(errors);
+      } else {
+        // General error
+        setFieldErrors({ general: error instanceof Error ? error.message : 'שגיאה בשמירת הפרטים. אנא נסו שוב.' });
+      }
       console.error('Error updating profile:', error);
-      setSaveError('שגיאה בשמירת הפרטים. אנא נסו שוב.');
     } finally {
       setIsSaving(false);
     }
@@ -66,6 +66,7 @@ export function UserProfileCard({ userProfile, onUpdateProfile, error }: UserPro
       lastName: userProfile?.lastName || '',
       phone: userProfile?.phone || ''
     });
+    setFieldErrors({});
     setIsEditing(false);
   };
 
@@ -95,11 +96,16 @@ export function UserProfileCard({ userProfile, onUpdateProfile, error }: UserPro
             שם פרטי
           </label>
           {isEditing ? (
-            <Input
-              value={formData.firstName}
-              onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-              placeholder="הכניסו את השם הפרטי שלכם"
-            />
+            <>
+              <Input
+                value={formData.firstName}
+                onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                placeholder="הכניסו את השם הפרטי שלכם"
+              />
+              {fieldErrors.firstName && (
+                <p className="text-sm text-red-600 mt-1">{fieldErrors.firstName}</p>
+              )}
+            </>
           ) : (
             <div className="text-gray-900 bg-gray-50 p-3 rounded">
               {userProfile?.firstName || 'לא הוגדר'}
@@ -112,11 +118,16 @@ export function UserProfileCard({ userProfile, onUpdateProfile, error }: UserPro
             שם משפחה
           </label>
           {isEditing ? (
-            <Input
-              value={formData.lastName}
-              onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-              placeholder="הכניסו את שם המשפחה שלכם"
-            />
+            <>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                placeholder="הכניסו את שם המשפחה שלכם"
+              />
+              {fieldErrors.lastName && (
+                <p className="text-sm text-red-600 mt-1">{fieldErrors.lastName}</p>
+              )}
+            </>
           ) : (
             <div className="text-gray-900 bg-gray-50 p-3 rounded">
               {userProfile?.lastName || 'לא הוגדר'}
@@ -139,12 +150,17 @@ export function UserProfileCard({ userProfile, onUpdateProfile, error }: UserPro
             טלפון
           </label>
           {isEditing ? (
-            <Input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-              placeholder="הכניסו את מספר הטלפון שלכם"
-            />
+            <>
+              <Input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="הכניסו את מספר הטלפון שלכם"
+              />
+              {fieldErrors.phone && (
+                <p className="text-sm text-red-600 mt-1">{fieldErrors.phone}</p>
+              )}
+            </>
           ) : (
             <div className="text-gray-900 bg-gray-50 p-3 rounded">
               {userProfile?.phone || 'לא הוגדר'}
@@ -152,11 +168,11 @@ export function UserProfileCard({ userProfile, onUpdateProfile, error }: UserPro
           )}
         </div>
 
-        {(saveError || error) && (
+        {(fieldErrors.general || error) && (
           <div className="flex items-center p-3 bg-red-50 border border-red-200 rounded-lg">
             <AlertCircle className="h-4 w-4 text-red-500 ml-2" />
             <p className="text-sm text-red-700">
-              {saveError || error}
+              {fieldErrors.general || error}
             </p>
           </div>
         )}

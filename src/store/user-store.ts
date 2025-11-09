@@ -202,15 +202,14 @@ export const useUserRentalsByStatus = (status: RentalStatus | 'ALL') => {
 
 export const useUserRentalCounts = () => {
   return useUserStore(useShallow((state) => {
-    if (!state.user?.rentals) return { pending: 0, active: 0, returned: 0, cancelled: 0, total: 0 };
+    if (!state.user?.rentals) return { pending: 0, active: 0, returned: 0, cancelled: 0};
     
     const rentals = state.user.rentals;
     return {
       pending: rentals.filter(r => r.status === 'PENDING').length,
       active: rentals.filter(r => r.status === 'ACTIVE').length,
       returned: rentals.filter(r => r.status === 'RETURNED').length,
-      cancelled: rentals.filter(r => r.status === 'CANCELLED').length,
-      total: rentals.length
+      cancelled: rentals.filter(r => r.status === 'CANCELLED').length
     };
   }));
 };

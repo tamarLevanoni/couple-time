@@ -3,12 +3,13 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
-import type { 
+import type {
   RentalForUser,
   RentalStatus
 } from '@/types';
 import type {
-  CreateRentalInput
+  CreateRentalInput,
+  RentalStatusSchema
 } from '@/lib/validations';
 
 interface RentalsState {
@@ -16,7 +17,7 @@ interface RentalsState {
   userRentals: RentalForUser[];
   
   // Filters
-  selectedStatus: RentalStatus | 'ALL';
+  selectedStatus: RentalStatus;
   
   // Loading states
   isLoading: boolean;
@@ -32,10 +33,9 @@ interface RentalsState {
 interface RentalsActions {
   // User rental actions (US-1.3: Request Rental, US-1.4: Manage My Rentals)
   loadUserRentals: () => Promise<void>;
-  forceReloadUserRentals: () => Promise<void>;
   createRental: (data: CreateRentalInput) => Promise<void>;
   cancelRental: (rentalId: string) => Promise<void>;
-  filterByStatus: (status: RentalStatus | 'ALL') => void;
+  filterByStatus: (status: RentalStatus) => void;
   
   // Utility actions
   setError: (error: string | null) => void;
@@ -48,7 +48,7 @@ export const useRentalsStore = create<RentalsStore>()(
     (set, get) => ({
       // Initial state
       userRentals: [],
-      selectedStatus: 'ALL',
+      selectedStatus: 'ACTIVE',
       isLoading: false,
       isSubmitting: false,
       error: null,
@@ -56,57 +56,38 @@ export const useRentalsStore = create<RentalsStore>()(
 
       // User rental actions
       loadUserRentals: async () => {
+        console.log('📦 loadUserRentals called, hasLoaded:', get().hasLoaded);
+
         // Only load if not already loaded
         if (get().hasLoaded) {
+          console.log('⏭️  Skipping - already loaded');
           return;
         }
-        
+
+        console.log('🚀 Starting rentals fetch...');
         set({ isLoading: true, error: null }, false, 'loadUserRentals/start');
 
         try {
           const response = await fetch('/api/user/rentals');
           const result = await response.json();
+          console.log("✅ response rentals", result)
 
           if (!result.success) {
             throw new Error(result.error?.message || 'Failed to load rentals');
           }
 
-          set({ 
+          set({
             userRentals: result.data,
             isLoading: false,
             hasLoaded: true
           }, false, 'loadUserRentals/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to load rentals';
-          set({ 
+          console.error('❌ Error loading rentals:', message);
+          set({
             error: message,
-            isLoading: false 
+            isLoading: false
           }, false, 'loadUserRentals/error');
-        }
-      },
-
-      forceReloadUserRentals: async () => {
-        set({ isLoading: true, error: null, hasLoaded: false }, false, 'forceReloadUserRentals/start');
-
-        try {
-          const response = await fetch('/api/user/rentals');
-          const result = await response.json();
-
-          if (!result.success) {
-            throw new Error(result.error?.message || 'Failed to load rentals');
-          }
-
-          set({ 
-            userRentals: result.data,
-            isLoading: false,
-            hasLoaded: true
-          }, false, 'forceReloadUserRentals/success');
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Failed to load rentals';
-          set({ 
-            error: message,
-            isLoading: false 
-          }, false, 'forceReloadUserRentals/error');
         }
       },
 
@@ -205,9 +186,6 @@ export const useRentalsStore = create<RentalsStore>()(
 // Computed selectors for filtered rentals
 export const useFilteredUserRentals = () => {
   return useRentalsStore(useShallow((state) => {
-    if (state.selectedStatus === 'ALL') {
-      return state.userRentals;
-    }
     
     return state.userRentals.filter(rental => 
       rental.status === state.selectedStatus
@@ -227,8 +205,7 @@ export const useRentalCounts = () => {
       pending,
       active,
       returned,
-      cancelled,
-      total: state.userRentals.length
+      cancelled
     };
   }));
 };

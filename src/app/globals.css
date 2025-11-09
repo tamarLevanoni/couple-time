@@ -188,6 +188,16 @@ html {
   background: hsl(var(--muted-foreground) / 0.5);
 }
 
+/* Hide scrollbar for mobile tabs */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
 /* Print styles */
 @media print {
   .no-print {
