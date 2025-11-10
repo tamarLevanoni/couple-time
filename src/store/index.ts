@@ -23,7 +23,7 @@ export {
   useGames,
   useGameById
 } from './games-store';
-export { useCentersStore, useFilteredCenters, useAvailableCities, useCenterById } from './centers-store';
+export { useCentersStore, useFilteredCenters, useCenterById } from './centers-store';
 
 // ===== AUTH STORE =====
 // For authentication state only
