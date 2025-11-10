@@ -10,7 +10,6 @@ interface UserInfoProps {
   userRoles: string[];
   managedCenter?: {
     name: string;
-    city: string;
   } | null;
 }
 
@@ -52,7 +51,7 @@ export function UserInfo({ userProfile, userRoles, managedCenter }: UserInfoProp
             <div>
               <span className="font-medium">מוקד:</span>
               <div className="text-xs">
-                {managedCenter.name} • {managedCenter.city}
+                {managedCenter.name}
               </div>
             </div>
           </div>

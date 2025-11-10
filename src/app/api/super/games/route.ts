@@ -75,7 +75,6 @@ async function createGameInstance(gameId: string, centerId: string, notes?: stri
         select: {
           id: true,
           name: true,
-          city: true,
         },
       },
     },

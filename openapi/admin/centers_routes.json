@@ -43,7 +43,7 @@
         {
           "name": "search",
           "in": "query",
-          "description": "Search by name or city",
+          "description": "Search by name",
           "required": false,
           "schema": {
             "type": "string"

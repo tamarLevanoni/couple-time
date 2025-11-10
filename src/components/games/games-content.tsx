@@ -169,7 +169,7 @@ export function GamesContent() {
                 { value: '', label: 'כל המוקדים' },
                 ...centers.map(center => ({
                   value: center.id,
-                  label: `${center.name} - ${center.city}`
+                  label: center.name
                 }))
               ]}
             />

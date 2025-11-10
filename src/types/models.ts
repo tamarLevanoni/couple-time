@@ -33,7 +33,6 @@ export const USER_WITH_ACTIVE_RENTALS = {
 export const CENTER_BASIC_FIELDS = {
   id: true,
   name: true,
-  city: true,
   area: true,
 } as const satisfies Prisma.CenterSelect;
 

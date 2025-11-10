@@ -93,7 +93,7 @@ export interface RentalForSuperCoordinator {
   expectedReturnDate?: Date;
   notes?: string;
   user: { id: string; firstName: string; lastName: string; phone: string; email: string };
-  center: { id: string; name: string; city: string };
+  center: { id: string; name: string };
   gameInstances: { id: string; gameId: string; game: { id: string; name: string } }[];
   isOverdue: boolean; // Computed
   daysOverdue: number; // Computed
@@ -133,7 +133,7 @@ export interface RentalForAdmin {
   expectedReturnDate?: Date;
   notes?: string;
   user: { id: string; firstName: string; lastName: string; phone: string; email: string };
-  center: { id: string; name: string; city: string; area: Area };
+  center: { id: string; name: string; area: Area };
   gameInstances: { id: string; game: { id: string; name: string } }[];
   isOverdue: boolean; // Computed
   daysOverdue: number; // Computed

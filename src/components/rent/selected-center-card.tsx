@@ -9,7 +9,7 @@ interface SelectedCenterCardProps {
 
 /**
  * SelectedCenterCard - Displays information about the selected center in the rental form
- * Shows center name, city, coordinator details, and phone (if authenticated)
+ * Shows center name, coordinator details, and phone (if authenticated)
  * @param selectedCenter - The selected center object or undefined if none selected
  * @param isAuthenticated - Whether the user is logged in (affects phone visibility)
  */
@@ -26,7 +26,6 @@ export function SelectedCenterCard({ selectedCenter, isAuthenticated }: Selected
       </div>
       <div className="space-y-2 text-sm">
         <p className="font-medium">{selectedCenter.name}</p>
-        <p className="text-gray-600">{selectedCenter.city}</p>
         {selectedCenter.coordinator && (
           <p className="text-gray-600">
             רכז: {selectedCenter.coordinator.firstName}

@@ -297,7 +297,7 @@ export function RentForm() {
                   },
                   ...filteredCenters.map(center => ({
                     value: center.id,
-                    label: `${center.name} - ${center.city}`
+                    label: center.name
                   }))
                 ]}
                 required

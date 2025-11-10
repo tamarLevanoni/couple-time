@@ -36,7 +36,7 @@ User (User)
 └── isActive: boolean
 
 Center (Center)
-├── id, name, city, area
+├── id, name, area
 ├── coordinatorId (center coordinator)
 ├── superCoordinatorId (super coordinator)
 ├── coordinates (for map)
@@ -132,7 +132,7 @@ Rental (Rental)
 **Components:**
 - Interactive map with markers
 - Center list with contact details
-- Search by area/city
+- Search by area/name
 - Direct link to catalog for each center
 
 ### 3.6 Rental Form

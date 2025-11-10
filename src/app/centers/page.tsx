@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { MapPin, Phone, GameController } from '@/components/icons';
-import { useCentersStore, useFilteredCenters, useAvailableCities, useAuthStore } from '@/store';
+import { useCentersStore, useFilteredCenters, useAuthStore } from '@/store';
 import { Area } from '@/types';
 import { formatUserName } from '@/lib/utils';
 import { getAreaLabel } from '@/lib/game-labels';
@@ -21,7 +21,6 @@ export default function CentersPage() {
     error,
     loadCenters,
     setArea,
-    setCity,
     setSearch,
     clearFilters
   } = useCentersStore();
@@ -29,12 +28,10 @@ export default function CentersPage() {
   const { isAuthenticated } = useAuthStore();
 
   const filteredCenters = useFilteredCenters();
-  const availableCities = useAvailableCities();
-  
+
   // Local state for filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState<Area | ''>('');
-  const [selectedCity, setSelectedCity] = useState('');
   
   
   // Handle filter changes - debounced search
@@ -49,16 +46,11 @@ export default function CentersPage() {
   useEffect(() => {
     setArea(selectedArea || null);
   }, [selectedArea]);
-  
-  useEffect(() => {
-    setCity(selectedCity || null);
-  }, [selectedCity]);
-  
+
   // Clear all filters
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedArea('');
-    setSelectedCity('');
     clearFilters();
   };
   
@@ -99,18 +91,18 @@ export default function CentersPage() {
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 חיפוש מוקד
               </label>
               <Input
-                placeholder="שם מוקד או עיר..."
+                placeholder="שם מוקד..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 אזור
@@ -128,28 +120,9 @@ export default function CentersPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                עיר
-              </label>
-              <Select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                options={[
-                  { value: '', label: 'כל הערים' },
-                  ...availableCities
-                    .filter(city => !selectedArea || centers.some(c => c.city === city && c.area === selectedArea))
-                    .map(city => ({
-                      value: city,
-                      label: city
-                    }))
-                ]}
-              />
-            </div>
-
             <div className="flex items-end">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleClearFilters}
                 className="w-full"
               >
@@ -184,8 +157,6 @@ export default function CentersPage() {
                       <MapPin className="h-4 w-4 ml-2" />
                       <span className="font-medium ml-2">אזור:</span>
                       <span>{getAreaLabel(center.area)}</span>
-                      <span className="mx-2">•</span>
-                      <span>{center.city}</span>
                     </div>
                     
                     

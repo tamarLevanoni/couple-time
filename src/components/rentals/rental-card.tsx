@@ -82,7 +82,6 @@ export const RentalCard = memo(({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900">{rental.center.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{rental.center.city}</p>
                 {rental.center.coordinator && (
                   <div className="flex items-center gap-1.5 mt-2 text-xs text-gray-600">
                     <User className="h-3.5 w-3.5" />

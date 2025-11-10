@@ -6,7 +6,6 @@ export const mockData = {
   center: (overrides = {}) => ({
     id: 'center-1',
     name: 'Test Center',
-    city: 'Test City',
     area: Area.NORTH,
     isActive: true,
     coordinatorId: 'coordinator-1',

@@ -70,6 +70,33 @@ export function Header() {
     <header className="bg-white/90 backdrop-blur-lg shadow-lg border-b border-gray-200/60 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 lg:h-16">
+        
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="lg:hidden p-2 text-gray-700 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+              aria-expanded={isMobileMenuOpen}
+              aria-label="תפריט ניווט"
+            >
+              {isMobileMenuOpen ? (
+                <XIcon className="w-6 h-6" />
+              ) : (
+                <MenuIcon className="w-6 h-6" />
+              )}
+            </button>
+        
+            {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden absolute top-full w-64 bg-white shadow-xl rounded-lg border border-gray-200 py-3 z-50">
+            <nav className="space-y-1 px-2">
+              <NavItem href="/" label="בית" isActive={isActive('/')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
+              <NavItem href="/games" label="משחקים" isActive={isActive('/games')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
+              <NavItem href="/centers" label="מוקדים" isActive={isActive('/centers')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
+              <NavItem href="/rent" label="טופס השאלה" isActive={isActive('/rent')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
+            </nav>
+          </div>
+        )}
+         
           {/* Logo & Brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center group">
@@ -210,35 +237,10 @@ export function Header() {
               </div>
             )}
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={toggleMobileMenu}
-              className="lg:hidden p-2 text-gray-700 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
-              aria-expanded={isMobileMenuOpen}
-              aria-label="תפריט ניווט"
-            >
-              {isMobileMenuOpen ? (
-                <XIcon className="w-6 h-6" />
-              ) : (
-                <MenuIcon className="w-6 h-6" />
-              )}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-4 bg-white/95 backdrop-blur-md transition-all duration-200 ease-out">
-            <nav className="space-y-2">
-              <NavItem href="/" label="בית" isActive={isActive('/')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
-              <NavItem href="/games" label="משחקים" isActive={isActive('/games')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
-              <NavItem href="/centers" label="מוקדים" isActive={isActive('/centers')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
-              {session && (
-                <NavItem href="/rent" label="טופס השאלה" isActive={isActive('/rent')} variant="mobile" onClick={() => setIsMobileMenuOpen(false)} />
-              )}
-            </nav>
-          </div>
-        )}
+     
       </div>
 
       {/* Click outside to close dropdowns */}

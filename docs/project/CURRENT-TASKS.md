@@ -91,7 +91,7 @@ NEW FLOW:
   - Show availability ONLY when center selected
 
 - [x] **Center Finder Page**
-  - Find centers with area/city filtering
+  - Find centers with area/name filtering
   - Integration with game availability
 
 - [x] **Add Rental Request Page** 

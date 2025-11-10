@@ -16,88 +16,106 @@ async function main() {
 
   // 1. Create Games
   console.log('🎮 Creating games...')
-  const games = await Promise.all([
-    prisma.game.create({
-      data: {
-        name: 'Love Language Discovery Cards',
-        description: 'Interactive card game to discover and understand your partner\'s love language through guided conversations and activities.',
-        categories: ['INTIMACY', 'COMMUNICATION'],
-        targetAudiences: ['MARRIED', 'GENERAL'],
-        imageUrl: 'https://example.com/images/love-language-cards.jpg'
+  await prisma.game.createMany({
+    data: [
+      {
+        name: "So do you (סו דו יו)",
+        description: "משחק שאלות חווייתי המחולק ל־6 קטגוריות של שאלות – חלקן קלילות וחלקן עמוקות. מאפשר שיח עומק וגילוי הדדי בדרך מהנה. מושלם לדייטים או לזמן איכות.",
+        targetAudiences: ["GENERAL"]
+      },
+      {
+        name: "Link (לינק)",
+        description: "משחק תגובות ספונטני וקליל שבו כל משתתף הופך עיגול שאלה, והשני צריך לנחש איזו תגובה מתאימה לו. מפתח הכרות הדדית בצורה מהנה.",
+        targetAudiences: ["GENERAL"]
+      },
+      {
+        name: "Time Out (טיים אאוט)",
+        description: "משחק שאלות על עבר, הווה ועתיד. מאפשר להכיר את מסע חייו של בן או בת הזוג דרך שאלות אישיות ומצחיקות.",
+        targetAudiences: ["GENERAL"]
+      },
+      {
+        name: "תכירותי",
+        description: "משחק שאלות וסיטואציות משעשע וכיפי. כל משתתף בתורו מרים שאלה ומזמין את השני לנחש את התשובה הנכונה לגביו. כולל קובייה, לוח משחק ו־4 סוגי שאלות. מעורר שיח וצחוק.",
+        targetAudiences: ["SINGLES"]
+      },
+      {
+        name: "כרטישיח",
+        description: "ערכת קלפים עם 92 שאלות בנושאים שונים: מתנות, חינוך ילדים, עבודה, קריירה, מנהיגות, השפעה, מוזיקה ועוד. מעודד הבנה הדדית, חברות וקרבה זוגית.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "לראות את היחסים (לרא[ע]ות את היחסים)",
+        description: "משחק שיח זוגי המבוסס על עקרונות CBT. כולל 90 קלפים ב־4 קטגוריות. עוזר לפתור קונפליקטים בצורה נעימה, מקרבת ונקייה. מנקה את הלב ופותח לרבדים חדשים.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "Points Of You (Functum)",
+        description: "משחק פוטותרפיה צבעוני ודינמי המדבר על נושאים שונים בצורה עוצמתית ואפקטיבית. יוצר למידה והתפתחות אישית דרך תמונות ושאלות משמעותיות.",
+        targetAudiences: ["GENERAL"]
+      },
+      {
+        name: "פתאקים",
+        description: "משחק קומפקטי עם 51 שאלות מקוריות בדרגות עומק שונות, לדייטים או ערבים זוגיים. פותח את הלב ומקרב, ומאפשר חוויה רומנטית משמעותית.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "זוגיות: המשימה",
+        description: "משחק זוגי המאפשר לבני הזוג להתחבר, להתרגש ולצחוק. כולל משימות והנחיות שיאפשרו לזוגות ליהנות מהדרך ולחוות את הקשר בצורה ייחודית ומהנה.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "Let's talk",
+        description: "משחק שאלות קלפים שבו עונים או ממציאים סיפור והאחרים מנחשים מה האמת. משחק של אינטואיציה, יצירתיות והנאה עם הרבה צחוקים.",
+        targetAudiences: ["GENERAL"]
+      },
+      {
+        name: "כרטיסדייט",
+        description: "משחק הכרויות לדייטים, מחבר ומהנה. מסייע להכיר לעומק את הצד השני דרך 100 קלפי רביעיות ב־25 נושאים חשובים לבניית קשר. כולל טיפים לזוגיות בריאה.",
+        targetAudiences: ["SINGLES"]
+      },
+      {
+        name: "בארבע עיניים",
+        description: "משחק רביעיות לזוגות שמאפשר לבדוק תיאום ציפיות על נושאים חשובים כמו דת, אידיאלים וערכים – בדרך קלילה ונעימה.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "בשניים",
+        description: "משחק העצמה זוגי לשלום בית ותקשורת נכונה. כולל 50 קלפי פעילות ו־3 קלפי הדרכה. נבנה בשיתוף יועצים משפחתיים ופסיכותרפיסטים. מחזק קשר ומונע שחיקה.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "זוגיות",
+        description: "משחק לזמן זוגי מחבר וכיפי הכולל 30 משימות ו־30 שאלות שיח לפתיחת הלב. נכתב בקפידה לזוגות שמחפשים ערב רומנטי ושמח בבית.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "חיבורים",
+        description: "ערכת כרטיסיות זוגית לפיתוח אינטימיות מקרבת ושיח רגשי. כוללת 3 סוגי כרטיסיות לבחירה, ומעודדת הבנה, שמחה והנאה בזוגיות בכל שלביה.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "כרטישיח אינטימיות",
+        description: "ערכת קלפים עם 14 שאלות על תחום האישות, לפתיחת שיח הדרגתי ונעים על רגשות, מחשבות וציפיות. מאפשרת השקעה בזוגיות בצורה רגישה ועדינה.",
+        targetAudiences: ["MARRIED"]
+      },
+      {
+        name: "הכל יחסים",
+        description: "משחק לוח מקצועי ואפקטיבי לתקשורת זוגית ואינטימית. כולל 90 קלפים ב־4 קטגוריות (שאלה, משימה, פעילות, אתגר). מסייע לזוגות נשואים לפתח תקשורת מינית חיובית וחווייתית.",
+        targetAudiences: ["MARRIED"]
       }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Communication Quest',
-        description: 'Board game designed to improve couple communication through fun challenges and meaningful conversations.',
-        categories: ['COMMUNICATION', 'FUN'],
-        targetAudiences: ['MARRIED', 'GENERAL'],
-        imageUrl: 'https://example.com/images/communication-quest.jpg'
-      }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Relationship Building Blocks',
-        description: 'Activity cards focused on strengthening relationship foundations with practical exercises.',
-        categories: ['THERAPY', 'PERSONAL_DEVELOPMENT'],
-        targetAudiences: ['SINGLES', 'MARRIED'],
-        imageUrl: 'https://example.com/images/building-blocks.jpg'
-      }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Intimacy Connect',
-        description: 'A thoughtful game designed to deepen emotional and physical intimacy between partners.',
-        categories: ['INTIMACY'],
-        targetAudiences: ['MARRIED'],
-        imageUrl: 'https://example.com/images/intimacy-connect.jpg'
-      }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Fun Date Night Box',
-        description: 'Collection of creative and fun date night ideas and activities for couples.',
-        categories: ['FUN'],
-        targetAudiences: ['MARRIED', 'GENERAL'],
-        imageUrl: 'https://example.com/images/date-night-box.jpg'
-      }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Mindful Couples Journey',
-        description: 'Guided mindfulness and meditation exercises designed specifically for couples.',
-        categories: ['THERAPY', 'PERSONAL_DEVELOPMENT'],
-        targetAudiences: ['MARRIED'],
-        imageUrl: 'https://example.com/images/mindful-journey.jpg'
-      }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Single & Strong',
-        description: 'Personal development activities and reflection exercises for singles building self-awareness.',
-        categories: ['PERSONAL_DEVELOPMENT'],
-        targetAudiences: ['SINGLES'],
-        imageUrl: 'https://example.com/images/single-strong.jpg'
-      }
-    }),
-    prisma.game.create({
-      data: {
-        name: 'Family Communication Hub',
-        description: 'Communication tools and activities designed for family dynamics and relationships.',
-        categories: ['COMMUNICATION', 'THERAPY'],
-        targetAudiences: ['GENERAL'],
-        imageUrl: 'https://example.com/images/family-hub.jpg'
-      }
-    })
-  ])
+    ]
+  })
+
+  // Fetch all created games
+  const games = await prisma.game.findMany()
 
   // 2. Create Super Coordinators
   console.log('👥 Creating super coordinators...')
   const superCoordinators = await Promise.all([
     prisma.user.create({
       data: {
-        firstName: 'David',
-        lastName: 'Ben-David',
+        firstName: 'דוד',
+        lastName: 'בן-דוד',
         email: 'david.manager@gamerental.co.il',
         phone: '050-1111111',
         roles: ['SUPER_COORDINATOR'],
@@ -107,8 +125,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Rachel',
-        lastName: 'Cohen-Levi',
+        firstName: 'רחל',
+        lastName: 'כהן-לוי',
         email: 'rachel.super@gamerental.co.il',
         phone: '050-2222222',
         roles: ['SUPER_COORDINATOR'],
@@ -123,8 +141,7 @@ async function main() {
   const centers = await Promise.all([
     prisma.center.create({
       data: {
-        name: 'Jerusalem Community Center',
-        city: 'Jerusalem',
+        name: 'ירושלים - בית ישראל',
         area: 'JERUSALEM',
         superCoordinatorId: superCoordinators[0].id,
         location: { lat: 31.7683, lng: 35.2137 },
@@ -133,8 +150,7 @@ async function main() {
     }),
     prisma.center.create({
       data: {
-        name: 'Tel Aviv Central Hub',
-        city: 'Tel Aviv',
+        name: 'תל אביב - צפון',
         area: 'CENTER',
         superCoordinatorId: superCoordinators[0].id,
         location: { lat: 32.0853, lng: 34.7818 },
@@ -143,8 +159,7 @@ async function main() {
     }),
     prisma.center.create({
       data: {
-        name: 'Haifa Northern Center',
-        city: 'Haifa',
+        name: 'חיפה',
         area: 'NORTH',
         superCoordinatorId: superCoordinators[1].id,
         location: { lat: 32.7940, lng: 34.9896 },
@@ -153,8 +168,7 @@ async function main() {
     }),
     prisma.center.create({
       data: {
-        name: 'Beer Sheva Southern Hub',
-        city: 'Beer Sheva',
+        name: 'באר שבע',
         area: 'SOUTH',
         superCoordinatorId: superCoordinators[1].id,
         location: { lat: 31.2518, lng: 34.7915 },
@@ -163,8 +177,7 @@ async function main() {
     }),
     prisma.center.create({
       data: {
-        name: 'Ariel Community Center',
-        city: 'Ariel',
+        name: 'אריאל',
         area: 'JUDEA_SAMARIA',
         superCoordinatorId: superCoordinators[0].id,
         isActive: true
@@ -177,8 +190,8 @@ async function main() {
   const coordinators = await Promise.all([
     prisma.user.create({
       data: {
-        firstName: 'Sarah',
-        lastName: 'Cohen',
+        firstName: 'שרה',
+        lastName: 'כהן',
         email: 'sarah.coord@gamerental.co.il',
         phone: '050-3333333',
         roles: ['CENTER_COORDINATOR'],
@@ -189,8 +202,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Yossi',
-        lastName: 'Goldberg',
+        firstName: 'יוסי',
+        lastName: 'גולדברג',
         email: 'yossi.coord@gamerental.co.il',
         phone: '050-4444444',
         roles: ['CENTER_COORDINATOR'],
@@ -201,8 +214,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Miriam',
-        lastName: 'Katz',
+        firstName: 'מרים',
+        lastName: 'כץ',
         email: 'miriam.coord@gamerental.co.il',
         phone: '050-5555555',
         roles: ['CENTER_COORDINATOR'],
@@ -213,8 +226,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Avi',
-        lastName: 'Rosenberg',
+        firstName: 'אבי',
+        lastName: 'רוזנברג',
         email: 'avi.coord@gamerental.co.il',
         phone: '050-6666666',
         roles: ['CENTER_COORDINATOR'],
@@ -225,8 +238,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Tamar',
-        lastName: 'Shahar',
+        firstName: 'תמר',
+        lastName: 'שחר',
         email: 'tamar.coord@gamerental.co.il',
         phone: '050-7777777',
         roles: ['CENTER_COORDINATOR'],
@@ -266,8 +279,8 @@ async function main() {
   console.log('👑 Creating admin user...')
   const admin = await prisma.user.create({
     data: {
-      firstName: 'System',
-      lastName: 'Administrator',
+      firstName: 'מנהל',
+      lastName: 'מערכת',
       email: 'admin@gamerental.co.il',
       phone: '050-9999999',
       roles: ['ADMIN'],
@@ -281,8 +294,8 @@ async function main() {
   const users = await Promise.all([
     prisma.user.create({
       data: {
-        firstName: 'John',
-        lastName: 'Doe',
+        firstName: 'יוחנן',
+        lastName: 'לוי',
         email: 'john.doe@email.com',
         phone: '050-1234567',
         roles: [],
@@ -292,8 +305,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Jane',
-        lastName: 'Smith',
+        firstName: 'חנה',
+        lastName: 'שמש',
         email: 'jane.smith@email.com',
         phone: '050-2345678',
         roles: [],
@@ -303,8 +316,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Michael',
-        lastName: 'Brown',
+        firstName: 'מיכאל',
+        lastName: 'בראון',
         email: 'michael.brown@email.com',
         phone: '050-3456789',
         roles: [],
@@ -314,8 +327,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'Emily',
-        lastName: 'Davis',
+        firstName: 'אמילי',
+        lastName: 'דוד',
         email: 'emily.davis@email.com',
         phone: '050-4567890',
         roles: [],
@@ -325,30 +338,8 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        firstName: 'David',
-        lastName: 'Wilson',
-        email: 'david.wilson@email.com',
-        phone: '050-5678901',
-        roles: [],
-        googleId: 'google_oauth_123456',
-        isActive: true
-      }
-    }),
-    prisma.user.create({
-      data: {
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        email: 'sarah.johnson@email.com',
-        phone: '050-6789012',
-        roles: [],
-        googleId: 'google_oauth_234567',
-        isActive: true
-      }
-    }),
-    prisma.user.create({
-      data: {
-        firstName: 'Test',
-        lastName: 'User (Inactive)',
+        firstName: 'משתמש',
+        lastName: 'בדיקה (לא פעיל)',
         email: 'inactive@email.com',
         phone: '050-0000000',
         roles: [],
@@ -368,8 +359,7 @@ async function main() {
       data: {
         gameId: games[i].id,
         centerId: centers[0].id,
-        status: 'AVAILABLE',
-        notes: 'Jerusalem center copy'
+        status: 'AVAILABLE'
       }
     })
     gameInstances.push(instance)
@@ -435,7 +425,6 @@ async function main() {
       requestDate: new Date('2024-01-15'),
       borrowDate: new Date('2024-01-16'),
       expectedReturnDate: new Date('2024-01-30'),
-      notes: 'Looking forward to trying these with my partner!',
       gameInstances: {
         connect: [
           { id: gameInstances[0].id },
@@ -458,7 +447,6 @@ async function main() {
       centerId: centers[1].id,
       status: 'PENDING',
       requestDate: new Date('2024-01-20'),
-      notes: 'First time borrowing, excited to try these games!',
       gameInstances: {
         connect: [
           { id: gameInstances[6].id }
@@ -476,7 +464,6 @@ async function main() {
       requestDate: new Date('2023-12-01'),
       borrowDate: new Date('2023-12-02'),
       expectedReturnDate: new Date('2023-12-16'),
-      notes: 'Holiday rental',
       gameInstances: {
         connect: [
           { id: gameInstances[2].id }
@@ -501,7 +488,6 @@ async function main() {
       borrowDate: new Date('2024-01-02'),
       returnDate: new Date('2024-01-14'),
       expectedReturnDate: new Date('2024-01-16'),
-      notes: 'Great games, thank you!',
       gameInstances: {
         connect: [
           { id: gameInstances[7].id }
@@ -517,7 +503,6 @@ async function main() {
       centerId: centers[2].id,
       status: 'CANCELLED',
       requestDate: new Date('2024-01-18'),
-      notes: 'Changed my mind, maybe next time',
       gameInstances: {
         connect: [
           { id: gameInstances[11].id }
@@ -526,28 +511,11 @@ async function main() {
     }
   })
 
-  // Another Pending Rental for testing
-  const anotherPendingRental = await prisma.rental.create({
-    data: {
-      userId: users[5].id,
-      centerId: centers[0].id,
-      status: 'PENDING',
-      requestDate: new Date(),
-      notes: 'Recommended by a friend',
-      gameInstances: {
-        connect: [
-          { id: gameInstances[3].id }
-        ]
-      }
-    }
-  })
-
   // Mark one game instance as unavailable for maintenance
   await prisma.gameInstance.update({
     where: { id: gameInstances[4].id },
-    data: { 
-      status: 'UNAVAILABLE',
-      notes: 'Under maintenance - missing pieces'
+    data: {
+      status: 'UNAVAILABLE'
     }
   })
 
@@ -562,14 +530,13 @@ async function main() {
   console.log(`🏢 Centers: ${centers.length}`)
   console.log(`🎮 Games: ${games.length}`)
   console.log(`🎯 Game Instances: ${gameInstances.length}`)
-  console.log(`📋 Rentals: 6 (1 active, 2 pending, 1 overdue, 1 returned, 1 cancelled)`)
-  
+  console.log(`📋 Rentals: 5 (1 active, 1 pending, 1 overdue, 1 returned, 1 cancelled)`)
+
   console.log('\n🔐 Test Credentials:')
   console.log('Admin: admin@gamerental.co.il / Admin123!')
   console.log('Super Coordinator: david.manager@gamerental.co.il / SuperCoord123!')
   console.log('Coordinator: sarah.coord@gamerental.co.il / Coordinator123!')
   console.log('User: john.doe@email.com / User123!')
-  console.log('Google User: david.wilson@email.com (OAuth)')
 }
 
 main()

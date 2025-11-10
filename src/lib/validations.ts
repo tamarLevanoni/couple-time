@@ -44,7 +44,6 @@ export const UserSchema = z.object({
 export const CenterSchema = z.object({
   id: z.string().cuid(),
   name: z.string().min(1, 'Center name is required').max(100),
-  city: z.string().min(1, 'City is required').max(50),
   area: AreaSchema,
   coordinatorId: z.string().cuid().optional(),
   superCoordinatorId: z.string().cuid().optional(),
@@ -171,7 +170,6 @@ export const UpdateGameSchema = GameSchema.pick({
 // Center API validations
 export const CreateCenterSchema = CenterSchema.pick({
   name: true,
-  city: true,
   area: true,
 }).extend({
   coordinatorId: CenterSchema.shape.coordinatorId,
@@ -181,7 +179,6 @@ export const CreateCenterSchema = CenterSchema.pick({
 
 export const UpdateCenterSchema = CenterSchema.pick({
   name: true,
-  city: true,
   area: true,
   coordinatorId: true,
   superCoordinatorId: true,

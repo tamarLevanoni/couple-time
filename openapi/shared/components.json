@@ -236,9 +236,6 @@
           "name": {
             "type": "string"
           },
-          "city": {
-            "type": "string"
-          },
           "area": {
             "type": "string",
             "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]
@@ -277,7 +274,7 @@
             }
           }
         },
-        "required": ["id", "name", "city", "area", "coordinator", "gameInstances"]
+        "required": ["id", "name", "area", "coordinator", "gameInstances"]
       },
       "UserProfileWithRentals": {
         "type": "object",
@@ -517,10 +514,9 @@
             "properties": {
               "id": {"type": "string"},
               "name": {"type": "string"},
-              "city": {"type": "string"},
               "area": {"type": "string", "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]}
             },
-            "required": ["id", "name", "city", "area"]
+            "required": ["id", "name", "area"]
           },
           "superCoordinator": {
             "type": "object",

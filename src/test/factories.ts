@@ -34,7 +34,6 @@ export const createMockGame = (overrides = {}) => ({
 export const createMockCenter = (overrides = {}) => ({
   id: 'center-' + Math.random().toString(36).substr(2, 9),
   name: 'Test Center',
-  city: 'Test City',
   area: Area.CENTER,
   isActive: true,
   coordinatorId: null,

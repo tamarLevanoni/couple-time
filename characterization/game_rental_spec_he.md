@@ -36,7 +36,7 @@ User (משתמש)
 └── isActive: boolean
 
 Center (מוקד)
-├── id, name, city, area
+├── id, name, area
 ├── coordinatorId (רכז מוקד)
 ├── superCoordinatorId (רכז-על)
 ├── coordinates (למפה)

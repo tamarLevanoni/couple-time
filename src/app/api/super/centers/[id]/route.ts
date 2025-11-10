@@ -102,7 +102,6 @@ function processCenterData(center: any) {
   return {
     id: center.id,
     name: center.name,
-    city: center.city,
     area: center.area,
     isActive: center.isActive,
     coordinator: center.coordinator,
@@ -191,7 +190,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 /**
  * PUT /api/super/centers/[id]
- * Updates a center's information (name, city, area, coordinator)
+ * Updates a center's information (name,area, coordinator)
  * Only super coordinators can update centers they supervise
  */
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -38,8 +38,8 @@ npx prisma db seed
 
 ## 🏢 Centers Created
 
-| Center | City | Area | Coordinator | Super Coordinator |
-|--------|------|------|-------------|------------------|
+| Center | Area | Coordinator | Super Coordinator |
+|--------|------|-------------|------------------|
 | Jerusalem Community Center | Jerusalem | JERUSALEM | Sarah Cohen | David Ben-David |
 | Tel Aviv Central Hub | Tel Aviv | CENTER | Yossi Goldberg | David Ben-David |
 | Haifa Northern Center | Haifa | NORTH | Miriam Katz | Rachel Cohen-Levi |

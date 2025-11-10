@@ -39,7 +39,6 @@ model User {
 model Center {
   id                     String   @id @default(cuid())
   name                   String
-  city                   String
   area                   Area
   coordinatorId          String?  @unique // One-to-one: each center has max one coordinator
   superCoordinatorId     String?

@@ -37,7 +37,6 @@ export async function GET(req: NextRequest) {
       center: {
         id: center.id,
         name: center.name,
-        city: center.city,
         area: center.area,
       },
       superCoordinator: center.superCoordinator || undefined,

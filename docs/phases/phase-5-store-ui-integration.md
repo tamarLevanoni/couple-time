@@ -36,8 +36,8 @@ Refactored all Zustand stores to follow best practices with atomic selectors, pe
 - Loading protection: Only loads if `!hasLoaded`
 
 **Centers Store** ✅
-- Public center browsing with area/city filtering
-- Search by name and city functionality
+- Public center browsing with area/name filtering
+- Search by name functionality
 - Atomic selectors: `useCenters`, `useCentersLoading`, `useCentersError`, `useCentersHasLoaded`
 - Computed selectors: `useFilteredCenters`, `useAvailableCities`
 - Loading protection: Only loads if `!hasLoaded`

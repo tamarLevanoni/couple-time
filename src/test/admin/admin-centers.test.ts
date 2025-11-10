@@ -74,7 +74,6 @@ describe('POST /api/admin/centers', () => {
     
     const centerData = {
       name: 'New Center',
-      city: 'Test City',
       area: Area.NORTH,
       coordinatorId: 'coordinator-1',
     };

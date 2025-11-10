@@ -130,9 +130,6 @@
           "name": {
             "type": "string"
           },
-          "city": {
-            "type": "string"
-          },
           "area": {
             "type": "string",
             "enum": ["NORTH", "CENTER", "SOUTH", "JERUSALEM", "JUDEA_SAMARIA"]
@@ -188,15 +185,12 @@
             "format": "date-time"
           }
         },
-        "required": ["id", "name", "city", "area", "address", "phone", "isActive", "_count", "createdAt", "updatedAt"]
+        "required": ["id", "name", "area", "address", "phone", "isActive", "_count", "createdAt", "updatedAt"]
       },
       "CreateCenterRequest": {
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
-          },
-          "city": {
             "type": "string"
           },
           "area": {
@@ -229,15 +223,12 @@
             "nullable": true
           }
         },
-        "required": ["name", "city", "area", "address", "phone"]
+        "required": ["name", "area", "address", "phone"]
       },
       "UpdateCenterRequest": {
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
-          },
-          "city": {
             "type": "string"
           },
           "area": {

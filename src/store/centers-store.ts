@@ -7,7 +7,6 @@ import type { CenterPublicInfo, Area } from '@/types';
 interface CentersState {
   centers: CenterPublicInfo[];
   selectedArea: Area | null;
-  selectedCity: string | null;
   searchTerm: string;
   isLoading: boolean;
   error: string | null;
@@ -18,7 +17,6 @@ interface CentersActions {
   loadCenters: () => Promise<void>;
   forceReloadCenters: () => Promise<void>;
   setArea: (area: Area | null) => void;
-  setCity: (city: string | null) => void;
   setSearch: (term: string) => void;
   clearFilters: () => void;
 }
@@ -28,7 +26,6 @@ type CentersStore = CentersState & CentersActions;
 export const useCentersStore = create<CentersStore>()((set, get) => ({
   centers: [],
   selectedArea: null,
-  selectedCity: null,
   searchTerm: '',
   isLoading: false,
   error: null,
@@ -74,11 +71,9 @@ export const useCentersStore = create<CentersStore>()((set, get) => ({
   },
 
   setArea: (area) => set({ selectedArea: area }),
-  setCity: (city) => set({ selectedCity: city }),
   setSearch: (term) => set({ searchTerm: term }),
   clearFilters: () => set({
     selectedArea: null,
-    selectedCity: null,
     searchTerm: ''
   }),
 }));
@@ -87,7 +82,6 @@ export const useCentersStore = create<CentersStore>()((set, get) => ({
 export const useCenters = () => useCentersStore(state => state.centers);
 export const useCentersSearchTerm = () => useCentersStore(state => state.searchTerm);
 export const useSelectedArea = () => useCentersStore(state => state.selectedArea);
-export const useSelectedCity = () => useCentersStore(state => state.selectedCity);
 export const useCentersLoading = () => useCentersStore(state => state.isLoading);
 export const useCentersError = () => useCentersStore(state => state.error);
 export const useCentersHasLoaded = () => useCentersStore(state => state.hasLoaded);
@@ -97,7 +91,6 @@ export const useCentersActions = () => useCentersStore(useShallow(state => ({
   loadCenters: state.loadCenters,
   forceReloadCenters: state.forceReloadCenters,
   setArea: state.setArea,
-  setCity: state.setCity,
   setSearch: state.setSearch,
   clearFilters: state.clearFilters,
 })));
@@ -106,20 +99,18 @@ export const useCentersActions = () => useCentersStore(useShallow(state => ({
 export const useCentersFilters = () => useCentersStore(useShallow(state => ({
   searchTerm: state.searchTerm,
   selectedArea: state.selectedArea,
-  selectedCity: state.selectedCity,
 })));
 
 export const useFilteredCenters = () => {
   return useCentersStore(useShallow((state) => {
-    const { centers, searchTerm, selectedArea, selectedCity } = state;
-    
+    const { centers, searchTerm, selectedArea } = state;
+
     let filtered = centers;
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(center => 
-        center.name.toLowerCase().includes(term) ||
-        center.city.toLowerCase().includes(term)
+      filtered = filtered.filter(center =>
+        center.name.toLowerCase().includes(term)
       );
     }
 
@@ -127,20 +118,7 @@ export const useFilteredCenters = () => {
       filtered = filtered.filter(center => center.area === selectedArea);
     }
 
-    if (selectedCity) {
-      filtered = filtered.filter(center => 
-        center.city.toLowerCase() === selectedCity.toLowerCase()
-      );
-    }
-
     return filtered;
-  }));
-};
-
-export const useAvailableCities = () => {
-  return useCentersStore(useShallow((state) => {
-    const cities = new Set(state.centers.map(center => center.city));
-    return Array.from(cities).sort();
   }));
 };
 

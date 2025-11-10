@@ -65,7 +65,6 @@ function processCentersWithStatistics(centers: any[]) {
   return centers.map(center => ({
     id: center.id,
     name: center.name,
-    city: center.city,
     area: center.area,
     isActive: center.isActive,
     coordinator: center.coordinator,

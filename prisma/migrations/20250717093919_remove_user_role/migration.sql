@@ -19,7 +19,8 @@ CREATE TYPE "Area" AS ENUM ('NORTH', 'CENTER', 'SOUTH', 'JERUSALEM', 'JUDEA_SAMA
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "roles" "Role"[],
@@ -37,7 +38,6 @@ CREATE TABLE "users" (
 CREATE TABLE "centers" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "city" TEXT NOT NULL,
     "area" "Area" NOT NULL,
     "coordinatorId" TEXT,
     "superCoordinatorId" TEXT,

@@ -105,7 +105,6 @@ async function updateGameInstanceData(gameInstanceId: string, updateData: any) {
         select: {
           id: true,
           name: true,
-          city: true,
         },
       },
     },

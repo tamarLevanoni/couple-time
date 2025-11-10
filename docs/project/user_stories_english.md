@@ -17,8 +17,8 @@
 
 **Acceptance Criteria:**
 - [ ] I see a map with all centers
-- [ ] I can filter by region/city
-- [ ] I see center details: name, city, phone
+- [ ] I can filter by region/name
+- [ ] I see center details: name, phone
 - [ ] I can go directly to that center's catalog
 
 ### US-1.3: Request Rental

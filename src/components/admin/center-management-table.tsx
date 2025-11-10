@@ -38,9 +38,6 @@ export function CenterManagementTable({
                     <span className="font-medium">{center.name}</span>
                     <Badge variant="outline">{center.area}</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    {center.city}
-                  </p>
                   <p className="text-xs text-muted-foreground">
                     Coordinator: {center.coordinator ? formatUserName(center.coordinator.firstName, center.coordinator.lastName) : 'No coordinator assigned'}
                   </p>

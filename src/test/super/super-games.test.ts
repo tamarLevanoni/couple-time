@@ -142,11 +142,11 @@ describe('PUT /api/super/games/[id]', () => {
       id: 'gi-1',
       status: GameInstanceStatus.BORROWED,
     });
-    const updatedInstance = { 
-      ...existingInstance, 
+    const updatedInstance = {
+      ...existingInstance,
       ...updateData,
       game: mockData.game(),
-      center: { id: 'center-1', name: 'Test Center', city: 'Test City' },
+      center: { id: 'center-1', name: 'Test Center' },
     };
 
     vi.mocked(getToken, true).mockResolvedValue(mockTokens.superCoordinator);

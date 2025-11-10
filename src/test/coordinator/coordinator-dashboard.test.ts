@@ -31,7 +31,6 @@ describe('GET /api/coordinator', () => {
     const mockCenter = mockData.centerWithRelations({
       id: 'center-1',
       name: 'Test Center',
-      city: 'Test City',
       area: Area.NORTH,
       coordinatorId,
       superCoordinator: {
@@ -64,7 +63,6 @@ describe('GET /api/coordinator', () => {
       center: expect.objectContaining({
         id: 'center-1',
         name: 'Test Center',
-        city: 'Test City',
         area: Area.NORTH,
       }),
       superCoordinator: expect.objectContaining({
@@ -137,7 +135,6 @@ describe('GET /api/coordinator', () => {
     const mockCenter = mockData.centerWithRelations({
       id: 'center-1',
       name: 'Test Center',
-      city: 'Test City',
       area: Area.CENTER,
       coordinatorId,
       superCoordinator: null, // No super coordinator assigned
@@ -168,7 +165,6 @@ describe('GET /api/coordinator', () => {
     const mockCenter = mockData.centerWithRelations({
       id: 'center-1',
       name: 'Test Center',
-      city: 'Test City',
       area: Area.SOUTH,
       coordinatorId,
       superCoordinator: null,
@@ -222,7 +218,6 @@ describe('GET /api/coordinator', () => {
     const mockCenter = mockData.centerWithRelations({
       id: 'center-1',
       name: 'Test Center',
-      city: 'Test City',
       area: Area.CENTER,
       coordinatorId,
       superCoordinator: null,
