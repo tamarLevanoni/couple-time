@@ -1,4 +1,4 @@
-import { GameCategory, TargetAudience, Area } from '@/types';
+import { GameCategory, TargetAudience, Area, Role } from '@/types';
 
 /**
  * Get Hebrew label for game category
@@ -44,4 +44,18 @@ export function getAreaLabel(area: Area): string {
     JUDEA_SAMARIA: 'יו״שׁ'
   };
   return labels[area];
+}
+
+/**
+ * Get Hebrew label for role
+ * @param role - The role enum value
+ * @returns Hebrew translation of the role
+ */
+export function getRoleLabel(role: Role): string {
+  const labels: Record<Role, string> = {
+    ADMIN: 'אדמין',
+    SUPER_COORDINATOR: 'רכז על',
+    CENTER_COORDINATOR: 'רכז מוקד'
+  };
+  return labels[role];
 }

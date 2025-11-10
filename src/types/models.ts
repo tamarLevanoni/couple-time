@@ -299,4 +299,4 @@ export type RentalForCoordinator = Prisma.RentalGetPayload<{ include: typeof REN
 export type CoordinatorDashboardData = Prisma.CenterGetPayload<{ include: typeof COORDINATOR_DASHBOARD }>;
 export type CenterStatsData = Prisma.CenterGetPayload<{ include: typeof CENTER_STATS }>;
 
-// Note: API response types (UserForAdmin, CenterForAdmin, etc.) are defined in computed.ts
+// Note: Enhanced API response types with computed fields are defined in computed.ts

@@ -2,9 +2,9 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { 
+import type {
   GameWithInstances,
-  CenterWithCoordinator,
+  CenterForAdmin,
   Role,
   UserForAdmin
 } from '@/types';
@@ -23,7 +23,7 @@ interface AdminState {
   games: GameWithInstances[];
   
   // Centers management (US-4.2: Manage Centers)
-  centers: CenterWithCoordinator[];
+  centers: CenterForAdmin[];
   
   // Users management (US-4.1: Manage Users)
   users: UserForAdmin[];

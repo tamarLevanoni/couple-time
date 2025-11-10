@@ -20,7 +20,7 @@ import { SelectedGamesCard } from './selected-games-card';
 import { SelectedCenterCard } from './selected-center-card';
 import { ProcessInfoCard } from './process-info-card';
 import { Area } from '@/types';
-import { getAreaLabel } from '@/lib/game-labels';
+import { getAreaLabel } from '@/lib/labels';
 
 interface RentFormState {
   selectedArea: Area | '';

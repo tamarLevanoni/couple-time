@@ -12,7 +12,7 @@ import { MapPin, Phone, GameController } from '@/components/icons';
 import { useCentersStore, useFilteredCenters, useAuthStore } from '@/store';
 import { Area } from '@/types';
 import { formatUserName } from '@/lib/utils';
-import { getAreaLabel } from '@/lib/game-labels';
+import { getAreaLabel } from '@/lib/labels';
 
 export default function CentersPage() {
   const {

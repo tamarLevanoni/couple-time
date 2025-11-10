@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card';
 import { GameController } from '@/components/icons';
 import { GameBasic } from '@/types';
-import { getCategoryLabel } from '@/lib/game-labels';
+import { getCategoryLabel } from '@/lib/labels';
 import { useImageFallbackById } from '@/hooks/use-image-fallback';
 
 interface SelectedGamesCardProps {
