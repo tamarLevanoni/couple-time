@@ -7,7 +7,8 @@ import type {
   CenterBasic,
   UserContact,
   GameInstanceForCoordinator,
-  CenterPublicInfo
+  CenterPublicInfo,
+  GameWithInstances
 } from './models';
 import type { Game, Center, Area, Role, GameInstanceStatus, RentalStatus, GameCategory, TargetAudience } from './schema';
 
@@ -117,7 +118,7 @@ export interface CenterForAdmin extends CenterBasic {
   createdAt: Date;
 }
 
-export interface GameForAdmin extends GameBasic {
+export interface GameForAdmin extends GameWithInstances {
   totalInstances: number;
   availableInstances: number;
   centerDistribution: { centerId: string; centerName: string; instances: number }[];

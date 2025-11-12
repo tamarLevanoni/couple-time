@@ -4,6 +4,7 @@ import * as React from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
+  Column,
   SortingState,
   VisibilityState,
   flexRender,
@@ -16,6 +17,7 @@ import { ArrowUpDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -24,6 +26,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
+type FilterOption = {
+  label: string;
+  value: string;
+};
+
+type DataTableColumnMeta = {
+  filterVariant?: 'text' | 'select';
+  filterPlaceholder?: string;
+  filterOptions?: FilterOption[];
+};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,8 +77,57 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const hasFilters = table
+    .getHeaderGroups()
+    .some((headerGroup) =>
+      headerGroup.headers.some(
+        (header) =>
+          !header.isPlaceholder && header.column.getCanFilter()
+      )
+    );
+
+  const renderFilterControl = (column: Column<TData, unknown>) => {
+    if (!column.getCanFilter()) {
+      return null;
+    }
+
+    const meta = column.columnDef.meta as DataTableColumnMeta | undefined;
+    const filterValue = column.getFilterValue();
+
+    if (meta?.filterVariant === 'select') {
+      const options = meta.filterOptions ?? [];
+      const currentValue =
+        typeof filterValue === 'string' ? filterValue : '';
+      return (
+        <Select
+          value={currentValue}
+          onChange={(event) => {
+            const { value } = event.target;
+            if (!value) {
+              column.setFilterValue(undefined);
+              return;
+            }
+
+            column.setFilterValue(value);
+          }}
+          options={options}
+          className="h-9 text-sm"
+        />
+      );
+    }
+
+    return (
+      <Input
+        value={typeof filterValue === 'string' ? filterValue : ''}
+        onChange={(event) => column.setFilterValue(event.target.value)}
+        placeholder={meta?.filterPlaceholder}
+        className="h-9 text-sm"
+      />
+    );
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" dir="rtl">
       {searchKey && (
         <div className="flex items-center">
           <Input
@@ -84,27 +146,39 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
+              <React.Fragment key={headerGroup.id}>
+                <TableRow>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} className="text-right">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+
+                {hasFilters && (
+                  <TableRow>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={`${header.id}-filter`} className="text-right">
+                        {header.isPlaceholder ? null : renderFilterControl(header.column)}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                )}
+              </React.Fragment>
             ))}
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Loading...
+                  טוען...
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
@@ -116,7 +190,7 @@ export function DataTable<TData, TValue>({
                   className={onRowClick ? 'cursor-pointer' : ''}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-right">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -125,7 +199,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  אין תוצאות
                 </TableCell>
               </TableRow>
             )}
@@ -137,7 +211,7 @@ export function DataTable<TData, TValue>({
       {renderMobileCard && (
         <div className="md:hidden space-y-4">
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
+            <div className="text-center py-8 text-muted-foreground">טוען...</div>
           ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <div key={row.id} onClick={() => onRowClick?.(row.original)}>
@@ -145,7 +219,7 @@ export function DataTable<TData, TValue>({
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-muted-foreground">No results.</div>
+            <div className="text-center py-8 text-muted-foreground">אין תוצאות</div>
           )}
         </div>
       )}

@@ -65,67 +65,67 @@ Foundation components that everything depends on.
 - ✅ Created: [center-selector.tsx](src/components/admin/forms/center-selector.tsx) - Multi/single center selection
 - ✅ Enhanced: [labels.ts](src/lib/labels.ts) - Added getRoleLabel() function (renamed from game-labels.ts)
 
-### Phase 2: User Management (Days 3-4)
+### Phase 2: User Management (Days 3-4) ✅ COMPLETE
 
-**Task 2.1: User Details Modal**
-- New: [user-details-modal.tsx](src/components/admin/modals/user-details-modal.tsx)
-- Display user info, roles, managed/supervised centers
-- Show rental history count
-- Quick actions: edit, block/unblock
+**Task 2.1: User Details Modal** ✅
+- ✅ Created: [user-details-modal.tsx](src/components/admin/modals/user-details-modal.tsx)
+- ✅ Display user info, roles, managed/supervised centers
+- ✅ Quick actions: edit, block/unblock
+- ✅ Hebrew date formatting
 
-**Task 2.2: Edit User Modal**
-- New: [edit-user-modal.tsx](src/components/admin/modals/edit-user-modal.tsx)
-- Edit firstName, lastName, phone
-- Toggle isActive status
-- Validation: UpdateUserSchema
+**Task 2.2: Edit User Modal** ✅
+- ✅ Created: [edit-user-modal.tsx](src/components/admin/modals/edit-user-modal.tsx)
+- ✅ Edit firstName, lastName, phone
+- ✅ Client-side validation with Hebrew errors
+- ✅ Validation: UpdateUserSchema
 
-**Task 2.3: Assign Role Modal**
-- New: [assign-role-modal.tsx](src/components/admin/modals/assign-role-modal.tsx)
-- Multi-select roles
-- Conditional fields:
+**Task 2.3: Assign Role Modal** ✅
+- ✅ Created: [assign-role-modal.tsx](src/components/admin/modals/assign-role-modal.tsx)
+- ✅ Multi-select roles
+- ✅ Conditional fields:
   - CENTER_COORDINATOR: Show single center selector
   - SUPER_COORDINATOR: Show multiple centers selector
   - ADMIN: No center selection needed
-- Validation: AssignRoleSchema
+- ✅ Validation: AssignRoleSchema
 
-**Task 2.4: Update User Management Table**
-- Enhance: [user-management-table.tsx](src/components/admin/user-management-table.tsx)
-- Wire up all modals
-- Add search by name/email
-- Add filter by role
-- Add filter by status (active/blocked)
+**Task 2.4: Update User Management Table** ✅
+- ✅ Enhanced: [user-management-table.tsx](src/components/admin/user-management-table.tsx)
+- ✅ Wired up all 3 modals with state management
+- ✅ Added Edit and Assign Role buttons
+- ✅ Search by name exists (from Phase 1)
+- ✅ Updated mobile card view with all actions
 
-### Phase 3: Center Management (Days 5-6)
+### Phase 3: Center Management (Days 5-6) ⚠️ IN PROGRESS
 
-**Task 3.1: Center Details Modal**
-- New: [center-details-modal.tsx](src/components/admin/modals/center-details-modal.tsx)
-- Display center info, coordinator details
-- Show game instances count and availability
-- Show active/pending rentals count
+**Task 3.1: Center Details Modal** ✅
+- ✅ Created: [center-details-modal.tsx](src/components/admin/modals/center-details-modal.tsx)
+- ✅ Display center info, coordinator details
+- ✅ Show game instances count and availability
+- ✅ Show active/pending rentals count
 
-**Task 3.2: Create Center Modal**
-- New: [create-center-modal.tsx](src/components/admin/modals/create-center-modal.tsx)
-- Form: name, area, coordinatorId (optional), superCoordinatorId (optional)
-- Validation: CreateCenterSchema
+**Task 3.2: Create Center Modal** ✅
+- ✅ Created: [create-center-modal.tsx](src/components/admin/modals/create-center-modal.tsx)
+- ✅ Form: name, area, coordinatorId (optional), superCoordinatorId (optional)
+- ✅ Validation: CreateCenterSchema
 
-**Task 3.3: Edit Center Modal**
-- New: [edit-center-modal.tsx](src/components/admin/modals/edit-center-modal.tsx)
-- Edit name, area, isActive
-- Validation: UpdateCenterSchema
+**Task 3.3: Edit Center Modal** ✅
+- ✅ Created: [edit-center-modal.tsx](src/components/admin/modals/edit-center-modal.tsx)
+- ✅ Edit name, area, isActive
+- ✅ Validation: UpdateCenterSchema
 
-**Task 3.4: Assign Coordinators Modal**
-- New: [assign-coordinators-modal.tsx](src/components/admin/modals/assign-coordinators-modal.tsx)
-- Select center coordinator (CENTER_COORDINATOR role users)
-- Select super coordinator (SUPER_COORDINATOR role users)
-- Allow clearing assignments
+**Task 3.4: Assign Coordinators Modal** ✅
+- ✅ Created: [assign-coordinators-modal.tsx](src/components/admin/modals/assign-coordinators-modal.tsx)
+- ✅ Select center coordinator (CENTER_COORDINATOR role users)
+- ✅ Select super coordinator (SUPER_COORDINATOR role users)
+- ✅ Allow clearing assignments
 
-**Task 3.5: Update Center Management Table**
+**Task 3.5: Update Center Management Table** ⏳ PENDING
 - Enhance: [center-management-table.tsx](src/components/admin/center-management-table.tsx)
-- Add "Add Center" button
-- Wire up all modals
-- Add search by name
-- Add filter by area
-- Add filter by coordinator status
+- Add "Add Center" button (already exists from Phase 1)
+- Wire up all 4 modals
+- Add modal state management
+- Add handler functions
+- Search by name exists (from Phase 1)
 
 ### Phase 4: Game Management (Day 7)
 

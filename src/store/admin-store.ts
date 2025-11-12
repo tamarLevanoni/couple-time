@@ -2,72 +2,69 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type {
-  GameWithInstances,
-  CenterForAdmin,
-  Role,
-  UserForAdmin
-} from '@/types';
+import type { UserForAdmin, CenterForAdmin } from '@/types/computed';
+import type { GameWithInstances } from '@/types/models';
 import type {
   CreateGameInput,
   UpdateGameInput,
   CreateCenterInput,
   UpdateCenterInput,
   CreateUserInput,
-  UpdateUserInput,
+  UpdateUserByAdminInput,
   AssignRoleInput
 } from '@/lib/validations';
 
 interface AdminState {
-  // Games management (US-4.3: Global Game Management)
+  // Games management
   games: GameWithInstances[];
-  
-  // Centers management (US-4.2: Manage Centers)
+
+  // Centers management
   centers: CenterForAdmin[];
-  
-  // Users management (US-4.1: Manage Users)
+
+  // Users management
   users: UserForAdmin[];
-  
-  // System statistics (US-4.4: Reports and Statistics)
+
+  // System statistics
   systemStats: any | null;
-  
+
   // Loading states
   isLoadingGames: boolean;
   isLoadingCenters: boolean;
   isLoadingUsers: boolean;
   isLoadingStats: boolean;
   isSubmitting: boolean;
-  
-  // Error states
+
+  // Error and warning states
   error: string | null;
+  warnings: string[];
 }
 
 interface AdminActions {
-  // Game management (US-4.3: Global Game Management)
+  // Game management
   loadGames: () => Promise<void>;
   createGame: (data: CreateGameInput) => Promise<void>;
   updateGame: (id: string, data: UpdateGameInput) => Promise<void>;
   deleteGame: (id: string) => Promise<void>;
-  
-  // Center management (US-4.2: Manage Centers)
+
+  // Center management
   loadCenters: () => Promise<void>;
   createCenter: (data: CreateCenterInput) => Promise<void>;
   updateCenter: (id: string, data: UpdateCenterInput) => Promise<void>;
   deleteCenter: (id: string) => Promise<void>;
-  
-  // User management (US-4.1: Manage Users)
+
+  // User management
   loadUsers: () => Promise<void>;
   createUser: (data: CreateUserInput) => Promise<void>;
-  updateUser: (id: string, data: UpdateUserInput) => Promise<void>;
-  blockUser: (id: string) => Promise<void>;
-  unblockUser: (id: string) => Promise<void>;
-  assignRole: (data: AssignRoleInput) => Promise<void>;
-  
-  // System statistics (US-4.4: Reports and Statistics)
+  updateUser: (id: string, data: UpdateUserByAdminInput) => Promise<void>;
+  assignRole: (userId: string, data: AssignRoleInput) => Promise<void>;
+
+  // System statistics
   loadSystemStats: () => Promise<void>;
-  
+
   // Utility actions
   setError: (error: string | null) => void;
+  setWarnings: (warnings: string[]) => void;
+  clearWarnings: () => void;
 }
 
 export type AdminStore = AdminState & AdminActions;
@@ -86,6 +83,7 @@ export const useAdminStore = create<AdminStore>()(
       isLoadingStats: false,
       isSubmitting: false,
       error: null,
+      warnings: [],
 
       // Game management actions
       loadGames: async () => {
@@ -99,15 +97,18 @@ export const useAdminStore = create<AdminStore>()(
             throw new Error(result.error?.message || 'Failed to load games');
           }
 
-          set({ 
-            games: result.data,
-            isLoadingGames: false 
+          // API returns { games, pagination } so extract games array
+          const games = result.data?.games || result.data || [];
+
+          set({
+            games,
+            isLoadingGames: false
           }, false, 'loadGames/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to load games';
-          set({ 
+          set({
             error: message,
-            isLoadingGames: false 
+            isLoadingGames: false
           }, false, 'loadGames/error');
         }
       },
@@ -130,14 +131,15 @@ export const useAdminStore = create<AdminStore>()(
 
           // Reload games to get fresh data
           await get().loadGames();
-          
+
           set({ isSubmitting: false }, false, 'createGame/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to create game';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'createGame/error');
+          throw error;
         }
       },
 
@@ -159,20 +161,21 @@ export const useAdminStore = create<AdminStore>()(
 
           // Update local state
           const { games } = get();
-          const updatedGames = games.map(game => 
+          const updatedGames = games.map(game =>
             game.id === id ? { ...game, ...result.data } : game
           );
-          
-          set({ 
+
+          set({
             games: updatedGames,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'updateGame/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to update game';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'updateGame/error');
+          throw error;
         }
       },
 
@@ -193,17 +196,18 @@ export const useAdminStore = create<AdminStore>()(
           // Remove from local state
           const { games } = get();
           const filteredGames = games.filter(game => game.id !== id);
-          
-          set({ 
+
+          set({
             games: filteredGames,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'deleteGame/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to delete game';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'deleteGame/error');
+          throw error;
         }
       },
 
@@ -219,15 +223,18 @@ export const useAdminStore = create<AdminStore>()(
             throw new Error(result.error?.message || 'Failed to load centers');
           }
 
-          set({ 
-            centers: result.data,
-            isLoadingCenters: false 
+          // API returns { centers, pagination } so extract centers array
+          const centers = result.data?.centers || result.data || [];
+
+          set({
+            centers,
+            isLoadingCenters: false
           }, false, 'loadCenters/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to load centers';
-          set({ 
+          set({
             error: message,
-            isLoadingCenters: false 
+            isLoadingCenters: false
           }, false, 'loadCenters/error');
         }
       },
@@ -250,14 +257,15 @@ export const useAdminStore = create<AdminStore>()(
 
           // Reload centers to get fresh data
           await get().loadCenters();
-          
+
           set({ isSubmitting: false }, false, 'createCenter/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to create center';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'createCenter/error');
+          throw error;
         }
       },
 
@@ -279,20 +287,21 @@ export const useAdminStore = create<AdminStore>()(
 
           // Update local state
           const { centers } = get();
-          const updatedCenters = centers.map(center => 
+          const updatedCenters = centers.map(center =>
             center.id === id ? { ...center, ...result.data } : center
           );
-          
-          set({ 
+
+          set({
             centers: updatedCenters,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'updateCenter/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to update center';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'updateCenter/error');
+          throw error;
         }
       },
 
@@ -313,17 +322,18 @@ export const useAdminStore = create<AdminStore>()(
           // Remove from local state
           const { centers } = get();
           const filteredCenters = centers.filter(center => center.id !== id);
-          
-          set({ 
+
+          set({
             centers: filteredCenters,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'deleteCenter/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to delete center';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'deleteCenter/error');
+          throw error;
         }
       },
 
@@ -339,21 +349,24 @@ export const useAdminStore = create<AdminStore>()(
             throw new Error(result.error?.message || 'Failed to load users');
           }
 
-          set({ 
-            users: result.data,
-            isLoadingUsers: false 
+          // API returns { users, pagination } so extract users array
+          const users = result.data?.users || result.data || [];
+
+          set({
+            users,
+            isLoadingUsers: false
           }, false, 'loadUsers/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to load users';
-          set({ 
+          set({
             error: message,
-            isLoadingUsers: false 
+            isLoadingUsers: false
           }, false, 'loadUsers/error');
         }
       },
 
       createUser: async (data) => {
-        set({ isSubmitting: true, error: null }, false, 'createUser/start');
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'createUser/start');
 
         try {
           const response = await fetch('/api/admin/users', {
@@ -368,21 +381,29 @@ export const useAdminStore = create<AdminStore>()(
             throw new Error(result.error?.message || 'Failed to create user');
           }
 
+          // Handle warnings from API
+          const warnings = result.data?.warnings || [];
+
           // Reload users to get fresh data
           await get().loadUsers();
-          
-          set({ isSubmitting: false }, false, 'createUser/success');
+
+          set({
+            isSubmitting: false,
+            warnings
+          }, false, 'createUser/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to create user';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false,
+            warnings: []
           }, false, 'createUser/error');
+          throw error;
         }
       },
 
       updateUser: async (id, data) => {
-        set({ isSubmitting: true, error: null }, false, 'updateUser/start');
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'updateUser/start');
 
         try {
           const response = await fetch(`/api/admin/users/${id}`, {
@@ -397,39 +418,32 @@ export const useAdminStore = create<AdminStore>()(
             throw new Error(result.error?.message || 'Failed to update user');
           }
 
-          // Update local state
+          // Update local state with returned user data
           const { users } = get();
-          const updatedUsers = users.map(user => 
-            user.id === id ? { ...user, ...result.data } : user
+          const updatedUsers = users.map(user =>
+            user.id === id ? result.data : user
           );
-          
-          set({ 
+
+          set({
             users: updatedUsers,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'updateUser/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to update user';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false
           }, false, 'updateUser/error');
+          throw error;
         }
       },
 
-      blockUser: async (id) => {
-        await get().updateUser(id, { isActive: false });
-      },
-
-      unblockUser: async (id) => {
-        await get().updateUser(id, { isActive: true });
-      },
-
-      assignRole: async (data) => {
-        set({ isSubmitting: true, error: null }, false, 'assignRole/start');
+      assignRole: async (userId, data) => {
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'assignRole/start');
 
         try {
-          const response = await fetch('/api/admin/roles', {
-            method: 'POST',
+          const response = await fetch(`/api/admin/users/${userId}/role`, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
           });
@@ -440,16 +454,28 @@ export const useAdminStore = create<AdminStore>()(
             throw new Error(result.error?.message || 'Failed to assign role');
           }
 
-          // Reload users to get fresh data
-          await get().loadUsers();
-          
-          set({ isSubmitting: false }, false, 'assignRole/success');
+          // Handle warnings from API
+          const warnings = result.data?.warnings || [];
+
+          // Update local state with returned user data
+          const { users } = get();
+          const updatedUsers = users.map(user =>
+            user.id === userId ? result.data.user : user
+          );
+
+          set({
+            users: updatedUsers,
+            isSubmitting: false,
+            warnings
+          }, false, 'assignRole/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to assign role';
-          set({ 
+          set({
             error: message,
-            isSubmitting: false 
+            isSubmitting: false,
+            warnings: []
           }, false, 'assignRole/error');
+          throw error;
         }
       },
 
@@ -480,6 +506,12 @@ export const useAdminStore = create<AdminStore>()(
 
       setError: (error) =>
         set({ error }, false, 'setError'),
+
+      setWarnings: (warnings) =>
+        set({ warnings }, false, 'setWarnings'),
+
+      clearWarnings: () =>
+        set({ warnings: [] }, false, 'clearWarnings'),
     }),
     { name: 'admin-store' }
   )

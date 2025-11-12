@@ -22,12 +22,12 @@ export async function GET(req: NextRequest) {
     await assertAdminRole(token);
 
     const { searchParams } = new URL(req.url);
+    const limitParam = searchParams.get('limit');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = limitParam ? parseInt(limitParam) : null; // null means no pagination
     const area = searchParams.get('area');
     const search = searchParams.get('search');
     const includeInactive = searchParams.get('includeInactive') === 'true';
-    const offset = (page - 1) * limit;
 
     const where: any = {};
 
@@ -41,53 +41,62 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // By default, only show active centers unless explicitly requested
+    // By default, show all centers (admin needs to see everything)
     if (!includeInactive) {
       where.isActive = true;
     }
 
-    const [centers, total] = await Promise.all([
-      prisma.center.findMany({
-        where,
-        include: {
-          coordinator: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              phone: true,
-            },
-          },
-          superCoordinator: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              phone: true,
-            },
-          },
-          _count: {
-            select: {
-              gameInstances: true,
-            },
+    const queryOptions: any = {
+      where,
+      include: {
+        coordinator: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
           },
         },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
-      }),
+        superCoordinator: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        _count: {
+          select: {
+            gameInstances: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    };
+
+    // Only apply pagination if limit is provided
+    if (limit) {
+      const offset = (page - 1) * limit;
+      queryOptions.take = limit;
+      queryOptions.skip = offset;
+    }
+
+    const [centers, total] = await Promise.all([
+      prisma.center.findMany(queryOptions),
       prisma.center.count({ where }),
     ]);
 
     return apiResponse(true, {
       centers,
-      pagination: {
+      pagination: limit ? {
         page,
         limit,
         total,
         pages: Math.ceil(total / limit),
+      } : {
+        total,
       },
     });
   } catch (error) {

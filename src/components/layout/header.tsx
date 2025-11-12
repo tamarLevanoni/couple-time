@@ -129,8 +129,8 @@ export function Header() {
               <div className="flex items-center space-x-3 space-x-reverse">
 
                 {/* Dashboard Link for privileged users */}
-                {hasPrivilegedRole && (
-                  <Link href="/dashboard">
+                {session.user.roles.includes('ADMIN') && (
+                  <Link href="/admin">
                     <Button
                       variant="outline"
                       size="sm"

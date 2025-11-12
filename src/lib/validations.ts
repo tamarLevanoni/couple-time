@@ -262,6 +262,12 @@ export const UpdateRentalByCoordinatorSchema = z.object({
 
 
 // Admin API validations
+export const UpdateUserByAdminSchema = UserSchema.pick({
+  firstName: true,
+  lastName: true,
+  phone: true,
+}).partial();
+
 export const UpdateUserSchema = UserSchema.pick({
   firstName: true,
   lastName: true,
@@ -283,7 +289,6 @@ export const UserListRequestSchema = z.object({
 });
 
 export const AssignRoleSchema = z.object({
-  userId: z.string().cuid(),
   roles: z.array(RoleSchema).min(1, 'At least one role is required'),
   managedCenterId: z.string().cuid().optional(),
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
@@ -362,6 +367,7 @@ export type CreateRentalInput = z.infer<typeof CreateRentalSchema>;
 export type CreateManualRentalInput = z.infer<typeof CreateManualRentalSchema>;
 export type UpdateRentalInput = z.infer<typeof UpdateRentalSchema>;
 export type UpdateRentalByCoordinatorInput = z.infer<typeof UpdateRentalByCoordinatorSchema>;
+export type UpdateUserByAdminInput = z.infer<typeof UpdateUserByAdminSchema>;
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
 export type AddGameToCenterInput = z.infer<typeof AddGameToCenterSchema>;
 export type ReportRequestInput = z.infer<typeof ReportRequestSchema>;
