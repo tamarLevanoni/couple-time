@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { LoadingPage } from '@/components/ui/loading';
-import { useAdminStore } from '@/store/admin-store';
+import {
+  useAdminUsersStore,
+  useAdminCentersStore,
+  useAdminGamesStore,
+  useAdminStatsStore
+} from '@/store/admin';
 import { useToast } from '@/hooks/use-toast';
 import { UsersTab } from '@/components/admin';
 
@@ -17,19 +22,32 @@ export default function AdminDashboardPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('users');
 
+  // User management store
   const {
     users,
-    centers,
-    isLoadingGames,
-    isLoadingCenters,
-    isLoadingUsers,
-    isLoadingStats,
+    isLoading: isLoadingUsers,
     warnings,
-    loadGames,
-    loadCenters,
-    loadUsers,
-    loadSystemStats,
-  } = useAdminStore();
+    loadUsers
+  } = useAdminUsersStore();
+
+  // Centers management store
+  const {
+    centers,
+    isLoading: isLoadingCenters,
+    loadCenters
+  } = useAdminCentersStore();
+
+  // Games management store
+  const {
+    isLoading: isLoadingGames,
+    loadGames
+  } = useAdminGamesStore();
+
+  // Stats store
+  const {
+    isLoading: isLoadingStats,
+    loadSystemStats
+  } = useAdminStatsStore();
 
   // Load all admin data on mount
   useEffect(() => {

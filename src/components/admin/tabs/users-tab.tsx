@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { UserForAdmin, CenterForAdmin } from '@/types/computed';
 import { UpdateUserByAdminInput, AssignRoleInput, CreateUserInput } from '@/lib/validations';
-import { useAdminStore } from '@/store/admin-store';
+import { useAdminUsersStore } from '@/store/admin';
 import { useToast } from '@/hooks/use-toast';
 import {
   UserManagementTable,
@@ -31,7 +31,7 @@ export function UsersTab({ users, centers, isLoading }: UsersTabProps) {
     updateUser,
     assignRole,
     clearWarnings,
-  } = useAdminStore();
+  } = useAdminUsersStore();
 
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [selectedUser, setSelectedUser] = useState<UserForAdmin | null>(null);

@@ -65,7 +65,12 @@ export {
 // ===== ADMIN STORES =====
 // For system administrator operations
 
-export { useAdminStore } from './admin-store';
+export {
+  useAdminUsersStore,
+  useAdminCentersStore,
+  useAdminGamesStore,
+  useAdminStatsStore
+} from './admin';
 
 // ===== STORE TYPES =====
 // Re-export store type interfaces for component props
@@ -75,4 +80,9 @@ export type { AuthStore } from './auth-store';
 // Centers store doesn't export type anymore - using inline type
 export type { RentalsStore } from './rentals-store';
 export type { CoordinatorStore } from './coordinator-store';
-export type { AdminStore } from './admin-store';
+export type {
+  AdminUsersStore,
+  AdminCentersStore,
+  AdminGamesStore,
+  AdminStatsStore
+} from './admin';

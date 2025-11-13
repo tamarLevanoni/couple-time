@@ -323,7 +323,7 @@ import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAdminStore } from '@/store/admin-store';
+import { useAdminUsersStore } from '@/store/admin';
 
 interface UserModalProps {
   isOpen: boolean;
@@ -333,7 +333,7 @@ interface UserModalProps {
 }
 
 export function UserModal({ isOpen, onClose, mode, userId }: UserModalProps) {
-  const { createUser, updateUser, users, isSubmitting } = useAdminStore();
+  const { createUser, updateUser, users, isSubmitting } = useAdminUsersStore();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -605,7 +605,7 @@ import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAdminStore } from '@/store/admin-store';
+import { useAdminUsersStore, useAdminCentersStore } from '@/store/admin';
 import type { Role } from '@/types';
 
 interface RoleAssignmentModalProps {
@@ -615,7 +615,8 @@ interface RoleAssignmentModalProps {
 }
 
 export function RoleAssignmentModal({ isOpen, onClose, userId }: RoleAssignmentModalProps) {
-  const { users, centers, assignRole, isSubmitting } = useAdminStore();
+  const { users, assignRole, isSubmitting } = useAdminUsersStore();
+  const { centers } = useAdminCentersStore();
   const [selectedRole, setSelectedRole] = useState<Role | ''>('');
   const [selectedCenter, setSelectedCenter] = useState<string>('');
 
