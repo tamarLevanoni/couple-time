@@ -42,7 +42,7 @@ export function BaseFormModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={maxWidth}>
+      <DialogContent className={`${maxWidth} mx-4`}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
