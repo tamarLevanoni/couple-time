@@ -15,7 +15,8 @@ import {
   useUserManagedCenter,
   useRentalCounts,
   useCenterById,
-  useRentalsStore
+  useRentalsStore,
+  useIsCoordinator
 } from '@/store';
 
 
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   const userProfile = useUserProfile();
   const userRoles = useUserRoles();
   const hasPrivilegedRole = useHasPrivilegedRole();
+  const isCoordinator = useIsCoordinator();
   const managedCenterId = useUserManagedCenter();
   const managedCenter = useCenterById(managedCenterId || undefined);
 
@@ -119,7 +121,7 @@ export default function ProfilePage() {
         <div className="space-y-6">
           <QuickActions
             activeRentalCount={rentalCounts.active}
-            hasPrivilegedRole={hasPrivilegedRole}
+            isCoordinator={isCoordinator}
           />
 
           <UserInfo

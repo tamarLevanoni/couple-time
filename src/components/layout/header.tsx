@@ -129,7 +129,7 @@ export function Header() {
               <div className="flex items-center space-x-3 space-x-reverse">
 
                 {/* Dashboard Link for privileged users */}
-                {session.user.roles.includes('ADMIN') && (
+                {isAdmin && (
                   <Link href="/admin">
                     <Button
                       variant="outline"
@@ -188,7 +188,7 @@ export function Header() {
                         </Link>
                       </div>
 
-                      {hasPrivilegedRole && (
+                      {isCoordinator && (
                         <div className="py-1">
                           <Link
                             href="/dashboard"
@@ -196,7 +196,7 @@ export function Header() {
                             onClick={() => setIsProfileDropdownOpen(false)}
                           >
                             <LayoutDashboardIcon className="w-4 h-4" />
-                            <span>לוח בקרה</span>
+                            <span>לוח השאלות</span>
                           </Link>
                         </div>
                       )}

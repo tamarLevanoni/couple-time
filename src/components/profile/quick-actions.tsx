@@ -7,10 +7,10 @@ import { GameController, MapPin, Shield } from '@/components/icons';
 
 interface QuickActionsProps {
   activeRentalCount: number;
-  hasPrivilegedRole: boolean;
+  isCoordinator: boolean;
 }
 
-export function QuickActions({ activeRentalCount, hasPrivilegedRole }: QuickActionsProps) {
+export function QuickActions({ activeRentalCount, isCoordinator }: QuickActionsProps) {
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -47,11 +47,11 @@ export function QuickActions({ activeRentalCount, hasPrivilegedRole }: QuickActi
           </Button>
         </Link>
         
-        {hasPrivilegedRole && (
+        {isCoordinator && (
           <Link href="/dashboard">
             <Button variant="outline" className="w-full justify-start border-blue-200 text-blue-700">
               <Shield className="h-4 w-4 ml-2" />
-              <span>לוח בקרה</span>
+              <span>לוח השאלות</span>
             </Button>
           </Link>
         )}

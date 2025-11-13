@@ -43,11 +43,6 @@ export function HomePage() {
                     <Button size="lg">
                       <Link href="/games">עיין במשחקים</Link>
                     </Button>
-                    {hasPrivilegedRole && (
-                      <Button variant="outline" size="lg">
-                        <Link href="/dashboard">לוח בקרה</Link>
-                      </Button>
-                    )}
                   </div>
                 </div>
               ) : (
