@@ -49,7 +49,7 @@ export const CenterSchema = z.object({
   location: z.object({
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
-  }).optional(),
+  }),
   isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -179,11 +179,12 @@ export const CreateCenterSchema = CenterSchema.pick({
 export const UpdateCenterSchema = CenterSchema.pick({
   name: true,
   area: true,
-  coordinatorId: true,
-  superCoordinatorId: true,
-  location: true,
   isActive: true,
-}).partial();
+}).partial().extend({
+  coordinatorId:  CenterSchema.shape.coordinatorId.nullable(),
+  superCoordinatorId: CenterSchema.shape.superCoordinatorId.nullable(),
+  location: CenterSchema.shape.location.optional(),
+});
 
 // ===== RENTAL API VALIDATIONS =====
 // Business Rule: All game instances in a rental must belong to the same center

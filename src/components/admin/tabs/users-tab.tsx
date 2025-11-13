@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UserForAdmin, CenterForAdmin } from '@/types/computed';
+import { UserForAdmin } from '@/types/computed';
 import { UpdateUserByAdminInput, CreateUserInput } from '@/lib/validations';
 import { useAdminUsersStore, useAdminCentersStore } from '@/store/admin';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,7 @@ import {
   EditUserModal,
   CreateUserModal,
 } from '@/components/admin';
+import { CenterForAdmin } from '@/types';
 
 type ModalType = 'details' | 'edit' | 'role' | 'create' | null;
 

@@ -251,6 +251,8 @@ export const CENTERS_FOR_ADMIN = {
   },
 } as const satisfies Prisma.CenterInclude;
 
+export type CenterForAdmin = Prisma.CenterGetPayload<{ include: typeof CENTERS_FOR_ADMIN }>;
+
 export const GAMES_FOR_ADMIN = {
   _count: {
     select: {

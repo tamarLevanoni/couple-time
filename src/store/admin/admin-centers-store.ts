@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { CenterForAdmin } from '@/types/computed';
+import type { CenterForAdmin } from '@/types';
 import type {
   CreateCenterInput,
   UpdateCenterInput
@@ -13,6 +13,7 @@ interface AdminCentersState {
   isLoading: boolean;
   isSubmitting: boolean;
   error: string | null;
+  warnings: string[];
 }
 
 interface AdminCentersActions {
@@ -21,6 +22,9 @@ interface AdminCentersActions {
   updateCenter: (id: string, data: UpdateCenterInput) => Promise<void>;
   deleteCenter: (id: string) => Promise<void>;
   setError: (error: string | null) => void;
+  setWarnings: (warnings: string[]) => void;
+  clearWarnings: () => void;
+  clearError: () => void;
 }
 
 export type AdminCentersStore = AdminCentersState & AdminCentersActions;
@@ -33,6 +37,7 @@ export const useAdminCentersStore = create<AdminCentersStore>()(
       isLoading: false,
       isSubmitting: false,
       error: null,
+      warnings: [],
 
       // Actions
       loadCenters: async () => {
@@ -63,7 +68,7 @@ export const useAdminCentersStore = create<AdminCentersStore>()(
       },
 
       createCenter: async (data) => {
-        set({ isSubmitting: true, error: null }, false, 'createCenter/start');
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'createCenter/start');
 
         try {
           const response = await fetch('/api/admin/centers', {
@@ -78,22 +83,33 @@ export const useAdminCentersStore = create<AdminCentersStore>()(
             throw new Error(result.error?.message || 'Failed to create center');
           }
 
-          // Reload centers to get fresh data
-          await get().loadCenters();
+          // Handle warnings from API (now at top level)
+          const warnings = result.warnings || [];
 
-          set({ isSubmitting: false }, false, 'createCenter/success');
+          // Add new center to local state
+          const { centers } = get();
+          const updatedCenters = [result.data, ...centers];
+
+          set({
+            centers: updatedCenters,
+            isSubmitting: false,
+            warnings
+          }, false, 'createCenter/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to create center';
           set({
             error: message,
-            isSubmitting: false
+            isSubmitting: false,
+            warnings: []
           }, false, 'createCenter/error');
           throw error;
         }
       },
 
       updateCenter: async (id, data) => {
-        set({ isSubmitting: true, error: null }, false, 'updateCenter/start');
+        console.log("🚀 ~ data:", data)
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'updateCenter/start');
+        console.log("🚀 ~ JSON.stringify(data):", JSON.stringify(data))
 
         try {
           const response = await fetch(`/api/admin/centers/${id}`, {
@@ -108,21 +124,55 @@ export const useAdminCentersStore = create<AdminCentersStore>()(
             throw new Error(result.error?.message || 'Failed to update center');
           }
 
-          // Update local state
+          // Handle warnings from API
+          const warnings = result.warnings || [];
+
+          // Get previous center state to detect coordinator/super coordinator changes
           const { centers } = get();
+          const previousCenter = centers.find(center => center.id === id);
+
+          // Update local state
           const updatedCenters = centers.map(center =>
             center.id === id ? { ...center, ...result.data } : center
           );
 
           set({
             centers: updatedCenters,
-            isSubmitting: false
+            isSubmitting: false,
+            warnings
           }, false, 'updateCenter/success');
+
+          // Update users store if coordinator or super coordinator changed
+          if (previousCenter) {
+            const coordinatorChanged =
+              data.coordinatorId !== undefined &&
+              previousCenter.coordinator?.id !== result.data.coordinator?.id;
+
+            const superCoordinatorChanged =
+              data.superCoordinatorId !== undefined &&
+              previousCenter.superCoordinator?.id !== result.data.superCoordinator?.id;
+
+            if (coordinatorChanged || superCoordinatorChanged) {
+              const { useAdminUsersStore } = await import('./admin-users-store');
+              useAdminUsersStore.getState().updateUserFromCenterChange({
+                previousCoordinatorId: coordinatorChanged ? previousCenter.coordinator?.id : undefined,
+                newCoordinatorId: coordinatorChanged ? result.data.coordinator?.id : undefined,
+                previousSuperCoordinatorId: superCoordinatorChanged ? previousCenter.superCoordinator?.id : undefined,
+                newSuperCoordinatorId: superCoordinatorChanged ? result.data.superCoordinator?.id : undefined,
+                centerBasicInfo: {
+                  id: result.data.id,
+                  name: result.data.name,
+                  area: result.data.area,
+                },
+              });
+            }
+          }
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to update center';
           set({
             error: message,
-            isSubmitting: false
+            isSubmitting: false,
+            warnings: []
           }, false, 'updateCenter/error');
           throw error;
         }
@@ -162,6 +212,15 @@ export const useAdminCentersStore = create<AdminCentersStore>()(
 
       setError: (error) =>
         set({ error }, false, 'setError'),
+
+      setWarnings: (warnings) =>
+        set({ warnings }, false, 'setWarnings'),
+
+      clearWarnings: () =>
+        set({ warnings: [] }, false, 'clearWarnings'),
+
+      clearError: () =>
+        set({ error: null }, false, 'clearError'),
     }),
     { name: 'admin-centers-store' }
   )

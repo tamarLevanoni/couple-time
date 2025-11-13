@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { WarningDisplay } from '@/components/ui/warning-display';
-import { CenterForAdmin } from '@/types/computed';
+import { CenterForAdmin } from '@/types';
 import { Role } from '@/types/schema';
 import { CreateUserInput } from '@/lib/validations';
 import { getRoleLabel } from '@/lib/labels';

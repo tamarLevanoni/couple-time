@@ -12,6 +12,7 @@ import {
 } from '@/store/admin';
 import { useToast } from '@/hooks/use-toast';
 import { UsersTab } from '@/components/admin';
+import { CentersTab } from '@/components/admin/tabs/centers-tab';
 
 type TabType = 'users' | 'centers' | 'games' | 'stats';
 
@@ -164,9 +165,11 @@ export default function AdminDashboardPage() {
           />
         )}
         {activeTab === 'centers' && (
-          <div className="text-center py-12 text-gray-500">
-            מוקדים - בקרוב
-          </div>
+          <CentersTab
+            users={users}
+            centers={centers}
+            isLoading={isLoadingUsers}
+          />
         )}
         {activeTab === 'games' && (
           <div className="text-center py-12 text-gray-500">

@@ -109,14 +109,6 @@ export interface UserForAdmin extends UserContact {
   createdAt: Date;
 }
 
-export interface CenterForAdmin extends CenterBasic {
-  area: Area;
-  isActive: boolean;
-  coordinator?: UserContact;
-  superCoordinator?: UserContact;
-  stats: { totalGames: number; activeRentals: number; totalRentals: number };
-  createdAt: Date;
-}
 
 export interface GameForAdmin extends GameWithInstances {
   totalInstances: number;

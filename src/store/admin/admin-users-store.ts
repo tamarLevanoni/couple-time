@@ -7,6 +7,7 @@ import type {
   CreateUserInput,
   UpdateUserByAdminInput,
 } from '@/lib/validations';
+import type { Area } from '@/types/schema';
 
 interface AdminUsersState {
   users: UserForAdmin[];
@@ -20,6 +21,13 @@ interface AdminUsersActions {
   loadUsers: () => Promise<void>;
   createUser: (data: CreateUserInput) => Promise<void>;
   updateUser: (id: string, data: UpdateUserByAdminInput) => Promise<void>;
+  updateUserFromCenterChange: (updates: {
+    previousCoordinatorId?: string | null;
+    newCoordinatorId?: string | null;
+    previousSuperCoordinatorId?: string | null;
+    newSuperCoordinatorId?: string | null;
+    centerBasicInfo: { id: string; name: string; area: Area };
+  }) => void;
   setError: (error: string | null) => void;
   setWarnings: (warnings: string[]) => void;
   clearWarnings: () => void;
@@ -85,10 +93,12 @@ export const useAdminUsersStore = create<AdminUsersStore>()(
           // Handle warnings from API (now at top level)
           const warnings = result.warnings || [];
 
-          // Reload users to get fresh data
-          await get().loadUsers();
+          // Add new center to local state
+          const { users } = get();
+          const updatedUsers = [result.data, ...users];
 
           set({
+            users: updatedUsers,
             isSubmitting: false,
             warnings
           }, false, 'createUser/success');
@@ -137,6 +147,56 @@ export const useAdminUsersStore = create<AdminUsersStore>()(
           }, false, 'updateUser/error');
           throw error;
         }
+      },
+
+      updateUserFromCenterChange: (updates) => {
+        const { users } = get();
+        const {
+          previousCoordinatorId,
+          newCoordinatorId,
+          previousSuperCoordinatorId,
+          newSuperCoordinatorId,
+          centerBasicInfo,
+        } = updates;
+
+        const updatedUsers = users.map((user) => {
+          // Remove managedCenter from previous coordinator
+          if (previousCoordinatorId && user.id === previousCoordinatorId) {
+            return { ...user, managedCenter: undefined };
+          }
+
+          // Add managedCenter to new coordinator
+          if (newCoordinatorId && user.id === newCoordinatorId) {
+            return { ...user, managedCenter: centerBasicInfo };
+          }
+
+          // Remove center from previous super coordinator's supervisedCenters
+          if (previousSuperCoordinatorId && user.id === previousSuperCoordinatorId) {
+            return {
+              ...user,
+              supervisedCenters: user.supervisedCenters.filter(
+                (center) => center.id !== centerBasicInfo.id
+              ),
+            };
+          }
+
+          // Add center to new super coordinator's supervisedCenters
+          if (newSuperCoordinatorId && user.id === newSuperCoordinatorId) {
+            const alreadySupervising = user.supervisedCenters.some(
+              (center) => center.id === centerBasicInfo.id
+            );
+            return {
+              ...user,
+              supervisedCenters: alreadySupervising
+                ? user.supervisedCenters
+                : [...user.supervisedCenters, centerBasicInfo],
+            };
+          }
+
+          return user;
+        });
+
+        set({ users: updatedUsers }, false, 'updateUserFromCenterChange');
       },
 
       setError: (error) =>
