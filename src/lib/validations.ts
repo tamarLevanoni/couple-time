@@ -29,7 +29,7 @@ export const UserSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email format'),
   phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
-  roles: z.array(RoleSchema).optional(),
+  roles: z.array(RoleSchema).min(0),
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
   isActive: z.boolean(),
   createdAt: z.date(),

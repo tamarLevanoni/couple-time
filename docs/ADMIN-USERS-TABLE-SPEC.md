@@ -16,6 +16,7 @@
 - ⚠️ **SOFT**: Active centers should have super-coordinator (warn only)
 - ✅ **ALLOW**: Users can have coordinator roles without assigned centers (temporary)
 - ✅ **ALLOW**: Inactive centers don't need coordinators
+- ✅ **ALLOW**: Users can have empty roles array (regular user)
 
 ---
 
@@ -29,7 +30,7 @@
 | Phone | ❌ | ✅ Text | Optional |
 | Role | ✅ | ✅ Dropdown | Show all roles
 | Center | ✅ | ✅ Text | Managed center name (for coordinators), "-" otherwise |
-| Actions | ❌ | ❌ | View, Edit, Role |
+| Actions | ❌ | ❌ | View, Edit |
 
 **Table Header Actions:**
 - Create User button (opens create modal)
@@ -47,39 +48,28 @@
 - ⚠️ Warnings if coordinator without centers
 
 ### 2. Edit User (ערוך)
-**Editable:** `firstName`, `lastName`, `phone`
-**Non-editable:** email, roles
+**Editable:** `firstName`, `lastName`, `phone`, `roles`
+**Non-editable:** `email`
 
 **API checks:**
 - Field validation (length, format)
 - Phone regex validation
-
-### 3. Assign Role (תפקיד)
-**Form fields:**
-- Roles (multi-select, min 1)
-- Managed center (if CENTER_COORDINATOR selected)
-  - **Show only**: Centers without coordinator OR this user's current managed center
-- Supervised centers (if SUPER_COORDINATOR selected)
-  - **Show only**: Centers without super-coordinator OR centers this user currently supervises
-  - **Note**: Each center has max ONE super (many-to-one relation)
-
-**API must check:**
-1. ⚠️ **Warn** if CENTER_COORDINATOR without `managedCenterId`
-2. ⚠️ **Warn** if SUPER_COORDINATOR without `supervisedCenterIds`
-3. ❌ **Block** if regular user has center assignments
-4. ❌ **Block** if removing ADMIN role from self (cannot demote yourself)
-5. ⚠️ **Warn** if removing coordinator from center with active rentals
+- ❌ **Block** if removing `CENTER_COORDINATOR` role while `managedCenter` exists
+- ❌ **Block** if removing `SUPER_COORDINATOR` role while `supervisedCenters` exist
+- ✅ **Allow** empty roles array (user becomes regular user)
 
 **Role Assignment Matrix:**
 
 | Role | Center Required | Action |
 |------|-----------------|--------|
 | ADMIN | ❌ No | Allow |
-| CENTER_COORDINATOR | ⚠️ Optional | Allow, warn if null |
-| SUPER_COORDINATOR | ⚠️ Optional | Allow, warn if empty |
-| Regular user | ❌ No | Clear all assignments |
+| CENTER_COORDINATOR | ⚠️ Optional | Allow, warn if no center assigned via Centers management |
+| SUPER_COORDINATOR | ⚠️ Optional | Allow, warn if no centers assigned via Centers management |
+| Regular user (no roles) | ❌ No | Allow |
 
-### 4. Create User (הוספת משתמש)
+**Note:** Center assignments are now managed exclusively in the Centers table, not in User Edit modal.
+
+### 3. Create User (הוספת משתמש)
 **Form fields:**
 - First Name * (required)
 - Last Name * (required)
@@ -150,29 +140,30 @@
 **Schema:** `CreateUserSchema`
 
 ### PUT /api/admin/users/[id]
-**Updates:** Personal info (firstName, lastName, phone) - partial update
+**Updates:** Personal info and roles - partial update
+
+**Editable fields:**
+- `firstName` (optional)
+- `lastName` (optional)
+- `phone` (optional)
+- `roles` (optional - can be empty array)
 
 **Validation:**
 - At least one field must be provided
 - Phone format regex (if provided)
 - Name length limits 1-50 (if provided)
 
-**Cannot change:** email, roles, status
-
-**Schema:** `UpdateUserByAdminSchema` (partial)
-
-### PUT /api/admin/users/[id]/role
-**Updates:** User roles and center assignments
-
 **Must check:**
-1. Roles array not empty
-2. ❌ **Block** if regular user has center assignments
-3. ⚠️ **Warn** if CENTER_COORDINATOR without managedCenterId
-4. ⚠️ **Warn** if SUPER_COORDINATOR without supervisedCenterIds
-5. ❌ **Block** if removing ADMIN role from self
-6. ⚠️ **Warn** if removing coordinator with active rentals
+1. ❌ **Block** if removing `CENTER_COORDINATOR` while user has `managedCenter`
+   - Error: `"Cannot remove CENTER_COORDINATOR role: user manages center "{name}". Please reassign the center first."`
+2. ❌ **Block** if removing `SUPER_COORDINATOR` while user has `supervisedCenters`
+   - Error: `"Cannot remove SUPER_COORDINATOR role: user supervises {count} center(s): {names}. Please reassign the centers first."`
 
-**Schema:** `AssignRoleSchema`
+**Cannot change:** `email`, `isActive`
+
+**Schema:** `UpdateUserByAdminSchema` (partial - firstName, lastName, phone, roles)
+
+**Note:** This endpoint now handles role updates. The separate role assignment endpoint has been removed.
 
 ---
 
@@ -180,11 +171,11 @@
 
 | Scenario | Validation | Action |
 |----------|------------|--------|
-| Coordinator without center | Warn | Allow, show warning |
-| Super without centers | Warn | Allow, show warning |
-| Remove coordinator + active rentals | Warn + Confirm | Allow after confirm |
-| Remove ADMIN from self | Block | Cannot demote yourself |
-| Regular user with centers | Block | Clear centers first |
+| Coordinator without center | Allow | No warning - managed in Centers table |
+| Super without centers | Allow | No warning - managed in Centers table |
+| Remove coordinator with managedCenter | Block | Must reassign center first |
+| Remove super with supervisedCenters | Block | Must reassign centers first |
+| User with no roles | Allow | Regular user without special permissions |
 
 ---
 
@@ -198,10 +189,12 @@
 - [ ] POST user - warns if coordinator without center
 - [ ] POST user - blocks user without roles with centers
 - [ ] PUT user - updates personal info (partial)
+- [ ] PUT user - updates roles successfully
+- [ ] PUT user - allows empty roles array
+- [ ] PUT user - blocks removing CENTER_COORDINATOR with managedCenter
+- [ ] PUT user - blocks removing SUPER_COORDINATOR with supervisedCenters
 - [ ] PUT user - rejects invalid phone
 - [ ] PUT user - requires at least one field
-- [ ] PUT role - assigns coordinator without center (warns)
-- [ ] PUT role - blocks removing ADMIN from self
 - [ ] UI only shows available centers (without coordinators)
 
 ### UI Tests (Must Cover)
@@ -211,9 +204,11 @@
 - [ ] Search by name
 - [ ] Filter by role
 - [ ] Filter by center
-- [ ] View details shows warnings
-- [ ] Edit updates personal info
-- [ ] Assign role shows warnings for incomplete assignments
+- [ ] View details shows all user information
+- [ ] Edit modal shows role checkboxes
+- [ ] Edit updates personal info and roles
+- [ ] Edit shows error when trying to remove coordinator role with assigned center
+- [ ] Error messages are displayed and cleared properly
 
 ---
 
@@ -221,12 +216,12 @@
 
 ### User Validations (Flexible)
 ```
-✅ Allow coordinator roles without centers (warn)
+✅ Allow coordinator roles without centers (managed in Centers table)
 ✅ Allow same person to be coordinator + super for same center
-⚠️ Show warnings for incomplete assignments
-❌ Block regular user with center assignments
-❌ Block removing ADMIN from self
-⚠️ Confirm if removing coordinator with active rentals
+✅ Allow users with no roles (regular user)
+⚠️ Show warnings for incomplete assignments during user creation
+❌ Block removing CENTER_COORDINATOR if managedCenter exists
+❌ Block removing SUPER_COORDINATOR if supervisedCenters exist
 ```
 
 ### Center Validations (Strict - enforced in Centers table)
@@ -243,8 +238,8 @@
 ### API Input (Validation Schemas)
 **From `/lib/validations.ts`:**
 - `CreateUserSchema` - POST /api/admin/users
-- `UpdateUserByAdminSchema` - PUT /api/admin/users/[id] (partial - firstName, lastName, phone)
-- `AssignRoleSchema` - PUT /api/admin/users/[id]/role
+- `UpdateUserByAdminSchema` - PUT /api/admin/users/[id] (partial - firstName, lastName, phone, roles)
+
 
 ### API Output (Response Types)
 **From `/types/computed.ts`:**
@@ -269,9 +264,8 @@ src/components/admin/
 │   ├── user-management-table.tsx      # Main table
 │   ├── modals/
 │   │   ├── create-user-modal.tsx      # Create user
-│   │   ├── edit-user-modal.tsx        # Edit personal info
-│   │   ├── assign-role-modal.tsx      # Assign roles + centers
-│   │   └── user-details-modal.tsx     # View details + warnings
+│   │   ├── edit-user-modal.tsx        # Edit personal info + roles
+│   │   └── user-details-modal.tsx     # View details
 │   └── index.ts                       # Exports
 │
 ├── centers/                           # Center management (future)
@@ -293,6 +287,8 @@ src/components/admin/
         ├── area-selector.tsx          # Area dropdown
         └── coordinator-selector.tsx   # Coordinator dropdown
 ```
+
+**Note:** `assign-role-modal.tsx` has been removed - role editing is now part of `edit-user-modal.tsx`
 
 ### Page Structure
 **`/app/admin/page.tsx`** - Admin dashboard with tabs:
@@ -331,11 +327,13 @@ src/components/ui/                     # Shadcn/Radix components
 ✅ Reuse shared components from `/admin/shared/`
 ✅ Client-side filtering only
 ✅ Show warnings as notifications
+✅ Roles edited directly in Edit User modal
 ❌ No server-side filtering
 ❌ No new UI primitives
+❌ No separate role assignment modal
 
 ---
 
 **Last Updated:** 2025-11-13
-**Status:** ✅ Ready for Implementation
-**Key Decision:** Flexible user assignments + Strict center activation
+**Status:** ✅ Updated - Role editing integrated into Edit User modal
+**Key Decision:** Flexible user assignments + Strict center activation + Role management in Edit modal
