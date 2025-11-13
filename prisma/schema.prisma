@@ -18,7 +18,6 @@ model User {
   email                  String   @unique
   phone                  String
   roles                  Role[]
-  managedCenterId        String?  @unique // Single center ID if user is coordinator - unique for one-to-one
   isActive               Boolean  @default(true)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
@@ -28,7 +27,7 @@ model User {
   password String? // hashed password for email/password auth
 
   // Relations
-  managedCenter          Center?  @relation("CenterCoordinator", fields: [managedCenterId], references: [id])
+  managedCenter          Center?  @relation("CenterCoordinator")
   supervisedCenters      Center[] @relation("CenterSuperCoordinator")
   rentals                Rental[]
 
@@ -48,7 +47,7 @@ model Center {
   updatedAt              DateTime @updatedAt
 
   // Relations
-  coordinator            User?    @relation("CenterCoordinator")
+  coordinator            User?    @relation("CenterCoordinator", fields: [coordinatorId], references: [id])
   superCoordinator       User?    @relation("CenterSuperCoordinator", fields: [superCoordinatorId], references: [id])
   gameInstances          GameInstance[]
   rentals                Rental[] @relation("RentalCenter")

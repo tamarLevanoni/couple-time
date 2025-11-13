@@ -43,7 +43,6 @@ export const mockData = {
     phone: '1234567890',
     roles: [],
     isActive: true,
-    managedCenterId: null,
     supervisedCenterIds: [],
     googleId: null,
     password: null,

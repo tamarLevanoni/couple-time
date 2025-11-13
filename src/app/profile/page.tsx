@@ -12,9 +12,8 @@ import {
   useUserProfile,
   useUserRoles,
   useHasPrivilegedRole,
-  useUserManagedCenter,
+  useUserManagedCenterData,
   useRentalCounts,
-  useCenterById,
   useRentalsStore,
   useIsCoordinator
 } from '@/store';
@@ -30,8 +29,7 @@ export default function ProfilePage() {
   const userRoles = useUserRoles();
   const hasPrivilegedRole = useHasPrivilegedRole();
   const isCoordinator = useIsCoordinator();
-  const managedCenterId = useUserManagedCenter();
-  const managedCenter = useCenterById(managedCenterId || undefined);
+  const managedCenter = useUserManagedCenterData();
 
   // Use proper rental data from rentals store instead of user store
   const rentalCounts = useRentalCounts();

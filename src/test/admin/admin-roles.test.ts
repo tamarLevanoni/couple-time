@@ -35,7 +35,6 @@ describe('PUT /api/admin/roles', () => {
     vi.mocked(prisma.center.findFirst, true).mockResolvedValue(mockData.center());
     vi.mocked(prisma.user.update, true).mockResolvedValue(mockData.user({
       roles: [Role.CENTER_COORDINATOR],
-      managedCenterId: 'center-1',
     }));
 
     const request = createMockRequest('http://localhost/api/admin/roles', 'PUT', roleData);

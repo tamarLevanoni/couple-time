@@ -26,6 +26,13 @@ export const USER_WITH_ACTIVE_RENTALS = {
       },
     },
   },
+  managedCenter: {
+    select: {
+      id: true,
+      name: true,
+      area: true,
+    },
+  },
 } as const satisfies Prisma.UserInclude;
 
 // ===== CENTER SELECTS =====

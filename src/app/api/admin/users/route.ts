@@ -95,28 +95,40 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(userData.password, 12);
 
-    // Create user with relations
-    const user = await prisma.user.create({
-      data: {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        phone: userData.phone,
-        password: hashedPassword,
-        roles: userData.roles || [],
-        managedCenterId: hasCoordinatorRole ? userData.managedCenterId : null,
-        supervisedCenters: hasSuperRole && userData.supervisedCenterIds?.length
-          ? { connect: userData.supervisedCenterIds.map(id => ({ id })) }
-          : undefined,
-        isActive: true,
-      },
-      include: USERS_FOR_ADMIN,
+    // Create user and assign coordinator to center in a transaction
+    const user = await prisma.$transaction(async (tx) => {
+      // Create the user
+      const newUser = await tx.user.create({
+        data: {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone,
+          password: hashedPassword,
+          roles: userData.roles || [],
+          supervisedCenters: hasSuperRole && userData.supervisedCenterIds?.length
+            ? { connect: userData.supervisedCenterIds.map(id => ({ id })) }
+            : undefined,
+          isActive: true,
+        },
+        include: USERS_FOR_ADMIN,
+      });
+
+      // If coordinator role and center provided, assign coordinator to center
+      if (hasCoordinatorRole && userData.managedCenterId) {
+        await tx.center.update({
+          where: { id: userData.managedCenterId },
+          data: {
+            coordinator: { connect: { id: newUser.id } },
+            isActive: true,
+          },
+        });
+      }
+
+      return newUser;
     });
 
-    return apiResponse(true, {
-      user,
-      warnings: warnings.length > 0 ? warnings : undefined,
-    }, undefined, 201);
+    return apiResponse(true, user, undefined, 201, warnings.length > 0 ? warnings : undefined);
   } catch (error) {
     console.error('Error creating user:', error);
 

@@ -1,5 +1,6 @@
-// Simple toast hook implementation
-// For now, using console.log, can be replaced with a proper toast library later
+'use client';
+
+import { toast as sonnerToast } from 'sonner';
 
 type ToastVariant = 'default' | 'success' | 'warning' | 'error';
 
@@ -11,23 +12,22 @@ interface ToastOptions {
 }
 
 export function useToast() {
-  const toast = ({ title, description, variant = 'default' }: ToastOptions) => {
-    // Simple console implementation for now
-    const emoji = {
-      default: '💬',
-      success: '✅',
-      warning: '⚠️',
-      error: '❌',
-    }[variant];
+  const toast = ({ title, description, variant = 'default', duration = 4000 }: ToastOptions) => {
+    const message = description ? `${title}: ${description}` : title;
 
-    console.log(`${emoji} ${title}`, description || '');
-
-    // TODO: Replace with actual toast UI implementation
-    // For now, using browser alert as fallback
-    if (typeof window !== 'undefined') {
-      const message = description ? `${title}\n${description}` : title;
-      // Could use a toast library here in the future
-      console.info(message);
+    switch (variant) {
+      case 'success':
+        sonnerToast.success(message, { duration });
+        break;
+      case 'warning':
+        sonnerToast.warning(message, { duration });
+        break;
+      case 'error':
+        sonnerToast.error(message, { duration });
+        break;
+      default:
+        sonnerToast(message, { duration });
+        break;
     }
   };
 

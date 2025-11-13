@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
+  warnings?: string[];
   error?: {
     code: string;
     message: string;
@@ -16,11 +17,13 @@ export interface ApiResponse<T = any> {
 
 export function createSuccessResponse<T>(
   data: T,
-  meta?: ApiResponse['meta']
+  meta?: ApiResponse['meta'],
+  warnings?: string[]
 ): NextResponse {
   return NextResponse.json({
     success: true,
     data,
+    warnings,
     meta,
   });
 }
@@ -68,12 +71,13 @@ export function apiResponse<T>(
   success: boolean,
   data?: T,
   error?: { message: string; code?: string; details?: any },
-  status: number = 200
+  status: number = 200,
+  warnings?: string[]
 ): NextResponse {
   let response: NextResponse;
 
   if (success) {
-    response = NextResponse.json({ success: true, data }, { status });
+    response = NextResponse.json({ success: true, data, warnings }, { status });
   } else {
     response = NextResponse.json({ success: false, error }, { status });
   }

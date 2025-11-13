@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import { BaseFormModal } from '../../shared/modals/base-form-modal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { UserForAdmin } from '@/types/computed';
 import { UpdateUserByAdminInput } from '@/lib/validations';
+import { Role } from '@/types/schema';
+import { getRoleLabel } from '@/lib/labels';
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -15,6 +18,8 @@ interface EditUserModalProps {
   isSubmitting?: boolean;
   error?: string | null;
 }
+
+const ALL_ROLES: Role[] = ['ADMIN', 'SUPER_COORDINATOR', 'CENTER_COORDINATOR'];
 
 export function EditUserModal({
   isOpen,
@@ -28,6 +33,7 @@ export function EditUserModal({
     firstName: '',
     lastName: '',
     phone: '',
+    roles: [],
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -39,6 +45,7 @@ export function EditUserModal({
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone || '',
+        roles: user.roles || [],
       });
       setValidationErrors({});
     }
@@ -75,6 +82,7 @@ export function EditUserModal({
     if (formData.firstName) updateData.firstName = formData.firstName;
     if (formData.lastName) updateData.lastName = formData.lastName;
     if (formData.phone) updateData.phone = formData.phone;
+    if (formData.roles) updateData.roles = formData.roles;
 
     // Check if at least one field is being updated
     if (Object.keys(updateData).length === 0) {
@@ -86,9 +94,17 @@ export function EditUserModal({
   };
 
   const handleClose = () => {
-    setFormData({ firstName: '', lastName: '', phone: '' });
+    setFormData({ firstName: '', lastName: '', phone: '', roles: [] });
     setValidationErrors({});
     onClose();
+  };
+
+  const handleRoleToggle = (role: Role) => {
+    const currentRoles = formData.roles || [];
+    const newRoles = currentRoles.includes(role)
+      ? currentRoles.filter((r) => r !== role)
+      : [...currentRoles, role];
+    setFormData({ ...formData, roles: newRoles });
   };
 
   if (!user) return null;
@@ -106,10 +122,6 @@ export function EditUserModal({
       maxWidth="max-w-2xl"
     >
       <div className="space-y-4">
-        <p className="text-sm text-gray-600">
-          ניתן לערוך רק מידע אישי. לשינוי תפקידים, השתמש באפשרות &apos;תפקיד&apos;.
-        </p>
-
         <div className="grid grid-cols-2 gap-4">
           {/* First Name */}
           <div className="space-y-2">
@@ -157,6 +169,32 @@ export function EditUserModal({
             />
             {validationErrors.phone && (
               <p className="text-sm text-red-600">{validationErrors.phone}</p>
+            )}
+          </div>
+
+          {/* Roles */}
+          <div className="space-y-3 col-span-2">
+            <Label>תפקידים</Label>
+            <div className="space-y-2">
+              {ALL_ROLES.map((role) => (
+                <div key={role} className="flex items-center space-x-2 space-x-reverse">
+                  <Checkbox
+                    id={`role-${role}`}
+                    checked={formData.roles?.includes(role) || false}
+                    onChange={() => handleRoleToggle(role)}
+                    disabled={isSubmitting}
+                  />
+                  <Label
+                    htmlFor={`role-${role}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {getRoleLabel(role)}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            {validationErrors.roles && (
+              <p className="text-sm text-red-600">{validationErrors.roles}</p>
             )}
           </div>
         </div>

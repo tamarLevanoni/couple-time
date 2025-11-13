@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
     const limit = limitParam ? parseInt(limitParam) : null; // null means no pagination
     const area = searchParams.get('area');
     const search = searchParams.get('search');
-    const includeInactive = searchParams.get('includeInactive') === 'true';
 
     const where: any = {};
 
@@ -41,10 +40,6 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // By default, show all centers (admin needs to see everything)
-    if (!includeInactive) {
-      where.isActive = true;
-    }
 
     const queryOptions: any = {
       where,

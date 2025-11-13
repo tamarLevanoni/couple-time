@@ -9,7 +9,6 @@ export const createMockUser = (overrides = {}) => ({
   phone: '050-1234567',
   roles: [],
   isActive: true,
-  managedCenterId: null,
   supervisedCenterIds: [],
   googleId: null,
   password: null,

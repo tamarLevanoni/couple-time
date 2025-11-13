@@ -33,11 +33,12 @@ export { useAuthStore } from './auth-store';
 // ===== USER STORE =====
 // For complete user data (profile, roles, rentals) - now using Zustand
 
-export { 
+export {
   useUserStore,
   useUserProfile,
   useUserRoles,
-  useUserManagedCenter, 
+  useUserManagedCenter,
+  useUserManagedCenterData,
   useUserActiveRentals,
   useIsCoordinator,
   useIsSuperCoordinator,

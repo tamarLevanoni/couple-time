@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { WarningDisplay } from '@/components/ui/warning-display';
 import { CenterForAdmin } from '@/types/computed';
 import { Role } from '@/types/schema';
 import { CreateUserInput } from '@/lib/validations';
@@ -168,16 +169,7 @@ export function CreateUserModal({
     >
       <div className="space-y-4">
         {/* Warnings from API */}
-        {warnings.length > 0 && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            {warnings.map((warning, index) => (
-              <div key={index} className="flex items-start gap-2">
-                <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-yellow-800">{warning}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <WarningDisplay warnings={warnings} />
 
         {/* Main Grid Layout */}
         <div className="grid grid-cols-3 gap-6">

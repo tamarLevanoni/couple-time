@@ -29,8 +29,7 @@ export const UserSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email format'),
   phone: z.string().regex(/^[\d\-\+\(\)\s]+$/, 'Invalid phone format').min(9).max(15),
-  roles: z.array(RoleSchema).min(1, 'At least one role is required'),
-  managedCenterId: z.string().cuid().optional(),
+  roles: z.array(RoleSchema).optional(),
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
   isActive: z.boolean(),
   createdAt: z.date(),
@@ -106,7 +105,7 @@ export const CreateUserSchema = UserSchema.pick({
   roles: true,
 }).extend({
   password: z.string().min(8, 'Password must be at least 8 characters').max(100),
-  managedCenterId: UserSchema.shape.managedCenterId,
+  managedCenterId: z.string().cuid().optional(), // For assigning coordinator to center
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
 });
 
@@ -266,6 +265,7 @@ export const UpdateUserByAdminSchema = UserSchema.pick({
   firstName: true,
   lastName: true,
   phone: true,
+  roles: true,
 }).partial();
 
 export const UpdateUserSchema = UserSchema.pick({
@@ -274,7 +274,6 @@ export const UpdateUserSchema = UserSchema.pick({
   phone: true,
   roles: true,
   isActive: true,
-  managedCenterId: true,
 }).extend({
   supervisedCenterIds: z.array(z.string().cuid()).optional(),
 }).partial();
@@ -286,12 +285,6 @@ export const UserListRequestSchema = z.object({
     search: z.string().min(1).max(100).optional(),
     centerId: z.string().cuid().optional(),
   }).optional(),
-});
-
-export const AssignRoleSchema = z.object({
-  roles: z.array(RoleSchema).min(1, 'At least one role is required'),
-  managedCenterId: z.string().cuid().optional(),
-  supervisedCenterIds: z.array(z.string().cuid()).optional(),
 });
 
 // Game Instance API validations  
@@ -376,6 +369,5 @@ export type CreateGameInstanceInput = z.infer<typeof CreateGameInstanceSchema>;
 export type UpdateGameInstancePartialInput = z.infer<typeof UpdateGameInstancePartialSchema>;
 export type IdParam = z.infer<typeof IdParamSchema>;
 export type IdInput = z.infer<typeof IdSchema>;
-export type AssignRoleInput = z.infer<typeof AssignRoleSchema>;
 export type UserListRequestInput = z.infer<typeof UserListRequestSchema>;
 

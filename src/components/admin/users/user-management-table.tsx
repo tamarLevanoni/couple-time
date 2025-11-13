@@ -15,7 +15,6 @@ interface UserManagementTableProps {
   isLoading?: boolean;
   onViewDetails: (user: UserForAdmin) => void;
   onEdit: (user: UserForAdmin) => void;
-  onAssignRole: (user: UserForAdmin) => void;
   onCreateUser: () => void;
 }
 
@@ -24,7 +23,6 @@ export function UserManagementTable({
   isLoading = false,
   onViewDetails,
   onEdit,
-  onAssignRole,
   onCreateUser,
 }: UserManagementTableProps) {
   const columns = useMemo<ColumnDef<UserForAdmin>[]>(
@@ -145,14 +143,6 @@ export function UserManagementTable({
               >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onAssignRole(user)}
-                title="תפקיד"
-              >
-                <UserCog className="h-4 w-4" />
-              </Button>
             </div>
           );
         },
@@ -160,7 +150,7 @@ export function UserManagementTable({
         enableColumnFilter: false,
       },
     ],
-    [onViewDetails, onEdit, onAssignRole]
+    [onViewDetails, onEdit]
   );
 
   return (

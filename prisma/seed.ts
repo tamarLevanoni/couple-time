@@ -143,7 +143,6 @@ async function main() {
       data: {
         name: 'ירושלים - בית ישראל',
         area: 'JERUSALEM',
-        superCoordinatorId: superCoordinators[0].id,
         location: { lat: 31.7683, lng: 35.2137 },
         isActive: true
       }
@@ -152,7 +151,6 @@ async function main() {
       data: {
         name: 'תל אביב - צפון',
         area: 'CENTER',
-        superCoordinatorId: superCoordinators[0].id,
         location: { lat: 32.0853, lng: 34.7818 },
         isActive: true
       }
@@ -161,7 +159,6 @@ async function main() {
       data: {
         name: 'חיפה',
         area: 'NORTH',
-        superCoordinatorId: superCoordinators[1].id,
         location: { lat: 32.7940, lng: 34.9896 },
         isActive: true
       }
@@ -170,7 +167,6 @@ async function main() {
       data: {
         name: 'באר שבע',
         area: 'SOUTH',
-        superCoordinatorId: superCoordinators[1].id,
         location: { lat: 31.2518, lng: 34.7915 },
         isActive: true
       }
@@ -179,7 +175,6 @@ async function main() {
       data: {
         name: 'אריאל',
         area: 'JUDEA_SAMARIA',
-        superCoordinatorId: superCoordinators[0].id,
         isActive: true
       }
     })
@@ -195,7 +190,6 @@ async function main() {
         email: 'sarah.coord@gamerental.co.il',
         phone: '050-3333333',
         roles: ['CENTER_COORDINATOR'],
-        managedCenterId: centers[0].id,
         password: await bcrypt.hash('Coordinator123!', 10),
         isActive: true
       }
@@ -207,7 +201,6 @@ async function main() {
         email: 'yossi.coord@gamerental.co.il',
         phone: '050-4444444',
         roles: ['CENTER_COORDINATOR'],
-        managedCenterId: centers[1].id,
         password: await bcrypt.hash('Coordinator123!', 10),
         isActive: true
       }
@@ -219,7 +212,6 @@ async function main() {
         email: 'miriam.coord@gamerental.co.il',
         phone: '050-5555555',
         roles: ['CENTER_COORDINATOR'],
-        managedCenterId: centers[2].id,
         password: await bcrypt.hash('Coordinator123!', 10),
         isActive: true
       }
@@ -231,7 +223,6 @@ async function main() {
         email: 'avi.coord@gamerental.co.il',
         phone: '050-6666666',
         roles: ['CENTER_COORDINATOR'],
-        managedCenterId: centers[3].id,
         password: await bcrypt.hash('Coordinator123!', 10),
         isActive: true
       }
@@ -243,35 +234,9 @@ async function main() {
         email: 'tamar.coord@gamerental.co.il',
         phone: '050-7777777',
         roles: ['CENTER_COORDINATOR'],
-        managedCenterId: centers[4].id,
         password: await bcrypt.hash('Coordinator123!', 10),
         isActive: true
       }
-    })
-  ])
-
-  // Update centers with coordinator IDs
-  console.log('🔗 Linking coordinators to centers...')
-  await Promise.all([
-    prisma.center.update({
-      where: { id: centers[0].id },
-      data: { coordinatorId: coordinators[0].id }
-    }),
-    prisma.center.update({
-      where: { id: centers[1].id },
-      data: { coordinatorId: coordinators[1].id }
-    }),
-    prisma.center.update({
-      where: { id: centers[2].id },
-      data: { coordinatorId: coordinators[2].id }
-    }),
-    prisma.center.update({
-      where: { id: centers[3].id },
-      data: { coordinatorId: coordinators[3].id }
-    }),
-    prisma.center.update({
-      where: { id: centers[4].id },
-      data: { coordinatorId: coordinators[4].id }
     })
   ])
 

@@ -2,14 +2,13 @@
 
 import { useState } from 'react';
 import { UserForAdmin, CenterForAdmin } from '@/types/computed';
-import { UpdateUserByAdminInput, AssignRoleInput, CreateUserInput } from '@/lib/validations';
-import { useAdminUsersStore } from '@/store/admin';
+import { UpdateUserByAdminInput, CreateUserInput } from '@/lib/validations';
+import { useAdminUsersStore, useAdminCentersStore } from '@/store/admin';
 import { useToast } from '@/hooks/use-toast';
 import {
   UserManagementTable,
   UserDetailsModal,
   EditUserModal,
-  AssignRoleModal,
   CreateUserModal,
 } from '@/components/admin';
 
@@ -29,9 +28,11 @@ export function UsersTab({ users, centers, isLoading }: UsersTabProps) {
     warnings,
     createUser,
     updateUser,
-    assignRole,
     clearWarnings,
+    clearError,
   } = useAdminUsersStore();
+
+  const { loadCenters } = useAdminCentersStore();
 
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [selectedUser, setSelectedUser] = useState<UserForAdmin | null>(null);
@@ -40,12 +41,14 @@ export function UsersTab({ users, centers, isLoading }: UsersTabProps) {
     setActiveModal(type);
     setSelectedUser(user || null);
     clearWarnings();
+    clearError();
   };
 
   const handleCloseModal = () => {
     setActiveModal(null);
     setSelectedUser(null);
     clearWarnings();
+    clearError();
   };
 
   const handleCreateUser = async (data: CreateUserInput) => {
@@ -75,20 +78,6 @@ export function UsersTab({ users, centers, isLoading }: UsersTabProps) {
     }
   };
 
-  const handleAssignRole = async (data: AssignRoleInput) => {
-    if (!selectedUser) return;
-    try {
-      await assignRole(selectedUser.id, data);
-      toast({
-        title: 'הצלחה',
-        description: 'התפקידים עודכנו בהצלחה',
-      });
-      handleCloseModal();
-    } catch (error) {
-      console.error('Failed to assign role:', error);
-    }
-  };
-
   return (
     <>
       <UserManagementTable
@@ -96,7 +85,6 @@ export function UsersTab({ users, centers, isLoading }: UsersTabProps) {
         isLoading={isLoading}
         onViewDetails={(user) => handleOpenModal('details', user)}
         onEdit={(user) => handleOpenModal('edit', user)}
-        onAssignRole={(user) => handleOpenModal('role', user)}
         onCreateUser={() => handleOpenModal('create')}
       />
 
@@ -114,17 +102,6 @@ export function UsersTab({ users, centers, isLoading }: UsersTabProps) {
         user={selectedUser}
         isSubmitting={isSubmitting}
         error={error}
-      />
-
-      <AssignRoleModal
-        isOpen={activeModal === 'role'}
-        onClose={handleCloseModal}
-        onSubmit={handleAssignRole}
-        user={selectedUser}
-        centers={centers}
-        isSubmitting={isSubmitting}
-        error={error}
-        warnings={warnings}
       />
 
       <CreateUserModal

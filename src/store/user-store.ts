@@ -156,7 +156,11 @@ export const useUserRoles = () => {
 };
 
 export const useUserManagedCenter = () => {
-  return useUserStore((state) => state.user?.managedCenterId || null);
+  return useUserStore((state) => state.user?.managedCenter?.id || null);
+};
+
+export const useUserManagedCenterData = () => {
+  return useUserStore((state) => state.user?.managedCenter || null);
 };
 
 export const useUserActiveRentals = () => {
