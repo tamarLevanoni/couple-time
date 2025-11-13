@@ -352,7 +352,7 @@ export function CreateUserModal({
         {/* Info */}
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-xs text-blue-800">
-            💡 כל המשתמשים נוצרים כ"פעילים" כברירת מחדל. ניתן לשייך תפקידים ומוקדים גם מאוחר יותר.
+            💡 כל המשתמשים נוצרים כ&quot;פעילים&quot; כברירת מחדל. ניתן לשייך תפקידים ומוקדים גם מאוחר יותר.
           </p>
         </div>
       </div>

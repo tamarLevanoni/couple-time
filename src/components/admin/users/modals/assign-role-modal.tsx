@@ -223,7 +223,7 @@ export function AssignRoleModal({
                   )}
                 </>
               ) : (
-                <p className="text-sm text-gray-400">בחר תפקיד "רכז מוקד" כדי לשייך מוקד</p>
+                <p className="text-sm text-gray-400">בחר תפקיד &quot;רכז מוקד&quot; כדי לשייך מוקד</p>
               )}
             </div>
 
@@ -256,7 +256,7 @@ export function AssignRoleModal({
                   )}
                 </>
               ) : (
-                <p className="text-sm text-gray-400">בחר תפקיד "רכז על" כדי לשייך מוקדים</p>
+                <p className="text-sm text-gray-400">בחר תפקיד &quot;רכז על&quot; כדי לשייך מוקדים</p>
               )}
             </div>
           </div>

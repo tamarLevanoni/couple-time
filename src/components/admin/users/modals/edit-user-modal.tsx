@@ -107,7 +107,7 @@ export function EditUserModal({
     >
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          ניתן לערוך רק מידע אישי. לשינוי תפקידים, השתמש באפשרות 'תפקיד'.
+          ניתן לערוך רק מידע אישי. לשינוי תפקידים, השתמש באפשרות &apos;תפקיד&apos;.
         </p>
 
         <div className="grid grid-cols-2 gap-4">
