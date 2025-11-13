@@ -16,7 +16,7 @@ model User {
   firstName              String
   lastName               String
   email                  String   @unique
-  phone                  String
+  phone                  String   @unique
   roles                  Role[]
   isActive               Boolean  @default(true)
   createdAt              DateTime @default(now())
@@ -37,7 +37,7 @@ model User {
 // ===== CENTERS =====
 model Center {
   id                     String   @id @default(cuid())
-  name                   String
+  name                   String   @unique
   area                   Area
   coordinatorId          String?  @unique // One-to-one: each center has max one coordinator
   superCoordinatorId     String?
