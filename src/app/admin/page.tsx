@@ -13,6 +13,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { UsersTab } from '@/components/admin';
 import { CentersTab } from '@/components/admin/tabs/centers-tab';
+import { GamesTab } from '@/components/admin/tabs/games-tab';
 
 type TabType = 'users' | 'centers' | 'games' | 'stats';
 
@@ -40,6 +41,7 @@ export default function AdminDashboardPage() {
 
   // Games management store
   const {
+    games,
     isLoading: isLoadingGames,
     loadGames
   } = useAdminGamesStore();
@@ -172,9 +174,10 @@ export default function AdminDashboardPage() {
           />
         )}
         {activeTab === 'games' && (
-          <div className="text-center py-12 text-gray-500">
-            משחקים - בקרוב
-          </div>
+          <GamesTab
+          games={games}
+          isLoading={isLoadingUsers}
+        />
         )}
         {activeTab === 'stats' && (
           <div className="text-center py-12 text-gray-500">

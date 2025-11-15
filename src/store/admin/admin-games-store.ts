@@ -13,6 +13,7 @@ interface AdminGamesState {
   isLoading: boolean;
   isSubmitting: boolean;
   error: string | null;
+  warnings: string[];
 }
 
 interface AdminGamesActions {
@@ -21,6 +22,9 @@ interface AdminGamesActions {
   updateGame: (id: string, data: UpdateGameInput) => Promise<void>;
   deleteGame: (id: string) => Promise<void>;
   setError: (error: string | null) => void;
+  setWarnings: (warnings: string[]) => void;
+  clearWarnings: () => void;
+  clearError: () => void;
 }
 
 export type AdminGamesStore = AdminGamesState & AdminGamesActions;
@@ -33,6 +37,7 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
       isLoading: false,
       isSubmitting: false,
       error: null,
+      warnings: [],
 
       // Actions
       loadGames: async () => {
@@ -46,8 +51,8 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
             throw new Error(result.error?.message || 'Failed to load games');
           }
 
-          // API returns { games, pagination } so extract games array
-          const games = result.data?.games || result.data || [];
+          // API returns { success: true, data: { games: Game[] } }
+          const games = result.data.games;
 
           set({
             games,
@@ -63,7 +68,7 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
       },
 
       createGame: async (data) => {
-        set({ isSubmitting: true, error: null }, false, 'createGame/start');
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'createGame/start');
 
         try {
           const response = await fetch('/api/admin/games', {
@@ -78,22 +83,31 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
             throw new Error(result.error?.message || 'Failed to create game');
           }
 
-          // Reload games to get fresh data
-          await get().loadGames();
+          // Handle warnings from API
+          const warnings = result.warnings || [];
 
-          set({ isSubmitting: false }, false, 'createGame/success');
+          // Add new game to local state
+          const { games } = get();
+          const updatedGames = [result.data, ...games];
+
+          set({
+            games: updatedGames,
+            isSubmitting: false,
+            warnings
+          }, false, 'createGame/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to create game';
           set({
             error: message,
-            isSubmitting: false
+            isSubmitting: false,
+            warnings: []
           }, false, 'createGame/error');
           throw error;
         }
       },
 
       updateGame: async (id, data) => {
-        set({ isSubmitting: true, error: null }, false, 'updateGame/start');
+        set({ isSubmitting: true, error: null, warnings: [] }, false, 'updateGame/start');
 
         try {
           const response = await fetch(`/api/admin/games/${id}`, {
@@ -108,6 +122,9 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
             throw new Error(result.error?.message || 'Failed to update game');
           }
 
+          // Handle warnings from API
+          const warnings = result.warnings || [];
+
           // Update local state
           const { games } = get();
           const updatedGames = games.map(game =>
@@ -116,13 +133,15 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
 
           set({
             games: updatedGames,
-            isSubmitting: false
+            isSubmitting: false,
+            warnings
           }, false, 'updateGame/success');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to update game';
           set({
             error: message,
-            isSubmitting: false
+            isSubmitting: false,
+            warnings: []
           }, false, 'updateGame/error');
           throw error;
         }
@@ -162,6 +181,15 @@ export const useAdminGamesStore = create<AdminGamesStore>()(
 
       setError: (error) =>
         set({ error }, false, 'setError'),
+
+      setWarnings: (warnings) =>
+        set({ warnings }, false, 'setWarnings'),
+
+      clearWarnings: () =>
+        set({ warnings: [] }, false, 'clearWarnings'),
+
+      clearError: () =>
+        set({ error: null }, false, 'clearError'),
     }),
     { name: 'admin-games-store' }
   )

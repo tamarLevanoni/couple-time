@@ -73,7 +73,8 @@ export const GAME_BASIC_FIELDS = {
   description: true,
   categories: true,
   targetAudiences: true,
-  imageUrl: true,
+  primaryImageUrl: true,
+  galleryImageUrls: true,
 } as const satisfies Prisma.GameSelect;
 
 export const GAMES_PUBLIC_INFO = {
@@ -82,7 +83,8 @@ export const GAMES_PUBLIC_INFO = {
     description: true,
     categories: true,
     targetAudiences: true,
-    imageUrl: true,
+    primaryImageUrl: true,
+    galleryImageUrls: true,
 } as const satisfies Prisma.GameSelect;
 
 export const GAME_WITH_INSTANCES = {

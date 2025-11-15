@@ -62,7 +62,8 @@ export const GameSchema = z.object({
   description: z.string().max(1000).optional(),
   categories: z.array(GameCategorySchema).min(1, 'At least one category is required'),
   targetAudiences: z.array(TargetAudienceSchema).min(1, 'At least one targetAudience is required'),
-  imageUrl: z.string().url().optional(),
+  primaryImageUrl: z.string().url().optional(),
+  galleryImageUrls: z.array(z.string().url()).default([]),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -155,7 +156,8 @@ export const CreateGameSchema = GameSchema.pick({
   targetAudiences: true,
 }).extend({
   description: GameSchema.shape.description,
-  imageUrl: GameSchema.shape.imageUrl,
+  primaryImageUrl: GameSchema.shape.primaryImageUrl,
+  galleryImageUrls: GameSchema.shape.galleryImageUrls,
 });
 
 export const UpdateGameSchema = GameSchema.pick({
@@ -163,7 +165,8 @@ export const UpdateGameSchema = GameSchema.pick({
   categories: true,
   targetAudiences: true,
   description: true,
-  imageUrl: true
+  primaryImageUrl: true,
+  galleryImageUrls: true
 }).partial();
 
 // Center API validations

@@ -222,10 +222,10 @@ export function GamesContent() {
               <Card key={game.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="space-y-4">
                   {/* Game Image */}
-                  {game.imageUrl && (
+                  {game.primaryImageUrl && (
                     <div className="w-full h-48 relative overflow-hidden rounded-lg bg-gray-100">
                       <img
-                        src={game.imageUrl}
+                        src={game.primaryImageUrl}
                         alt={game.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -244,6 +244,11 @@ export function GamesContent() {
                           }
                         }}
                       />
+                      {game.galleryImageUrls && game.galleryImageUrls.length > 0 && (
+                        <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                          +{game.galleryImageUrls.length} תמונות
+                        </div>
+                      )}
                     </div>
                   )}
 

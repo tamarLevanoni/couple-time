@@ -198,12 +198,31 @@ html {
   display: none;  /* Chrome, Safari and Opera */
 }
 
+/* Cloudinary Upload Widget - ensure it appears above all modals and is interactive */
+/* Target the widget container and iframe */
+#cloudinary-overlay,
+.cloudinary-widget,
+.cloudinary_upload_widget,
+[data-cloudinary-widget],
+iframe[src*="cloudinary"],
+iframe[src*="widget.cloudinary.com"],
+div[id^="cloudinary"] {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure all iframes in the document that might be Cloudinary are interactive */
+body > iframe,
+body > div > iframe {
+  pointer-events: auto !important;
+}
+
 /* Print styles */
 @media print {
   .no-print {
     display: none !important;
   }
-  
+
   * {
     color-adjust: exact;
   }

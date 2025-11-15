@@ -35,10 +35,10 @@ export function SelectedGamesCard({ selectedGames }: SelectedGamesCardProps) {
           <div key={game.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
             <div className="flex space-x-3 space-x-reverse">
               {/* Game Image */}
-              {game.imageUrl && !hasFailed(game.id) ? (
+              {game.primaryImageUrl && !hasFailed(game.id) ? (
                 <div className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
                   <img
-                    src={game.imageUrl}
+                    src={game.primaryImageUrl}
                     alt={game.name}
                     className="w-full h-full object-cover"
                     onError={() => handleError(game.id)}
