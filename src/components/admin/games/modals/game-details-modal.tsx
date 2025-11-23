@@ -143,7 +143,7 @@ export function GameDetailsModal({ isOpen, onClose, game }: GameDetailsModalProp
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                  <span className="text-sm font-medium text-gray-600">סה"כ עותקים</span>
+                  <span className="text-sm font-medium text-gray-600">סה&quotכ עותקים</span>
                   <span className="text-lg font-bold">{totalInstances}</span>
                 </div>
 
